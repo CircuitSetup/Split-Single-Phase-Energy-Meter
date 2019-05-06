@@ -82,7 +82,7 @@ There are a few options for doing this:
 
 If you install EmonCMS on a remote web server, or if your home network has a public facing port, this will make it possible to see data on the EmonESP app ([Android](https://play.google.com/store/apps/details?id=org.emoncms.myapps) or [iOS](https://itunes.apple.com/us/app/emoncms/id1169483587?ls=1&mt=8)) when your phone is outside of your network.
 
-For all but the EmonCMS.org service, you can automatically setup the energy meter device in EmonCMS by [installing the device plugin,](https://github.com/emoncms/device) then [uploading this file to the Modules > device > data > CirCuitSetup folder.](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/EmonCMS)
+For all but the EmonCMS.org service, you can automatically setup the energy meter device in EmonCMS by [installing the device plugin,](https://github.com/emoncms/device) then [uploading this file to the Modules > device > data > CircuitSetup folder.](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/EmonCMS)
 
 ## Hardware Setup:
 ### Connect your controller to the energy meter

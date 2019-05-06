@@ -1,0 +1,33 @@
+language: python
+python:
+- '2.7'
+sudo: false
+cache:
+  directories:
+  - "~/.platformio"
+install:
+- pip install -U platformio
+- platformio platform install espressif8266 --with-package tool-mkspiffs
+script:
+- platformio --version
+- platformio run -e emonesp_deploy
+- platformio run -t buildfs -e emonesp_deploy
+deploy:
+  provider: releases
+  skip_cleanup: true
+  overwrite: true
+  api_key:
+    secure: CxsixHH0GR70LcDKUYs62kLv2jKdNvUdYUoYlIUnwu7RGFWz2CwZCtiD6eck8XguLiPNr4E2PXdWIkmKDjxmz1AtJQwMih8NOeXkaBkNaShRQntBAvB0tZFf5714LQekBV518NPOEEL1+JX72gj8dzUXh544STSpjexkXbfaZsCzme5emLqlzZDnN4WwtLrg157mP66sL8YGluew5AFwgihditxJ1vsu++eF0UcEp/AdmrCdCXJ3ZQpmM4ruPVA3L3a3iIMYZiR5tfozxkEJEeec2rtJu0mwmGTQF20/aFIjgCthPA/MoAcI9xD5fvUtChGAkXyS9I6wzAJ1/cleXiipp/VCC65J40mAlnQarvK5QUori14zD0u+xgLbSr8r2ZgGhnugB24BDGUP5M9zcKOTNyRMqNrc0x7fyqi+REpWNiDpjl90aeI2CFPUb0bpAH1XZGQMlPEctjLkBJkq+l3EKeVt20whMADpMchMwycFbN+8B6Z8ILsU/sCNBxQ1V1FSbrx18JOS2oK/61bhTla4M2YU1sOUkixv8Iqc6IPXmYnx+Ybs1SXpAKH729rJ8ZzWrRpfkU4AhnUrlw/3Q4WRNTXHeoohVvQRybG7CwAizW57MtbQgiBXv7Rquk4hcJlNa5/E9i2StFeUagjTVkUeYUY9fjspxfXR3dZA9oI=
+  file:
+  - ".pioenvs/emonesp_deploy/firmware.bin"
+  - ".pioenvs/emonesp_deploy/spiffs.bin"
+  on:
+    repo: openenergymonitor/EmonESP
+    all_branches: true
+    condition: $TRAVIS_TAG =~ ^[0-9]+\.[0-9]+\.[0-9]+$
+
+## Setup auto depoly .hex on release tag
+# sudo gem install travis
+# cd into repo
+# $ travis setup releases
+# folow prompts..depoly section will be populated

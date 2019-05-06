@@ -75,3 +75,13 @@ The CircuitSetup ATM90E32 Split Single Phase Energy Meter can monitor the ener
  	<li>Jumper wires with Dupont connectors, or perf board to connect the two boards.</li>
  	<li>The software located here to load onto your controller
  	<li><a href="https://emoncms.org/site/home">EmonCMS </a>(shown in pictures), ThingSpeak or similar
+</ul>
+
+<h4><strong>Getting Started:</strong></h4>
+
+<ol>
+ <li><a href="">Software Setup</a>
+ <li><a href="">Hardware Setup</a>
+ <li><a href="">Calibration</a>
+</ol>
+

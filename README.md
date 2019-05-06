@@ -77,7 +77,7 @@ The CircuitSetup ATM90E32 Split Single Phase Energy Meter can monitor the ener
  	<li><a href="https://emoncms.org/site/home">EmonCMS </a>(shown in pictures), ThingSpeak or similar
 </ul>
 
-<h4><strong>Getting Started:</strong></h4>
+<h3><strong>Getting Started:</strong></h3>
 
 <ol>
  <li><a href="">Software Setup</a>

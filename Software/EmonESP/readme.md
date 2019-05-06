@@ -62,6 +62,8 @@ For applications that only require basic posting of data from one emonTx to a re
 
 - ESP-12E module with 4M Flash
 OR
+- ESP8266
+OR
 - ESP32
 
 ***

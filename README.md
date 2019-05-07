@@ -2,15 +2,17 @@
 
 The CircuitSetup ATM90E32 Split Single Phase Energy Meter can monitor the energy usage in your entire home in real time. It can easily be hooked up to an ESP8266 or ESP32 to wirelessly transmit energy usage data into a program like EmonCMS. It can also be used to monitor solar power generation to keep track of how much power you are making.
 
+![CitcuitSetup Split Single Phase Energy Meter](images/energy_meter_small.jpg)
+
 #### With the Split Single Phase Energy Meter you can:
 
 *   **Save Money!**
-    *   See exactly how much money is being spent on energy in real time
+    *   See exactly how much money you're spending on energy in real time
     *   Find appliances that are using too much electricity
     *   Calculate energy usage for a single room to divide an energy bill fairly among roommates
 *   **View & Gather Energy Data**
     *   View the energy usage of your entire home
-    *   Track solar power generation (2 units required)
+    *   Track solar power generation (ywo units required)
     *   Calculate how much it costs to charge your electric vehicle
     *   Remote energy monitoring for vacation or rental properties
     *   Review and graph historical energy data
@@ -32,27 +34,32 @@ The CircuitSetup ATM90E32 Split Single Phase Energy Meter can monitor the ener
 
 ## Features:
 
-*   Uses the [Microchip ATM90E32AS](https://www.microchip.com/wwwproducts/en/atm90e32as)
-*   Samples 2 current channels & 1 voltage channel (expandable to 2 voltage)
-*   Calculates:
-    *   Active Power
-    *   Reactive Power
-    *   Apparent Power
-    *   Power Factor
-    *   Frequency
-    *   Temperature
-*   Uses standard current transformer clamps to sample current
-*   Includes built-in buck converter to power ESP8266, or ESP32
-*   2 IRQ interrupts, and 1 Warning output
-*   Energy pulse output (pulses correspond to 4 LEDs)
-*   Zero crossing output
-*   SPI Interface
-*   Measurement Error: 0.1%
-*   Dynamic Range: 6000:1
-*   Gain Selection: Up to 4x
-*   Voltage Reference Drift Typical (ppm/°C): 6
-*   ADC Resolution (bits): 16
-*   Compact size at only 40x50mm
+* **IC: MicroChip ATM90E32**
+* **Connectivity**
+     * SPI Interface to connect to any Arduino compatible MCU
+     * Two IRQ interrupts, and one Warning output
+     * Energy pulse output (pulses correspond to four LEDs)
+     * Zero crossing output
+* **Real Time Data Sampling**
+     * Two current channels
+     * One voltage channel (expandable to two voltage)
+     * Measurement Error: 0.1%
+     * Dynamic Range: 6000:1
+     * Gain Selection: Up to 4x
+     * Voltage Reference Drift Typical (ppm/°C): 6
+     * ADC Resolution (bits): 16
+* **Calculates**
+     * Active Power
+     * Reactive Power
+     * Apparent Power
+     * Power Factor
+     * Frequency
+     * Temperature
+* **Other Features**
+     * Can use more than one at a time to measure as many circuits as you want, including solar power generation
+     * Uses standard current transformer clamps to sample current
+     * Includes built-in 500mA 3v3 buck converter to power MCU board 
+     * Compact size at only 40 mm x 50 mm
 
 ## What you'll need:
 
@@ -66,13 +73,16 @@ The CircuitSetup ATM90E32 Split Single Phase Energy Meter can monitor the ener
 
 ## Software Setup
 
-1.  Clone this repository or [https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/archive/master.zip](download all the files via zip file) & place the ATM90E32 folder in your Arduino libraries folder (this is usually under Documents > Arduino > libraries)
-2.  We highly recommend using [EmonCMS.](https://emoncms.org/site/home) If you agree, the files are in the EmonESP folder
-3.  Open EmonESP > src > src.ino - you will see a number of files open, but you'll only need to worry about src.ino
-4.  Make sure the CS_pin is set to the pin that you are using on your controller board - the defaults are set
-5.  Upload the src.ino to your ESP (If you get any errors at this point, like a missing library, check the [Troubleshooting section on the EmonESP readme)](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/EmonESP#troubleshooting-upload)
-6.  Upload files to the ESP in the data directory via SPIFFS - [see details on how to do this here](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/EmonESP#2-install-esp-filesystem-file-uploader)
-7.  Follow the directions to configure the Access Point in the [EmonESP directions](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/EmonESP#first-setup)
+1.  Clone this repository or [https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/archive/master.zip](download all the files via zip file)
+2.  Place the ATM90E32 folder in your Arduino libraries folder (this is usually under Documents > Arduino > libraries)
+3.  We highly recommend using [EmonCMS.](https://emoncms.org/site/home) - EmonESP helps to connect and send data directly to EmonCMS
+4.  Open EmonESP > src > src.ino - you will see a number of files open, but you'll only need to worry about src.ino
+5.  Make sure the CS_pin is set to the pin that you are using on your controller board - the defaults are set
+6.  Upload the src.ino to your ESP (If you get any errors at this point, like a missing library, check the [Troubleshooting section on the EmonESP readme)](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/EmonESP#troubleshooting-upload)
+7.  Upload files to the ESP in the data directory via SPIFFS - [see details on how to do this here](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/EmonESP#2-install-esp-filesystem-file-uploader)
+8.  Follow the directions to configure the Access Point in the [EmonESP directions](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/EmonESP#first-setup)
+
+If you would like to use something other than EmonCMS, you can do that too! Make sure the ATM90E32 library is included in the sketch. See the [examples folder](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/examples) for examples of how things could be done using JSON or MQTT.
 
 ### Setting up EmonCMS ###
 There are a few options for doing this:

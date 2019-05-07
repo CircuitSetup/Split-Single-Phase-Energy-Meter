@@ -82,9 +82,7 @@ The CircuitSetup ATM90E32 Split Single Phase Energy Meter can monitor the ener
 7.  Upload files to the ESP in the data directory via SPIFFS - [see details on how to do this here](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/EmonESP#2-install-esp-filesystem-file-uploader)
 8.  Follow the directions to configure the Access Point in the [EmonESP directions](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/EmonESP#first-setup)
 
-If you would like to use something other than EmonCMS, you can do that too! Make sure the ATM90E32 library is included in the sketch. See the [examples folder](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/examples) for examples of how things could be done using JSON or MQTT.
-
-### Setting up EmonCMS ###
+### Setting up EmonCMS 
 There are a few options for doing this:
 - You can use the [EmonCMS.org service](https://emoncms.org/site/home), which costs roughly $15 a year with the data that we send from the energy meter (you don't _have_ to send all of the data)
 - [Install on a computer within your network](https://github.com/emoncms/emoncms). To do this, you will need to have [apache/php/mysql installed](https://www.znetlive.com/blog/how-to-install-apache-php-and-mysql-on-windows-10-machine/)) [This can also be done with a Raspberry Pi.](https://github.com/emoncms/emoncms/blob/master/docs/RaspberryPi/readme.md)
@@ -93,6 +91,9 @@ There are a few options for doing this:
 If you install EmonCMS on a remote web server, or if your home network has a public facing port, this will make it possible to see data on the EmonESP app ([Android](https://play.google.com/store/apps/details?id=org.emoncms.myapps) or [iOS](https://itunes.apple.com/us/app/emoncms/id1169483587?ls=1&mt=8)) when your phone is outside of your network.
 
 For all but the EmonCMS.org service, you can automatically setup the energy meter device in EmonCMS by [installing the device plugin,](https://github.com/emoncms/device) then [uploading this file to the Modules > device > data > CircuitSetup folder.](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/EmonCMS)
+
+### Other software options
+If you would like to use something other than EmonCMS, you can do that too! Make sure the ATM90E32 library is included in the sketch. See the [examples folder](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/examples) for examples of how things could be done using JSON or MQTT.
 
 ## Hardware Setup:
 ### Connect your controller to the energy meter

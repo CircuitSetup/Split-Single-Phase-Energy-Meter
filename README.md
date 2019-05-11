@@ -77,8 +77,8 @@ The CircuitSetup ATM90E32 Split Single Phase Energy Meter can monitor the ener
 2.  Place the ATM90E32 folder in your Arduino libraries folder (this is usually under Documents > Arduino > libraries)
 3.  We highly recommend using [EmonCMS.](https://emoncms.org/site/home) - EmonESP helps to connect and send data directly to EmonCMS
 4.  Open **EmonESP > src > src.ino** - you will see a number of files open, but you'll only need to worry about src.ino
-5.  Make sure the **CS_pin** is set to the pin that you are using on your controller board - the defaults are set
-6.  Upload the src.ino to your ESP (If you get any errors at this point, like a missing library, check the [Troubleshooting section on the EmonESP readme](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/EmonESP#troubleshooting-upload)
+5.  Make sure the **CS_pin** is set to the pin that you are using on your controller board - the defaults are listed in src.ino and in the [hardware section here.](#hardware-setup)
+6.  Upload the src.ino to your ESP (If you get any errors at this point, like a missing library, check the [Troubleshooting section on the EmonESP readme.](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/EmonESP#troubleshooting-upload))
    If you are using an ESP32, [make sure you are using the latest software from the Espressif repository.](https://github.com/espressif/arduino-esp32)
 7.  Upload files to the ESP in the data directory via SPIFFS - [see details on how to do this here](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/EmonESP#2-install-esp-filesystem-file-uploader)
 8.  Follow the directions to configure the Access Point in the [EmonESP directions](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/EmonESP#first-setup)
@@ -126,6 +126,8 @@ For the ESP8266:
 *   D7/13 - MOSI
 
 Don't forget to hook up the 3V3 and GND pins! 
+
+If you are using **more than one energy meter**. The CLK, MISO, and MOSI pins will be all connected. The secondary board will need another CS pin assigned in software.
 
 **The energy meter is capable of supplying up to 500mA of 3.3v power to your controller**, so no other external power source should be needed. Some ESP32 dev boards may use more than 500mA when trying to initially connect to Wifi. If this is the case you may not be able to connect to wifi. If this happens, we recommend using another power source for the ESP32 - either a 5v DC adapter or a USB phone charger that outputs at least 500mA. It is **not** recommended to leave USB power plugged into an ESP at the same time as the energy meter's power 3V3 output. This can damage components. 
 

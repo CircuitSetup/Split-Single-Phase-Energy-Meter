@@ -76,9 +76,10 @@ The CircuitSetup ATM90E32 Split Single Phase Energy Meter can monitor the ener
 1.  Clone this repository in Github desktop or [download all the files and extract them to a folder] (https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/archive/master.zip)
 2.  Place the ATM90E32 folder in your Arduino libraries folder (this is usually under Documents > Arduino > libraries)
 3.  We highly recommend using [EmonCMS.](https://emoncms.org/site/home) - EmonESP helps to connect and send data directly to EmonCMS
-4.  Open EmonESP > src > src.ino - you will see a number of files open, but you'll only need to worry about src.ino
-5.  Make sure the CS_pin is set to the pin that you are using on your controller board - the defaults are set
+4.  Open **EmonESP > src > src.ino** - you will see a number of files open, but you'll only need to worry about src.ino
+5.  Make sure the **CS_pin** is set to the pin that you are using on your controller board - the defaults are set
 6.  Upload the src.ino to your ESP (If you get any errors at this point, like a missing library, check the [Troubleshooting section on the EmonESP readme](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/EmonESP#troubleshooting-upload)
+   If you are using an ESP32, [make sure you are using the latest software from the Espressif repository.](https://github.com/espressif/arduino-esp32)
 7.  Upload files to the ESP in the data directory via SPIFFS - [see details on how to do this here](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/EmonESP#2-install-esp-filesystem-file-uploader)
 8.  Follow the directions to configure the Access Point in the [EmonESP directions](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/EmonESP#first-setup)
 

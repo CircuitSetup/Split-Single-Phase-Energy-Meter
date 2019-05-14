@@ -92,7 +92,7 @@ There are a few options for doing this:
 If you install EmonCMS on a remote web server, or if your home network has a public facing port, this will make it possible to see data on the EmonCMS app ([Android](https://play.google.com/store/apps/details?id=org.emoncms.myapps) or [iOS](https://itunes.apple.com/us/app/emoncms/id1169483587?ls=1&mt=8)) when your phone is outside of your network.
 
 For all but the EmonCMS.org service, (currently for EmonCMS.org these feeds and inputs have to be setup manually) you can automatically setup the energy meter device in EmonCMS:
-1. [Install the device plugin,](https://github.com/emoncms/device) 
+1. [Install the device plugin](https://github.com/emoncms/device) 
 2. [Upload this file to the Modules > device > data > CircuitSetup folder.](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/blob/master/Software/EmonCMS/circuitsetup_split-phase.json)
 3. Once the folder is created and json file is uploaded, go to Setup (top left) > Device Setup > New Device (lower right)
 4. Click on CircuitSetup in the left menu
@@ -107,7 +107,7 @@ For all but the EmonCMS.org service, (currently for EmonCMS.org these feeds and 
    ![EmonCMS Inputs](/images/emoncms_device_inputs2.PNG?raw=true)
 
 ### Other software options
-If you would like to use something other than EmonCMS, you can do that too! Make sure the ATM90E32 library is included in the sketch. See the [examples folder](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/examples) for examples of how things could be done using JSON or MQTT.
+If you would like to use something other than EmonCMS, you can do that too! Make sure the ATM90E32 library is included in the sketch. See the [examples folder](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/examples) for examples of how things could be done using JSON or MQTT. Users have already setup feeds to HomeAssistant, Influxdb, and Graphina.
 
 ## Hardware Setup:
 ### Connect your controller to the energy meter
@@ -133,15 +133,30 @@ If you are using **more than one energy meter**. The CLK, MISO, and MOSI pins wi
 
 Other pins on your controller can be connected to the WARN and IRQ outputs, but they are not yet implemented in the default software
 
+## Installing the Energy Meter
+**WARNING:  High voltage AC power is VERY dangerious! If you are not comfortable working around AC voltage, we strongly encourage you to hire a qualified electrician.**
+
+**The Split-Single Phase Energy Meter should be installed by a qualified professional, and in compliance with all local electrical codes that apply**
+
+1. Decide whether the energy meter will be mounted inside or outside of your panel. If installing outside, **you must route the current transformer wires through a grommet in the side of the panel** If installing inside the AC transformer wire will need to be passed through a grommet. Note that if installing inside, this may affect wifi signal from your MCU, especially if your router or AP is far away. 
+2. The AC Transformer should be plugged into an outlet close to the panel. If you do not have one close, it is recommened that you have one installed by a licensed electrician. This isn't absolutely needed, but it will give you more accurate readings. 
+3. If you wish to read the voltage from both sides of your panel, you need a second AC transformer hooked up to a breaker or outlet on the opposing side of the panel. There is a jumper on the back of the energy meter that will need to be severed before hooking up the second AC transformer. The connection for the second AC transformer is next to the power plug on the energy meter board.
+
+
 ### Connect Current Transformers to the energy meter
+Before connecting the current transformers to your mains wires, plug them into the energy meter.
+
 If your current transformers (CTs) have 3.5mm phono connectors, you hopefully have the version of the Energy Meter with these connections (v1.3 has footprints for both). If you have the screw connectors, the phono connectors will have to be cut off. There should only be two wires regardless. For the screw connector version, be careful to connect the positive to the correct terminal. If these are reversed, things will not be damaged, but the reading will be incorrect or 0.
 
 If your current transformers have a built in burden resistor, be sure to sever the jumpers on the back of the board to disable the 12ohm burden resistor. Alternatively, if you are reading smaller loads and would like more accurate readings, you can insert your own higher value burden resister across the positive and negative screw terminals.
 
-### Connect Current Transformers to your breaker panel
-**WARNING:  High voltage AC power is VERY dangerious! If you are not comfortable working around AC voltage, we strongly encourage you to hire a qualified electrician.**
+If you purchased a kit with the blue SCT-013-000, or black SCT016 current transformers do not have a built in burden resistor, but have a TVS diode.
 
-The current transformers clip around the two large wires, usually at the top of the breaker box. **DO NOT TOUCH VARE METAL ON THESE WIRES**. There is one current transformer for each phase. Make sure the arrows on the top of the CT point in the direction of the current flowing into your house.
+### Connect Current Transformers to your mains
+1. Note the direction of the arrows on the top of the current transformers. They should point in the direction of the current flowing into your house.
+2. Clip the current transformers around the two large main wires, usually at the top of the breaker box. **DO NOT TOUCH BARE METAL ON THESE WIRES**. There is one current transformer for each phase. 
+3. Make sure the current transformers are not in the way of anything else and are snapped closed around the wires. 
+
 
 ## Calibration
 

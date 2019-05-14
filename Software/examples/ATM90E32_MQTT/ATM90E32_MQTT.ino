@@ -14,7 +14,7 @@
 
 // for ATM90E32 board
 #include <SPI.h>
-#include <ATM90E32.h> // https://github.com/jdeglavina/ATM90E32
+#include <ATM90E32.h> 
 
 #ifdef ESP8266
 const int CS_pin = 04; 
@@ -28,10 +28,15 @@ const int CS_pin = 04;
 #endif
 
 /***** CALIBRATION SETTINGS *****/
-unsigned short LineGain = 7481; //0x1D39 
-unsigned short VoltageGain = 32428; //0x7EAC - default value is for a 12v AC Transformer
-unsigned short CurrentGainCT1 = 24131; //0xB5CB - 
-unsigned short CurrentGainCT2 = 24131; //0xB5CB - 
+unsigned short lineFreq = 4485;         //4485 for 60 Hz (North America)
+                                        //389 for 50 hz (rest of the world)
+unsigned short PGAGain = 21;            //21 for 100A (2x), 42 for >100A (4x)
+unsigned short VoltageGain = 41820;     //9v AC transformer.
+                                        //32428 - 12v AC Transformer
+unsigned short CurrentGainCT1 = 25498;  //SCT-013-000 100A/50mA
+                                        //46539 - Magnalab 100A w/ built in burden resistor
+unsigned short CurrentGainCT2 = 25498;
+
 
 // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= //
 // Layout (Comment Only)                                         //
@@ -87,7 +92,7 @@ int mqttTryCount = 0;
 bool initBoot = true;
 bool readATM90 = false;
 
-ATM90E32 eic(CS_pin, LineGain, VoltageGain, CurrentGainCT1, CurrentGainCT2); //pass CS pin and calibrations to ATM90E32 library
+ATM90E32 eic(CS_pin, lineFreq, PGAGain, VoltageGain, CurrentGainCT1, CurrentGainCT2); //pass CS pin and calibrations to ATM90E32 library
 
 ESP8266WebServer httpServer(80);
 ESP8266HTTPUpdateServer httpUpdater;

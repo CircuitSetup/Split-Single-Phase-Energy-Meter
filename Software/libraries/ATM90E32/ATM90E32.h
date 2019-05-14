@@ -3,6 +3,8 @@
 The MIT License (MIT)
 
   Copyright (c) 2016 whatnick,Ryzee and Arun
+  
+  Modified to use with the CircuitSetup.us Split Phase Energy Meter by jdeglavina
 
   Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -69,7 +71,7 @@ The MIT License (MIT)
 #define PLconstH 0x31 		// High Word of PL_Constant
 #define PLconstL 0x32 		// Low Word of PL_Constant
 #define MMode0 0x33 		// Metering Mode Config
-#define MMode1 0x34 		// Metering Mode Config
+#define MMode1 0x34 		// PGA Gain Configuration for Current Channels
 #define PStartTh 0x35 		// Startup Power Th (P)
 #define QStartTh 0x36 		// Startup Power Th (Q)
 #define SStartTh 0x37		// Startup Power Th (S)
@@ -84,14 +86,14 @@ The MIT License (MIT)
 #define QoffsetB 0x44 		// B Line Power Offset (Q)
 #define PoffsetC 0x45 		// C Line Power Offset (P)
 #define QoffsetC 0x46 		// C Line Power Offset (Q)
-#define GainA 0x47 			// A Line Calibration Gain
+#define PQGainA 0x47 		// A Line Calibration Gain
 #define PhiA 0x48  			// A Line Calibration Angle
-#define GainB 0x49 			// B Line Calibration Gain
+#define PQGainB 0x49 		// B Line Calibration Gain
 #define PhiB 0x4A  			// B Line Calibration Angle
-#define GainC 0x4B 			// C Line Calibration Gain
+#define PQGainC 0x4B 		// C Line Calibration Gain
 #define PhiC 0x4C  			// C Line Calibration Angle
 
-/* HARMONIC & ENERGY REGISTERS */
+/* FUNDAMENTAL/HARMONIC ENERGY CALIBRATION REGISTERS */
 #define	POffsetAF 0x51		// A Fund Power Offset (P)
 #define POffsetBF 0x52		// B Fund Power Offset (P)
 #define	POffsetCF 0x53		// C Fund Power Offset (P)
@@ -219,7 +221,7 @@ The MIT License (MIT)
 #define IrmsBLSB 0xEE		// Lower Word (B RMS Current)
 #define IrmsCLSB 0xEF		// Lower Word (C RMS Current)
 
-/* THD, FREQUENCY, ANGLE & TEMP REGISTERS*/
+/* THD, FREQUENCY, ANGLE & TEMPTEMP REGISTERS*/
 #define THDNUA 0xF1 		// A Voltage THD+N
 #define THDNUB 0xF2 		// B Voltage THD+N
 #define THDNUC 0xF3 		// C Voltage THD+N
@@ -241,12 +243,13 @@ class ATM90E32
 	private:		
 		unsigned short CommEnergyIC(unsigned char RW, unsigned short address, unsigned short val);
 		int _cs;
-		unsigned short _lgain;
+		unsigned short _lineFreq;
+		unsigned short _pgagain;
 		unsigned short _ugain;
 		unsigned short _igainA;
 		unsigned short _igainC;
 	public:
-		ATM90E32(int pin, unsigned short lgain, unsigned short ugain, unsigned short igainA, unsigned short igainC);
+		ATM90E32(int pin, unsigned short _lineFreq, unsigned short _pgagain, unsigned short ugain, unsigned short igainA, unsigned short igainC);
 
 		/* Initialization Functions */	
 		void begin();
@@ -264,6 +267,9 @@ class ATM90E32
 		double GetActivePowerB();
 		double GetActivePowerC();
 		double GetTotalActivePower();
+		
+		double GetTotalActiveFundPower();
+		double GetTotalActiveHarPower();
 
 		double GetReactivePowerA();
 		double GetReactivePowerB();
@@ -293,7 +299,11 @@ class ATM90E32
 
 		/* Energy Consumption */
 		double GetImportEnergy();
+		double GetImportReactiveEnergy();
+		double GetImportApparentEnergy();
 		double GetExportEnergy();
+		double GetExportReactiveEnergy();
+		
 
 		/* System Status */
 		unsigned short GetSysStatus0();

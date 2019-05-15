@@ -63,12 +63,16 @@ The CircuitSetup ATM90E32 Split Single Phase Energy Meter can monitor the ener
 
 ## What you'll need:
 
-*   Current Transformers:  [SCT-013-000 100A/50mA](https://amzn.to/2E0KVvo) (select the version of the board with phono connectors) or [Magnelab SCT-0750-100](https://amzn.to/2IF8xnY) (must sever burden resistor connection on the back of the board since they have a built in burden resistor). Others can also be used as long as they're rated for the amount of power that you are wanting to measure, and have a current output no more than 600mA.
-*   AC Transformer: [Jameco Reliapro 9v](https://amzn.to/2XcWJjI)
-*   An [ESP32](https://amzn.to/2pCtTtz) (ESP8266 or anything else that has an SPI interface & recommended wifi)
-*   Jumper wires with Dupont connectors, or perf board to connect the two boards.
-*   The software located here to load onto your controller
-*   [EmonCMS](https://emoncms.org/site/home), ThingSpeak or similar
+* Current Transformers:
+   * For 4/0 AWG mains wire (usually aluminum, 200A service), not thicker than 16mm, we recommend the YHDC SCT016 120A CT. The ones included with the energy meter kit have 3.5mm plugs. 
+   * For monitoring current with wire **larger than 16mm in diameter**, the [Magnelab SCT-0750-100](https://amzn.to/2IF8xnY) (must sever burden resistor connection on the back of the board since they have a built in burden resistor). These have wire leads and will need an adapter or screw connectors soldered to the energy meter board.
+   * For monitoring current with wire **smaller than 16mm in diameter**, the [SCT-013-000 100A/50mA](https://amzn.to/2E0KVvo) has a 13mm opening for wire.
+   * Other CTs can also be used as long as they're rated for the amount of power that you are wanting to measure, and have a current output no more than 600mA.
+* AC Transformer: [Jameco Reliapro 9v](https://amzn.to/2XcWJjI)
+* An [ESP32](https://amzn.to/2pCtTtz) (ESP8266 or anything else that has an SPI interface & recommended wifi)
+* Jumper wires with Dupont connectors, or perf board to connect the two boards. The energy meter kit comes with a PCB adapter for an ESP32.
+* The software located here to load onto your controller
+* [EmonCMS](https://emoncms.org/site/home), ThingSpeak, or similar
 
 
 ## Software Setup

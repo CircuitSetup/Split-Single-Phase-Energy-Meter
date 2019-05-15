@@ -145,9 +145,10 @@ To do this:
 - If you would like to monitor voltage from two sources, you will need two AC transformers. If only one voltage, you can split the output of 1 AC transformer using a 2.5mm DC jack Y-cable.
 
 ## Installing the Energy Meter
-**WARNING:  High voltage AC power is VERY dangerious! If you are not comfortable working around AC voltage, we strongly encourage you to hire a qualified electrician.**
+### Warning
+**High voltage AC power is VERY dangerious! If you are not comfortable working around AC voltage, we strongly encourage you to hire a qualified electrician.**
 
-**Disclaimer**
+### **Disclaimer**
 **The Split-Single Phase Energy Meter should be installed by a qualified professional, and in compliance with all local electrical codes that apply. CircuitSetup, and its parent company Sugarman Studios, LLC, can not be held liable for damages or injury incured by incorrectly installing the Split-Single Phase Energy Meter.**
 
 1. Decide whether the energy meter will be mounted inside or outside of your panel. If installing outside, **you must route the current transformer wires through a grommet in the side of the panel** If installing inside, the AC transformer wire will need to be passed through a grommet. It is against NEC code (US) to not route wires going in or out of an electrical panel through a grommet. Note that if installing inside, this may affect wifi signal from your MCU, especially if your router or AP is far away. 

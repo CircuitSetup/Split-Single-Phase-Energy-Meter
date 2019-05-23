@@ -211,3 +211,8 @@ For calibrating CurrentGainCT1 & CurrentGainCT2:
 Test again after adjusting the value and re-uploading the sketch to your ESP. If it is still off, do this again, but replace the 46539 with the value that you changed CurrentGainCT1 or CurrentGainCT2 to. It is possible that the two identical current sensors will have different CurrentGain numbers due to variances in manufacturing, but it shouldn't be drastic. Note that the positioning of the CT sensor on the hot wire can have an effect on the current reading. 
 
 For more details, see the Calibration Procedure in the [Microchip Application notes.](http://ww1.microchip.com/downloads/en/AppNotes/Atmel-46103-SE-M90E32AS-ApplicationNote.pdf)
+
+
+### Licenses
+Hardware license: CERN v 1.2
+Documentation license: CC BY 4.0

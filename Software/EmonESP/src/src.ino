@@ -40,13 +40,13 @@
 #include <ATM90E32.h>
 
 /***** CALIBRATION SETTINGS *****/
-unsigned short lineFreq = 4485;         //4485 for 60 Hz (North America)
-                                        //389 for 50 hz (rest of the world)
-unsigned short PGAGain = 21;            //21 for 100A (2x), 42 for >100A (4x)
-unsigned short VoltageGain = 41820;     //9v AC transformer.
-                                        //32428 - 12v AC Transformer
-unsigned short CurrentGainCT1 = 25498;  //SCT-013-000 100A/50mA
-                                        //46539 - Magnalab 100A w/ built in burden resistor
+unsigned short lineFreq = 4485;         /*4485 for 60 Hz (North America)*/
+                                        /*389 for 50 hz (rest of the world)*/
+unsigned short PGAGain = 21;            /*21 for 100A (2x), 42 for between 100A - 200A (4x)*/
+unsigned short VoltageGain = 41820;     /*9v AC transformer.*/
+                                        /*32428 - 12v AC Transformer*/
+unsigned short CurrentGainCT1 = 25498;  /*SCT-013-000 100A/50mA*/
+                                        /*46539 - Magnalab 100A w/ built in burden resistor*/
 unsigned short CurrentGainCT2 = 25498;
 
 #if defined ESP8266
@@ -81,10 +81,10 @@ const int CS_pin = SS; // Use default SS pin for unknown Arduino
 
 unsigned long startMillis;
 unsigned long currentMillis;
-const unsigned long period = 1000; //time in ms to send data
+const unsigned long period = 1000; //time interval in ms to send data
 
-
-ATM90E32 eic(CS_pin, lineFreq, PGAGain, VoltageGain, CurrentGainCT1, CurrentGainCT2); //pass CS pin and calibrations to ATM90E32 library
+//pass CS pin and calibrations to ATM90E32 library - the 2nd (B) current channel is not used with the split phase meter 
+ATM90E32 eic(CS_pin, lineFreq, PGAGain, VoltageGain, CurrentGainCT1, 0, CurrentGainCT2); 
 
 // -------------------------------------------------------------------
 // SETUP
@@ -134,7 +134,7 @@ void loop()
     wifi_loop();
 
 #if defined ESP32
-    digitalWrite(LED_BUILTIN, HIGH);
+    //digitalWrite(LED_BUILTIN, HIGH);
 #endif
 
     /*Repeatedly fetch some values from the ATM90E32 */
@@ -173,6 +173,7 @@ void loop()
     freq = eic.GetFrequency();
     totalWatts = (totalVoltage * totalCurrent);
 
+    Serial.println(" ");
     Serial.println("Voltage 1: " + String(voltageA) + "V");
     Serial.println("Voltage 2: " + String(voltageC) + "V");
     Serial.println("Current 1: " + String(currentCT1) + "A");
@@ -187,6 +188,7 @@ void loop()
     Serial.println("Phase Angle A: " + String(eic.GetPhaseA()));
     Serial.println("Chip Temp: " + String(temp) + "C");
     Serial.println("Frequency: " + String(freq) + "Hz");
+    Serial.println(" ");
 
 // default values are passed to EmonCMS - these can be changed out for anything
 // in the ATM90E32 library 
@@ -234,7 +236,7 @@ void loop()
       }
     */
 #if defined ESP32
-    digitalWrite(LED_BUILTIN, LOW); //turn off the LED
+   // digitalWrite(LED_BUILTIN, LOW); //turn off the LED
 #endif
 
     startMillis = currentMillis; //save the start time

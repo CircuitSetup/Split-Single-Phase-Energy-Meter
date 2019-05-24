@@ -15,14 +15,14 @@
 
 #include "ATM90E32.h"
 
-ATM90E32::ATM90E32(int pin, unsigned short lineFreq, unsigned short pgagain, unsigned short ugain, unsigned short igainA, /*unsigned short igainB,*/ unsigned short igainC)   // Object
+ATM90E32::ATM90E32(int pin, unsigned short lineFreq, unsigned short pgagain, unsigned short ugain, unsigned short igainA, unsigned short igainB, unsigned short igainC)   // Object
 {
   _cs = pin;  // SS PIN
   _lineFreq = lineFreq; //frequency of power
   _pgagain = pgagain; //PGA Gain for current channels
   _ugain = ugain; //voltage rms gain
   _igainA = igainA; //CT1
-  //_igainB = igainB; //CT2 - not used for single split phase meter
+  _igainB = igainB; //CT2 - not used for single split phase meter
   _igainC = igainC; //CT2 for single split phase meter - CT3 otherwise
 }
 
@@ -521,7 +521,7 @@ void ATM90E32::begin()
   unsigned short FreqHiThresh;
   unsigned short FreqLoThresh;
 
-  if (_lineFreq = 4485)
+  if (_lineFreq == 4485 || _lineFreq == 5231)
   {
     //North America power frequency
     FreqHiThresh = 61 * 1000;
@@ -536,7 +536,7 @@ void ATM90E32::begin()
   //calculation for voltage sag threshold - assumes we do not want to go under 100v for split phase and 200v otherwise
   unsigned short vSagTh;
   unsigned short sagV;
-  if (_lineFreq = 4485)
+  if (_lineFreq == 4485 || _lineFreq == 5231)
   {
     sagV = 100;
   }
@@ -563,8 +563,8 @@ void ATM90E32::begin()
   CommEnergyIC(WRITE, ZXConfig, 0x0A55);      // ZX2, ZX1, ZX0 pin config
 
   //Set metering config values (CONFIG)
-  CommEnergyIC(WRITE, PLconstH, 0x0861);    // PL Constant MSB (default)
-  CommEnergyIC(WRITE, PLconstL, 0x4C68);    // PL Constant LSB (default)
+  CommEnergyIC(WRITE, PLconstH, 0x0861);    // PL Constant MSB (default) - Meter Constant = 3200 - PL Constant = 140625000
+  CommEnergyIC(WRITE, PLconstL, 0xC468);    // PL Constant LSB (default) - this is 4C68 in the application note, which is incorrect
   CommEnergyIC(WRITE, MMode0, _lineFreq);   // Mode Config (frequency set in main program)
   CommEnergyIC(WRITE, MMode1, _pgagain);    // PGA Gain Configuration for Current Channels - 0x002A (x4) // 0x0015 (x2) // 0x0000 (1x)
   CommEnergyIC(WRITE, PStartTh, 0x0AFC);    // Active Startup Power Threshold - 50% of startup current = 0.9/0.00032 = 2812.5
@@ -601,8 +601,8 @@ void ATM90E32::begin()
   CommEnergyIC(WRITE, IgainA, _igainA);      // A line current gain
   CommEnergyIC(WRITE, UoffsetA, 0x0000);    // A Voltage offset
   CommEnergyIC(WRITE, IoffsetA, 0x0000);    // A line current offset
-  CommEnergyIC(WRITE, UgainB, 0x0000); //_ugain);      // B Voltage rms gain
-  CommEnergyIC(WRITE, IgainB, 0x0000); //_igainB);      // B line current gain
+  CommEnergyIC(WRITE, UgainB, _ugain);      // B Voltage rms gain
+  CommEnergyIC(WRITE, IgainB, _igainB);      // B line current gain
   CommEnergyIC(WRITE, UoffsetB, 0x0000);    // B Voltage offset
   CommEnergyIC(WRITE, IoffsetB, 0x0000);    // B line current offset
   CommEnergyIC(WRITE, UgainC, _ugain);      // C Voltage rms gain

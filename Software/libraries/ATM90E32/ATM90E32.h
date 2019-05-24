@@ -249,14 +249,14 @@ class ATM90E32
 		unsigned short _pgagain;
 		unsigned short _ugain;
 		unsigned short _igainA;
-		//unsigned short _igainB;
+		unsigned short _igainB;
 		unsigned short _igainC;
 		
 		int Read32Register(signed short regh_addr, signed short regl_addr);
 		
 
 	public:
-		ATM90E32(int pin, unsigned short _lineFreq, unsigned short _pgagain, unsigned short ugain, unsigned short igainA, /*unsigned short igainB,*/ unsigned short igainC);
+		ATM90E32(int pin, unsigned short _lineFreq, unsigned short _pgagain, unsigned short ugain, unsigned short igainA, unsigned short igainB, unsigned short igainC);
 
 		/* Initialization Functions */	
 		void begin();

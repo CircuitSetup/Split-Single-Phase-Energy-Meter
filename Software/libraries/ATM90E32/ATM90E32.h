@@ -114,6 +114,7 @@ The MIT License (MIT)
 #define IgainC 0x6A 		// C Current RMS Gain
 #define UoffsetC 0x6B 		// C Voltage Offset
 #define IoffsetC 0x6C 		// C Current Offset
+#define IoffsetN 0x6E 		// N Current Offset
 
 /* ENERGY REGISTERS */
 #define APenergyT 0x80 		// Total Forward Active	
@@ -203,6 +204,7 @@ The MIT License (MIT)
 #define IrmsA 0xDD 			// A RMS Current
 #define IrmsB 0xDE 			// B RMS Current
 #define IrmsC 0xDF 			// C RMS Current
+#define IrmsN 0xD8 			// Calculated N RMS Current
 
 #define PmeanTFLSB 0xE0		// Lower Word (Tot. Act. Fund. Power)
 #define PmeanAFLSB 0xE1		// Lower Word (A Act. Fund. Power) 
@@ -247,12 +249,20 @@ class ATM90E32
 		unsigned short _pgagain;
 		unsigned short _ugain;
 		unsigned short _igainA;
+		//unsigned short _igainB;
 		unsigned short _igainC;
+		
+		int Read32Register(signed short regh_addr, signed short regl_addr);
+		
+
 	public:
-		ATM90E32(int pin, unsigned short _lineFreq, unsigned short _pgagain, unsigned short ugain, unsigned short igainA, unsigned short igainC);
+		ATM90E32(int pin, unsigned short _lineFreq, unsigned short _pgagain, unsigned short ugain, unsigned short igainA, /*unsigned short igainB,*/ unsigned short igainC);
 
 		/* Initialization Functions */	
 		void begin();
+		
+		double CalculateVIOffset(unsigned short regh_addr, unsigned short regl_addr, unsigned short offset_reg);
+		double CalibrateVI(unsigned short reg, unsigned short actualVal);
 		
 		/* Main Electrical Parameters (GET)*/
 		double GetLineVoltageA();
@@ -262,6 +272,7 @@ class ATM90E32
 		double GetLineCurrentA();
 		double GetLineCurrentB();
 		double GetLineCurrentC();
+		double GetLineCurrentN();
 
 		double GetActivePowerA();
 		double GetActivePowerB();

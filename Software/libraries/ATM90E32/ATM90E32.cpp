@@ -15,14 +15,15 @@
 
 #include "ATM90E32.h"
 
-ATM90E32::ATM90E32(int pin, unsigned short lineFreq, unsigned short pgagain, unsigned short ugain, unsigned short igainA, unsigned short igainC)   // Object
+ATM90E32::ATM90E32(int pin, unsigned short lineFreq, unsigned short pgagain, unsigned short ugain, unsigned short igainA, /*unsigned short igainB,*/ unsigned short igainC)   // Object
 {
   _cs = pin;  // SS PIN
   _lineFreq = lineFreq; //frequency of power
   _pgagain = pgagain; //PGA Gain for current channels
   _ugain = ugain; //voltage rms gain
   _igainA = igainA; //CT1
-  _igainC = igainC; //CT2
+  //_igainB = igainB; //CT2 - not used for single split phase meter
+  _igainC = igainC; //CT2 for single split phase meter - CT3 otherwise
 }
 
 /* CommEnergyIC - Communication Establishment */
@@ -122,6 +123,79 @@ unsigned short ATM90E32::CommEnergyIC(unsigned char RW, unsigned short address, 
   // return val;
 }
 
+int ATM90E32::Read32Register(signed short regh_addr, signed short regl_addr) {
+  int val, val_h, val_l;
+  val_h = CommEnergyIC(READ, regh_addr, 0xFFFF);
+  val_l = CommEnergyIC(READ, regl_addr, 0xFFFF);
+  val = CommEnergyIC(READ, regh_addr, 0xFFFF);
+
+  val = val_h << 16;
+  val |= val_l; //concatenate the 2 registers to make 1 32 bit number
+  
+  if ((val & 0x80000000) != 0) { //if negative
+		val = (~val) + 1; //2s compliment + 1
+  }
+  return (val);
+}
+
+double ATM90E32::CalculateVIOffset(unsigned short regh_addr, unsigned short regl_addr, unsigned short offset_reg) {
+//for getting the lower registers of energy and calculating the offset
+//this should only be run when all inputs are disconnected
+  signed int val, val_h, val_l;
+  signed short offset;
+  val_h = CommEnergyIC(READ, regh_addr, 0xFFFF);
+  val_l = CommEnergyIC(READ, regl_addr, 0xFFFF);
+  val = CommEnergyIC(READ, regh_addr, 0xFFFF);
+
+  val = val_h << 16;
+  val |= val_l; //concatenate the 2 registers to make 1 32 bit number
+  val = val << 7; // right shift 7 bits - lowest 7 get ignored
+  val = (~val) + 1; //2s compliment + 1 
+  
+  offset = val;
+  CommEnergyIC(WRITE, offset_reg, (signed short)val);
+  return (offset);
+}
+
+double ATM90E32::CalibrateVI(unsigned short reg, unsigned short actualVal) {
+//input the Voltage or Current register, and the actual value that it should be
+//actualVal can be from a calibration meter or known value from a power supply
+  unsigned short gain, val, m, gainReg;
+	//sample the reading 
+	val = CommEnergyIC(READ, reg, 0xFFFF);
+	val += CommEnergyIC(READ, reg, 0xFFFF);
+	val += CommEnergyIC(READ, reg, 0xFFFF);
+	val += CommEnergyIC(READ, reg, 0xFFFF);
+	
+	//get value currently in gain register
+	switch (reg) {
+		case UrmsA: {
+			gainReg = UgainA; }
+		case UrmsB: {
+			gainReg = UgainB; }
+		case UrmsC: {
+			gainReg = UgainC; }
+		case IrmsA: {
+			gainReg = IgainA; }
+		case IrmsB: {
+			gainReg = IgainB; }
+		case IrmsC: {
+			gainReg = IgainC; }
+	}
+		
+	gain = CommEnergyIC(READ, gainReg, 0xFFFF); 
+	m = actualVal;
+	m = ((m * gain) / val);
+	gain = m;
+	
+	//write new value to gain register
+	CommEnergyIC(WRITE, gainReg, gain);
+	
+	return(gain);
+}
+
+
+  
 /* Parameters Functions*/
 /*
   - Gets main electrical parameters,
@@ -130,17 +204,15 @@ unsigned short ATM90E32::CommEnergyIC(unsigned char RW, unsigned short address, 
 
 */
 // VOLTAGE
-double  ATM90E32::GetLineVoltageA() {
+double ATM90E32::GetLineVoltageA() {
   unsigned short voltage = CommEnergyIC(READ, UrmsA, 0xFFFF);
   return (double)voltage / 100;
 }
-
-double  ATM90E32::GetLineVoltageB() {
+double ATM90E32::GetLineVoltageB() {
   unsigned short voltage = CommEnergyIC(READ, UrmsB, 0xFFFF);
   return (double)voltage / 100;
 }
-
-double  ATM90E32::GetLineVoltageC() {
+double ATM90E32::GetLineVoltageC() {
   unsigned short voltage = CommEnergyIC(READ, UrmsC, 0xFFFF);
   return (double)voltage / 100;
 }
@@ -159,139 +231,90 @@ double ATM90E32::GetLineCurrentC() {
   return (double)current / 1000;
 }
 
+double ATM90E32::GetLineCurrentN() {
+  unsigned short current = CommEnergyIC(READ, IrmsN, 0xFFFF);
+  return (double)current / 1000;
+}
+
 // ACTIVE POWER
 double ATM90E32::GetActivePowerA() {
-  signed short apowerA = (signed short) CommEnergyIC(READ, PmeanA, 0xFFFF);
-  signed short apowerAL = (signed short) CommEnergyIC(READ, PmeanALSB, 0xFFFF);
-  signed short ActivePowerA = (apowerA << 8) | apowerAL; //concatenate the 2 registers to make 32 bit number
-  if (ActivePowerA & 0x80000000 != 0) {
-    ActivePowerA = (ActivePowerA & 0x7FFFFFFF) * -1; //if negative flip first bit and make negative again
-  }
-  return (double)ActivePowerA * 0.00032;
+  int val;
+  val = Read32Register(PmeanA, PmeanALSB);
+  return (double)val * 0.00032;
 }
 double ATM90E32::GetActivePowerB() {
-  signed short apowerB = (signed short) CommEnergyIC(READ, PmeanB, 0xFFFF);
-  signed short apowerBL = (signed short) CommEnergyIC(READ, PmeanBLSB, 0xFFFF);
-  signed short ActivePowerB = (apowerB << 8) | apowerBL; //concatenate the 2 registers to make 32 bit number
-  if (ActivePowerB & 0x80000000 != 0) {
-    ActivePowerB = (ActivePowerB & 0x7FFFFFFF) * -1; //if negative flip first bit and make negative again
-  }
-  return (double)ActivePowerB * 0.00032;
+  int val;
+  val = Read32Register(PmeanB, PmeanBLSB);
+  return (double)val * 0.00032;
 }
 double ATM90E32::GetActivePowerC() {
-  signed short apowerC = (signed short) CommEnergyIC(READ, PmeanC, 0xFFFF);
-  signed short apowerCL = (signed short) CommEnergyIC(READ, PmeanCLSB, 0xFFFF); 
-  signed short ActivePowerC = (apowerC << 8) | apowerCL; //concatenate the 2 registers to make 32 bit number
-  if (ActivePowerC & 0x80000000 != 0) {
-    ActivePowerC = (ActivePowerC & 0x7FFFFFFF) * -1; //if negative get compliment
-  }
-  return (double)ActivePowerC * 0.00032;
+  int val;
+  val = Read32Register(PmeanC, PmeanCLSB);
+  return (double)val * 0.00032;
 }
 double ATM90E32::GetTotalActivePower() {
-  signed short apowerT = (signed short) CommEnergyIC(READ, PmeanT, 0xFFFF);
-  signed short apowerTL = (signed short) CommEnergyIC(READ, PmeanTLSB, 0xFFFF);
-  signed short TotalActivePower = (apowerT << 8) | apowerTL; //concatenate the 2 registers to make 32 bit number
-  if (TotalActivePower & 0x80000000 != 0) {
-    TotalActivePower = (TotalActivePower & 0x7FFFFFFF) * -1; //if negative flip first bit and make negative again
-  }
-  return (double)TotalActivePower * 0.00032;
+   int val;
+   val = Read32Register(PmeanT, PmeanTLSB);
+   return (double)val * 0.00032;
 }
+
 // Active Fundamental Power
 double ATM90E32::GetTotalActiveFundPower() {
-  signed short afundpowerT = (signed short) CommEnergyIC(READ, PmeanTF, 0xFFFF);
-  signed short afundpowerTL = (signed short) CommEnergyIC(READ, PmeanTFLSB, 0xFFFF);
-  signed short TotalActiveFundPower = (afundpowerT << 8) | afundpowerTL; //concatenate the 2 registers to make 32 bit number
-  if (TotalActiveFundPower & 0x80000000 != 0) {
-    TotalActiveFundPower = (TotalActiveFundPower & 0x7FFFFFFF) * -1; //if negative flip first bit and make negative again
-  }
-  return (double)TotalActiveFundPower * 0.00032;
+  int val;
+  val = Read32Register(PmeanTF, PmeanTFLSB);
+  return (double)val * 0.00032;
 }
+
 // Active Harmonic Power
 double ATM90E32::GetTotalActiveHarPower() {
-  signed short aharpowerT = (signed short) CommEnergyIC(READ, PmeanTH, 0xFFFF);
-  signed short aharpowerTL = (signed short) CommEnergyIC(READ, PmeanTHLSB, 0xFFFF);
-  signed short TotalActiveHarPower = (aharpowerT << 8) | aharpowerTL; //concatenate the 2 registers to make 32 bit number
-  if (TotalActiveHarPower & 0x80000000 != 0) {
-    TotalActiveHarPower = (TotalActiveHarPower & 0x7FFFFFFF) * -1; //if negative flip first bit and make negative again
-  }
-  return (double)TotalActiveHarPower * 0.00032;
+  int val;
+  val = Read32Register(PmeanTH, PmeanTHLSB);
+  return (double)val * 0.00032;
 }
 
 
 // REACTIVE POWER
 double ATM90E32::GetReactivePowerA() {
-  signed short rpowerA = (signed short) CommEnergyIC(READ, QmeanA, 0xFFFF);
-  signed short rpowerAL = (signed short) CommEnergyIC(READ, QmeanALSB, 0xFFFF);
-  signed short ReactivePowerA = (rpowerA << 8) | rpowerAL; //concatenate the 2 registers to make 32 bit number
-  if (ReactivePowerA & 0x80000000 != 0) {
-    ReactivePowerA = (ReactivePowerA & 0x7FFFFFFF) * -1; //if negative flip first bit and make negative again
-  }
-  return (double)ReactivePowerA * 0.00032;
+  int val;
+  val = Read32Register(QmeanA, QmeanALSB);
+  return (double)val * 0.00032;
 }
 double ATM90E32::GetReactivePowerB() {
-  signed short rpowerB = (signed short) CommEnergyIC(READ, QmeanB, 0xFFFF);
-  signed short rpowerBL = (signed short) CommEnergyIC(READ, QmeanBLSB, 0xFFFF);
-  signed short ReactivePowerB = (rpowerB << 8) | rpowerBL; //concatenate the 2 registers to make 32 bit number
-  if (ReactivePowerB & 0x80000000 != 0) {
-    ReactivePowerB = (ReactivePowerB & 0x7FFFFFFF) * -1; //if negative flip first bit and make negative again
-  }
-  return (double)ReactivePowerB * 0.00032;
+  int val;
+  val = Read32Register(QmeanB, QmeanBLSB);
+  return (double)val * 0.00032;
 }
 double ATM90E32::GetReactivePowerC() {
-  signed short rpowerC = (signed short) CommEnergyIC(READ, QmeanC, 0xFFFF);
-  signed short rpowerCL = (signed short) CommEnergyIC(READ, QmeanCLSB, 0xFFFF);
-  signed short ReactivePowerC = (rpowerC << 8) | rpowerCL; //concatenate the 2 registers to make 32 bit number
-  if (ReactivePowerC & 0x80000000 != 0) {
-    ReactivePowerC = (ReactivePowerC & 0x7FFFFFFF) * -1; //if negative flip first bit and make negative again
-  }
-  return (double)ReactivePowerC * 0.00032;
+  int val;
+  val = Read32Register(QmeanC, QmeanCLSB);
+  return (double)val * 0.00032;
 }
 double ATM90E32::GetTotalReactivePower() {
-  signed short rpowerT = (signed short) CommEnergyIC(READ, QmeanT, 0xFFFF);
-  signed short rpowerTL = (signed short) CommEnergyIC(READ, QmeanTLSB, 0xFFFF);
-  signed short TotalReactivePower = (rpowerT << 8) | rpowerTL; //concatenate the 2 registers to make 32 bit number
-  if (TotalReactivePower & 0x80000000 != 0) {
-    TotalReactivePower = (TotalReactivePower & 0x7FFFFFFF) * -1; //if negative flip first bit and make negative again
-  }
-  return (double)TotalReactivePower * 0.00032;
+  int val;
+  val = Read32Register(QmeanT, QmeanTLSB);
+  return (double)val * 0.00032;
 }
 
 // APPARENT POWER
 double ATM90E32::GetApparentPowerA() {
-  signed short appowerA = (signed short) CommEnergyIC(READ, SmeanA, 0xFFFF);
-  signed short appowerAL = (signed short) CommEnergyIC(READ, SmeanALSB, 0xFFFF);
-  signed short ApparentPowerA = (appowerA << 8) | appowerAL; //concatenate the 2 registers to make 32 bit number
-  if (ApparentPowerA & 0x80000000 != 0) {
-    ApparentPowerA = (ApparentPowerA & 0x7FFFFFFF) * -1; //if negative flip first bit and make negative again
-  }
-  return (double)ApparentPowerA * 0.00032;
+  int val;
+  val = Read32Register(SmeanA, SmeanALSB);
+  return (double)val * 0.00032;
 }
 double ATM90E32::GetApparentPowerB() {
-  signed short appowerB = (signed short) CommEnergyIC(READ, SmeanB, 0xFFFF);
-  signed short appowerBL = (signed short) CommEnergyIC(READ, SmeanBLSB, 0xFFFF);
-  signed short ApparentPowerB = (appowerB << 8) | appowerBL; //concatenate the 2 registers to make 32 bit number
-  if (ApparentPowerB & 0x80000000 != 0) {
-    ApparentPowerB = (ApparentPowerB & 0x7FFFFFFF) * -1; //if negative flip first bit and make negative again
-  }
-  return (double)ApparentPowerB * 0.00032;
+  int val;
+  val = Read32Register(SmeanB, SmeanBLSB);
+  return (double)val * 0.00032;
 }
 double ATM90E32::GetApparentPowerC() {
-  signed short appowerC = (signed short) CommEnergyIC(READ, SmeanC, 0xFFFF);
-  signed short appowerCL = (signed short) CommEnergyIC(READ, SmeanCLSB, 0xFFFF);
-  signed short ApparentPowerC = (appowerC << 8) | appowerCL; //concatenate the 2 registers to make 32 bit number
-  if (ApparentPowerC & 0x80000000 != 0) {
-    ApparentPowerC = (ApparentPowerC & 0x7FFFFFFF) * -1; //if negative flip first bit and make negative again
-  }
-  return (double)ApparentPowerC * 0.00032;
+  int val;
+  val = Read32Register(SmeanC, SmeanCLSB);
+  return (double)val * 0.00032;
 }
 double ATM90E32::GetTotalApparentPower() {
-  signed short appowerT = (signed short) CommEnergyIC(READ, SmeanT, 0xFFFF);
-  signed short appowerTL = (signed short) CommEnergyIC(READ, SAmeanTLSB, 0xFFFF);
-  signed short TotalApparentPower = (appowerT << 8) | appowerTL; //concatenate the 2 registers to make 32 bit number
-  if (TotalApparentPower & 0x80000000 != 0) {
-    TotalApparentPower = (TotalApparentPower & 0x7FFFFFFF) * -1; //if negative flip first bit and make negative again
-  }
-  return (double)TotalApparentPower * 0.00032;
+  int val;
+  val = Read32Register(SmeanT, SAmeanTLSB);
+  return (double)val * 0.00032;
 }
 
 // FREQUENCY
@@ -302,48 +325,34 @@ double ATM90E32::GetFrequency() {
 
 // POWER FACTOR
 double ATM90E32::GetPowerFactorA() {
-  signed short pfA = (signed short) CommEnergyIC(READ, PFmeanA, 0xFFFF);
+  signed short pf = (signed short) CommEnergyIC(READ, PFmeanA, 0xFFFF);
   //if negative
-  if (pfA & 0x8000 != 0) {
-    pfA = (pfA & 0x7FFF) * -1;
-	//the register sometimes goes out of bounds for unknown reasons
-	//should always be between -1 and 1
-	if (pfA < -1) {
-		pfA = 0; 
-	}
+  if (pf & 0x8000 != 0) {
+	pf = (~pf) + 1;
   }
-  return (double)pfA / 1000;
+  return (double)pf / 1000;
 }
 double ATM90E32::GetPowerFactorB() {
-  signed short pfB = (signed short) CommEnergyIC(READ, PFmeanB, 0xFFFF);
+  signed short pf = (signed short) CommEnergyIC(READ, PFmeanB, 0xFFFF);
   //if negative
-  if (pfB & 0x8000 != 0) {
-    pfB = (pfB & 0x7FFF) * -1;
-	if (pfB < -1) {
-		pfB = 0; 
-	}
+  if (pf & 0x8000 != 0) {
+	pf = (~pf) + 1;
   }
-  return (double)pfB / 1000;
+  return (double)pf / 1000;
 }
 double ATM90E32::GetPowerFactorC() {
-  signed short pfC = (signed short) CommEnergyIC(READ, PFmeanC, 0xFFFF);
+  signed short pf = (signed short) CommEnergyIC(READ, PFmeanC, 0xFFFF);
   //if negative
-  if (pfC & 0x8000 != 0) {
-    pfC = (pfC & 0x7FFF) * -1;
-	if (pfC < -1) {
-		pfC = 0; 
-	}
+  if (pf & 0x8000 != 0) {
+	pf = (~pf) + 1;
   }
-  return (double)pfC / 1000;
+  return (double)pf / 1000;
 }
 double ATM90E32::GetTotalPowerFactor() {
   signed short pf = (signed short) CommEnergyIC(READ, PFmeanT, 0xFFFF);
   //if negative
   if (pf & 0x8000 != 0) {
-    pf = (pf & 0x7FFF) * -1;
-	if (pf < -1) {
-		pf = 0; 
-	}
+	pf = (~pf) + 1;
   }
   return (double)pf / 1000;
 }
@@ -371,7 +380,7 @@ double ATM90E32::GetTemperature() {
 /* Gets the Register Value if Desired */
 // REGISTER
 unsigned short ATM90E32::GetValueRegister(unsigned short registerRead) {
-  return (CommEnergyIC(READ, registerRead, 0xFFFF)); //returns value register
+  return (double) CommEnergyIC(READ, registerRead, 0xFFFF); //returns value register
 }
 
 // REGULAR ENERGY MEASUREMENT
@@ -478,17 +487,6 @@ bool ATM90E32::calibrationError()
     CS3 = false;
   }
 
-#ifdef DEBUG_SERIAL
-  Serial.print("Checksum 0: ");
-  Serial.println(CS0);
-  Serial.print("Checksum 1: ");
-  Serial.println(CS1);
-  Serial.print("Checksum 2: ");
-  Serial.println(CS2);
-  Serial.print("Checksum 3: ");
-  Serial.println(CS3);
-#endif
-
   if (CS0 || CS1 || CS2 || CS3) return (true);
   else return (false);
 
@@ -566,8 +564,8 @@ void ATM90E32::begin()
 
   //Set metering config values (CONFIG)
   CommEnergyIC(WRITE, PLconstH, 0x0861);    // PL Constant MSB (default)
-  CommEnergyIC(WRITE, PLconstL, 0xC468);    // PL Constant LSB (default)
-  CommEnergyIC(WRITE, MMode0, _lineFreq);   // Mode Config (frequency set in main program, 3P3W, phase B not counted)
+  CommEnergyIC(WRITE, PLconstL, 0x4C68);    // PL Constant LSB (default)
+  CommEnergyIC(WRITE, MMode0, _lineFreq);   // Mode Config (frequency set in main program)
   CommEnergyIC(WRITE, MMode1, _pgagain);    // PGA Gain Configuration for Current Channels - 0x002A (x4) // 0x0015 (x2) // 0x0000 (1x)
   CommEnergyIC(WRITE, PStartTh, 0x0AFC);    // Active Startup Power Threshold - 50% of startup current = 0.9/0.00032 = 2812.5
   CommEnergyIC(WRITE, QStartTh, 0x0AEC);    // Reactive Startup Power Threshold
@@ -603,8 +601,8 @@ void ATM90E32::begin()
   CommEnergyIC(WRITE, IgainA, _igainA);      // A line current gain
   CommEnergyIC(WRITE, UoffsetA, 0x0000);    // A Voltage offset
   CommEnergyIC(WRITE, IoffsetA, 0x0000);    // A line current offset
-  CommEnergyIC(WRITE, UgainB, 0x0000);      // B Voltage rms gain
-  CommEnergyIC(WRITE, IgainB, 0x0000);      // B line current gain
+  CommEnergyIC(WRITE, UgainB, 0x0000); //_ugain);      // B Voltage rms gain
+  CommEnergyIC(WRITE, IgainB, 0x0000); //_igainB);      // B line current gain
   CommEnergyIC(WRITE, UoffsetB, 0x0000);    // B Voltage offset
   CommEnergyIC(WRITE, IoffsetB, 0x0000);    // B line current offset
   CommEnergyIC(WRITE, UgainC, _ugain);      // C Voltage rms gain

@@ -92,7 +92,7 @@ int mqttTryCount = 0;
 bool initBoot = true;
 bool readATM90 = false;
 
-ATM90E32 eic(CS_pin, lineFreq, PGAGain, VoltageGain, CurrentGainCT1, CurrentGainCT2); //pass CS pin and calibrations to ATM90E32 library
+ATM90E32 eic(CS_pin, lineFreq, PGAGain, VoltageGain, CurrentGainCT1, 0, CurrentGainCT2); //pass CS pin and calibrations to ATM90E32 library
 
 ESP8266WebServer httpServer(80);
 ESP8266HTTPUpdateServer httpUpdater;
@@ -456,7 +456,7 @@ void getATM90() {
   currentCT2  = eic.GetLineCurrentC();
   realPower   = eic.GetTotalActivePower();
   powerFactor = eic.GetTotalPowerFactor();
-  chipTemp    = eic.GetTemperature()*9.0/5.0 + 32.0;
+  chipTemp    = eic.GetTemperature()*9.0/5.0 + 32.0; //Converts to F
   powerFreq   = eic.GetFrequency();
 
   totalVoltage = voltageA + voltageC ;

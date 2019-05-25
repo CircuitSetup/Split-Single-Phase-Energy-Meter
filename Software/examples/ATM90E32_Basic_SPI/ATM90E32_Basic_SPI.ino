@@ -53,7 +53,8 @@ const int CS_pin = 10;
 const int CS_pin = SS; // Use default SS pin for unknown Arduino
 #endif
 
-ATM90E32 eic(CS_pin, lineFreq, PGAGain, VoltageGain, CurrentGainCT1, CurrentGainCT2); //pass CS pin and calibrations to ATM90E32 library
+//pass CS pin and calibrations to ATM90E32 library - the 2nd (B) current channel is not used with the split phase meter 
+ATM90E32 eic(CS_pin, lineFreq, PGAGain, VoltageGain, CurrentGainCT1, 0, CurrentGainCT2); 
 
 // -------------------------------------------------------------------
 // SETUP

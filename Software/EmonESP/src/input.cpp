@@ -39,12 +39,14 @@ boolean input_get(String& data)
     input_string = "";
     gotData = true;
   }
+#ifdef USE_SERIAL_INPUT
   // If data received on serial
   else if (Serial.available()) {
     // Could check for string integrity here
     data = Serial.readStringUntil('\n');
     gotData = true;
   }
+#endif
 
   if(gotData)
   {

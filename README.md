@@ -151,9 +151,9 @@ To do this:
 ### **Disclaimer**
 **The Split-Single Phase Energy Meter should be installed by a qualified professional, and in compliance with all local electrical codes that apply. CircuitSetup, and its parent company Sugarman Studios, LLC, can not be held liable for damages or injury incured by incorrectly installing the Split-Single Phase Energy Meter.**
 
-1. Decide whether the energy meter will be mounted inside or outside of your panel. If installing outside, **you must route the current transformer wires through a grommet in the side of the panel** If installing inside, the AC transformer wire will need to be passed through a grommet. It is against NEC code (US) to not route wires going in or out of an electrical panel through a grommet. Note that if installing inside, this may affect wifi signal from your MCU, especially if your router or AP is far away. 
+1. Decide whether the energy meter will be mounted inside or outside of your panel. If installing outside your panel, **you must route the current transformer wires through a grommet in the side of the panel** If installing inside, the AC transformer wire will need to be passed through a grommet. It is against NEC code (US) to not route wires going in or out of an electrical panel through a grommet. Note that if installing inside, this may affect wifi signal from your MCU, especially if your router or AP is far away. 
 2. The AC Transformer should be plugged into an outlet close to the panel. If you do not have one close, it is recommened that you have one installed by a licensed electrician. This isn't absolutely needed, but it will give you more accurate readings. 
-3. If you wish to read the voltage from both sides of your panel, you need a second AC transformer hooked up to a breaker or outlet on the opposing side of the panel. There is a jumper on the back of the energy meter that will need to be severed **before hooking up the second AC transformer.** The connection for the second AC transformer is next to the power plug on the energy meter board.
+3. If you wish to read the **voltage from both sides of your panel**, you need a second AC transformer hooked up to a single pole breaker or outlet on the opposing side of the panel. There is a jumper on the back of the energy meter that will need to be severed **before hooking up the second AC transformer.** The connection for the second AC transformer is next to the power plug on the energy meter board.
 
 
 ### Connect Current Transformers to the energy meter
@@ -173,14 +173,14 @@ If you purchased a kit with the black SCT016 current transformers, or have the b
 
 ## Calibration
 
-The default configuration of the Energy Meter software is set to use the [SCT-013-000 100A/50mA current transformers](https://amzn.to/2E0KVvo), and the [Jameco Reliapro 9v AC transformer](https://amzn.to/2XcWJjI). There are also values for the Magnalab current transformers, and the 12v version of the AC transformer located in the src.ino file. Simply change the values under CALIBRATION SETTINGS if you are using a 12v AC Transformer or the Magnalab current transformers.  **If you are using any of these you likely will not need to calibrate, but if you want to be sure your readings are more accurate then calibration is recommended.** 
+The default configuration of the Energy Meter software is set to use the [SCT-013-000 100A/50mA current transformers](https://amzn.to/2E0KVvo), and the [Jameco Reliapro 9v AC transformer](https://amzn.to/2XcWJjI). There are also values for the Magnalab current transformers, and the 12v version of the AC transformer located in the **energy_meter.h** file. Simply change the values under CALIBRATION SETTINGS if you are using a 12v AC Transformer or the Magnalab current transformers.  **If you are using any of these you likely will not need to calibrate, but if you want to be sure your readings are more accurate then calibration is recommended.** 
 
 Alternatively, if you have equipment that can read active and reactive energy pulse outputs, CT1-CT4 pins can be used for this. It is recommended that these connections are opto-isolated to prevent interference. 
 
 ### For calibration you will need:
 1.  A multi-meter, or to make it easier and safer, a [kill-a-watt](https://amzn.to/2TXT7jx) or similar.
-2.  A hair dryer, soldering iron, electric heater, or anything else that uses a large amount of current
-3.  A modified power cable that allows you to put a current transformer around only the hot (usually black) wire
+2.  A hair dryer, soldering iron, electric heater, or anything else that uses a large amount of current.
+3.  A modified power cable that allows you to put a current transformer around only the hot (usually black) wire.
 
 ### Setup
 1.  At this point all wires should be connected between your ESP and the Energy Monitor.
@@ -193,22 +193,26 @@ Alternatively, if you have equipment that can read active and reactive energy pu
 
 1.  In the Serial Monitor window, view the value for Voltage - take note of this (if you are getting a value above 65k, something is not hooked up or working correctly)
 2.  Take a reading of the actual voltage from an outlet in your house.  For the Kill-a-watt, just plug it in, and select voltage. Compare the values.
-3.  Adjust the value for VoltageGain in src.ino by calculating:
+3.  Adjust the value for VoltageGain in **energy_meter.h** by calculating:
 
-<pre>New VoltageGain = (your voltage reading / energy monitor voltage reading) * 32428</pre>
+<pre>New VoltageGain = (your voltage reading / energy monitor voltage reading) * VOLTAGE_GAIN</pre>
 
-Test again after adjusting the value and re-uploading the sketch to your ESP. If it is still off, do the procedure again, but replace the 32428 with the value that you changed VoltageGain to. 
+VOLTAGE_GAIN is the value currently set for the voltage gain parameter in energy_meter.h.
+
+Test again after adjusting the value and re-uploading the sketch to your ESP. If it is still off, do the procedure again, but replace VOLTAGE_GAIN with the last value used. 
 
 ### Current Procedure
-For calibrating CurrentGainCT1 & CurrentGainCT2:
+For calibrating **CurrentGainCT1 & CurrentGainCT2**:
 
 1.  In the Serial Monitor window, view the value for Current (if you are getting a value above 65k, something is not hooked up or working correctly)
 2.  Compare what you are seeing for current from the Energy Monitor to the reading on the Kill-a-watt
-3.  Adjust the value for CurrentGainCT1 or CurrentGainCT2 in src.ino by calculating:
+3.  Adjust the value for CurrentGainCT1 or CurrentGainCT2 in **energy_meter.h** by calculating:
 
-<pre>New CurrentGainCT1 or CurrentGainCT2 = (your current reading / energy monitor current reading) * 46539</pre>
+<pre>New CurrentGainCT1 or CurrentGainCT2 = (your current reading / energy monitor current reading) * CURRENT_GAIN_CT#</pre>
 
-Test again after adjusting the value and re-uploading the sketch to your ESP. If it is still off, do this again, but replace the 46539 with the value that you changed CurrentGainCT1 or CurrentGainCT2 to. It is possible that the two identical current sensors will have different CurrentGain numbers due to variances in manufacturing, but it shouldn't be drastic. Note that the positioning of the CT sensor on the hot wire can have an effect on the current reading. 
+CURRENT_GAIN_CT# is the value currently set for the current gain parameter in energy_meter.h.
+
+Test again after adjusting the value and re-uploading the sketch to your ESP. If it is still off, do this again, but replace the CURRENT_GAIN_CT# with the last value used. It is possible that the two identical current sensors will have different CurrentGain numbers due to variances in manufacturing, but it shouldn't be drastic. Note that the positioning of the CT sensor on the hot wire can have an effect on the current reading. 
 
 For more details, see the Calibration Procedure in the [Microchip Application notes.](http://ww1.microchip.com/downloads/en/AppNotes/Atmel-46103-SE-M90E32AS-ApplicationNote.pdf)
 

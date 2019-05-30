@@ -57,11 +57,6 @@ void setup() {
   Serial1.begin(115200);
 #endif
 
-#if defined ESP32
-  // if there is an onboard LED, set it up
-  pinMode(LED_BUILTIN, OUTPUT);
-#endif
-
   // Read saved settings from the config
   config_load_settings();
 
@@ -98,7 +93,7 @@ void loop()
   String input = "";
   boolean gotInput = input_get(input);
   if (gotInput) {
-    DEBUG.print(".");
+    DEBUG.println(".");
   }
 
   if (wifi_mode == WIFI_MODE_CLIENT || wifi_mode == WIFI_MODE_AP_AND_STA) {

@@ -1,8 +1,8 @@
 #ifndef __DEBUG_H
 #define __DEBUG_H
 
-//#define DEBUG
-//#define DEBUG_PORT Serial
+#define DEBUG
+#define DEBUG_PORT Serial
 
 #define TEXTIFY(A) #A
 #define ESCAPEQUOTE(A) TEXTIFY(A)

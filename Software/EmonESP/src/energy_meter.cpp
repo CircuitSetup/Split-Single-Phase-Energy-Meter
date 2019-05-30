@@ -10,6 +10,7 @@
 
 
 /***** CALIBRATION SETTINGS *****/
+//edit in energy_meter.h
 unsigned short VoltageGain = VOLTAGE_GAIN;
 unsigned short CurrentGainCT1 = CURRENT_GAIN_CT1;
 unsigned short CurrentGainCT2 = CURRENT_GAIN_CT2;
@@ -45,6 +46,8 @@ const int CS_pin = 10;
 const int CS_pin = SS; // Use default SS pin for unknown Arduino
 #endif
 
+static const int LED_BUILTIN = 2; //for on-board LED
+
 unsigned long startMillis;
 unsigned long currentMillis;
 const unsigned long period = 1000; //time interval in ms to send data
@@ -63,6 +66,11 @@ void energy_meter_setup() {
   Serial.println("Start ATM90E32");
   eic.begin();
   delay(1000);
+
+  #if defined ESP32
+  // if there is an onboard LED, set it up
+  pinMode(LED_BUILTIN, OUTPUT);
+  #endif
 
   startMillis = millis();  //initial start time
 
@@ -88,7 +96,7 @@ void energy_meter_loop()
 
 
 #if defined ESP32
-    //digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(LED_BUILTIN, HIGH);
 #endif
 
   /*Repeatedly fetch some values from the ATM90E32 */
@@ -215,4 +223,8 @@ void energy_meter_loop()
   DEBUG.println(result);
 
   input_string = result;
+
+  #if defined ESP32
+    digitalWrite(LED_BUILTIN, LOW);
+  #endif
 }

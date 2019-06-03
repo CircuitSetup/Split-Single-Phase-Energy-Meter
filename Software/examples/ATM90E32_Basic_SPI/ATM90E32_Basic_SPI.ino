@@ -19,11 +19,14 @@
 unsigned short lineFreq = 4485;         //4485 for 60 Hz (North America)
                                         //389 for 50 hz (rest of the world)
 unsigned short PGAGain = 21;            //21 for 100A (2x), 42 for >100A (4x)
-unsigned short VoltageGain = 41820;     //9v AC transformer.
+
+unsigned short VoltageGain = 42080;     //42080 - 9v AC transformer.
                                         //32428 - 12v AC Transformer
-unsigned short CurrentGainCT1 = 25498;  //SCT-013-000 100A/50mA
+                                        
+unsigned short CurrentGainCT1 = 38695;  //38695 - SCT-016 120A/40mA
+unsigned short CurrentGainCT2 = 38695;  //25498 - SCT-013-000 100A/50mA
                                         //46539 - Magnalab 100A w/ built in burden resistor
-unsigned short CurrentGainCT2 = 25498;
+
 
 #if defined ESP8266
 const int CS_pin = 16;
@@ -87,6 +90,9 @@ void loop() {
     Serial.println("Meter Status: E0:0x" + String(en0, HEX) + " E1:0x" + String(en1, HEX));
     delay(10);
 
+    //if true the MCU is not getting data from the energy meter
+    if (sys0 == 65535 || sys0 == 0) DEBUG.println("Error: Not receiving data from energy meter - check your connections");
+
     //get voltage
     voltageA = eic.GetLineVoltageA();
     voltageC = eic.GetLineVoltageC();
@@ -109,7 +115,7 @@ void loop() {
     powerFactor = eic.GetTotalPowerFactor();
     temp = eic.GetTemperature();
     freq = eic.GetFrequency();
-    totalWatts = (totalVoltage * totalCurrent);
+    totalWatts = (voltageA * currentCT1) + (voltageC * currentCT2);
 
     Serial.println("Voltage 1: " + String(voltageA) + "V");
     Serial.println("Voltage 2: " + String(voltageC) + "V");

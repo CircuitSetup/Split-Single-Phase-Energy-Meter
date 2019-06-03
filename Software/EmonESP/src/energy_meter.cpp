@@ -10,7 +10,7 @@
 
 
 /***** CALIBRATION SETTINGS *****/
-//edit in energy_meter.h
+// edit in energy_meter.h
 unsigned short VoltageGain = VOLTAGE_GAIN;
 unsigned short CurrentGainCT1 = CURRENT_GAIN_CT1;
 unsigned short CurrentGainCT2 = CURRENT_GAIN_CT2;
@@ -114,6 +114,9 @@ void energy_meter_loop()
   DEBUG.println("Meter Status: E0:0x" + String(en0, HEX) + " E1:0x" + String(en1, HEX));
   delay(10);
 
+  //if true the MCU is not getting data from the energy meter
+  if (sys0 == 65535 || sys0 == 0) DEBUG.println("Error: Not receiving data from energy meter - check your connections");
+
   ////// VOLTAGE
   voltageA = eic.GetLineVoltageA();
   voltageC = eic.GetLineVoltageC();
@@ -149,7 +152,7 @@ void energy_meter_loop()
   /////// POWER
   realPower = eic.GetTotalActivePower();
   powerFactor = eic.GetTotalPowerFactor();
-  totalWatts = (totalVoltage * totalCurrent);
+  totalWatts = (voltageA * currentCT1) + (voltageC * currentCT2);
 
   /////// OTHER
   temp = eic.GetTemperature();

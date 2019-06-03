@@ -10,7 +10,7 @@
 
 
 /***** CALIBRATION SETTINGS *****/
-//edit in energy_meter.h
+// edit in energy_meter.h
 unsigned short VoltageGain = VOLTAGE_GAIN;
 unsigned short VoltageGainSolar = VOLTAGE_GAIN_SOLAR;
 unsigned short CurrentGainCT1 = CURRENT_GAIN_CT1;
@@ -133,6 +133,10 @@ void energy_meter_loop()
   DEBUG.println("Solar Meter Status: E0:0x" + String(en0s, HEX) + " E1:0x" + String(en1s, HEX));
   delay(10);
 
+  //if true the MCU is not getting data from the energy meter
+  if (sys0 == 65535 || sys0 == 0) DEBUG.println("Error: Not receiving data from energy meter - check your connections");
+  if (sys0s == 65535 || sys0s == 0) DEBUG.println("Error: Not receiving data from solar energy meter - check your connections");
+
   ////// VOLTAGE
   voltageA = eic.GetLineVoltageA();
   voltageC = eic.GetLineVoltageC();
@@ -178,11 +182,11 @@ void energy_meter_loop()
   /////// POWER
   realPower = eic.GetTotalActivePower();
   powerFactor = eic.GetTotalPowerFactor();
-  totalWatts = (totalVoltage * totalCurrent);
+  totalWatts = (voltageA * currentCT1) + (voltageC * currentCT2);
 
   solarRealPower = eic_solar.GetTotalActivePower();
   solarPowerFactor = eic_solar.GetTotalPowerFactor();
-  totalSolarWatts = (totalSolarVoltage * totalSolarCurrent);
+  totalSolarWatts = (solarVoltageA * solarCurrentCT1) + (solarVoltageC * solarCurrentCT2);
 
   /////// OTHER
   temp = eic.GetTemperature();
@@ -258,6 +262,10 @@ void energy_meter_loop()
   dtostrf(totalWatts, 2, 4, measurement);
   strcat(result, measurement);
 
+  strcat(result, ",SW:");
+  dtostrf(totalSolarWatts, 2, 4, measurement);
+  strcat(result, measurement);
+  
   strcat(result, ",f:");
   dtostrf(freq, 2, 2, measurement);
   strcat(result, measurement);

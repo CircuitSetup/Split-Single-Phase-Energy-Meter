@@ -524,25 +524,25 @@ void ATM90E32::begin()
   if (_lineFreq == 4485 || _lineFreq == 5231)
   {
     //North America power frequency
-    FreqHiThresh = 61 * 1000;
-    FreqLoThresh = 59 * 1000;
+    FreqHiThresh = 61 * 100;
+    FreqLoThresh = 59 * 100;
   }
   else
   {
-    FreqHiThresh = 51 * 1000;
-    FreqLoThresh = 49 * 1000;
+    FreqHiThresh = 51 * 100;
+    FreqLoThresh = 49 * 100;
   }
 
-  //calculation for voltage sag threshold - assumes we do not want to go under 100v for split phase and 200v otherwise
+  //calculation for voltage sag threshold - assumes we do not want to go under 90v for split phase and 190v otherwise
   unsigned short vSagTh;
   unsigned short sagV;
   if (_lineFreq == 4485 || _lineFreq == 5231)
   {
-    sagV = 100;
+    sagV = 90;
   }
   else
   {
-    sagV = 200;
+    sagV = 190;
   }
 
   vSagTh = (sagV * 100 * sqrt(2)) / (2 * _ugain / 32768);

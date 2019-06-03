@@ -31,11 +31,13 @@ const int CS_pin = 04;
 unsigned short lineFreq = 4485;         //4485 for 60 Hz (North America)
                                         //389 for 50 hz (rest of the world)
 unsigned short PGAGain = 21;            //21 for 100A (2x), 42 for >100A (4x)
-unsigned short VoltageGain = 41820;     //9v AC transformer.
+
+unsigned short VoltageGain = 42080;     //42080 - 9v AC transformer.
                                         //32428 - 12v AC Transformer
-unsigned short CurrentGainCT1 = 25498;  //SCT-013-000 100A/50mA
+                                        
+unsigned short CurrentGainCT1 = 38695;  //38695 - SCT-016 120A/40mA
+unsigned short CurrentGainCT2 = 38695;  //25498 - SCT-013-000 100A/50mA
                                         //46539 - Magnalab 100A w/ built in burden resistor
-unsigned short CurrentGainCT2 = 25498;
 
 
 // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= //

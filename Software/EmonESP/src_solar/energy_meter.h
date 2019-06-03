@@ -10,17 +10,18 @@
 // 42 for between 100A - 200A (4x)
 #define PGA_GAIN 21
 
-// 41820 - 9v AC transformer
+// 42080 - 9v AC transformer
 // 32428 - 12v AC Transformer
-#define VOLTAGE_GAIN 41820
-#define VOLTAGE_GAIN_SOLAR 41820
+#define VOLTAGE_GAIN 42080
+#define VOLTAGE_GAIN_SOLAR 42080
 
 // 25498 - SCT-013-000 100A/50mA
+// 38695 - SCT-016 120A/40mA
 // 46539 - Magnalab 100A/200A
-#define CURRENT_GAIN_CT1 25498
-#define CURRENT_GAIN_CT2 25498
-#define SOLAR_GAIN_CT1 25498
-#define SOLAR_GAIN_CT2 25498
+#define CURRENT_GAIN_CT1 38695
+#define CURRENT_GAIN_CT2 38695
+#define SOLAR_GAIN_CT1 38695
+#define SOLAR_GAIN_CT2 38695
 
 extern void energy_meter_setup();
 extern void energy_meter_loop();

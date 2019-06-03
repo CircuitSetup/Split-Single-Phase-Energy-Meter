@@ -73,7 +73,6 @@ void setup() {
   /*Initialise the ATM90E32 + SPI port */
   eic.begin();
   delay(1000);
-
 }
 
 void loop() {
@@ -91,18 +90,16 @@ void loop() {
     delay(10);
 
     //if true the MCU is not getting data from the energy meter
-    if (sys0 == 65535 || sys0 == 0) DEBUG.println("Error: Not receiving data from energy meter - check your connections");
+    if (sys0 == 65535 || sys0 == 0) Serial.println("Error: Not receiving data from energy meter - check your connections");
 
     //get voltage
     voltageA = eic.GetLineVoltageA();
     voltageC = eic.GetLineVoltageC();
 
-    if (lineFreq = 4485)
-    {
+    if (lineFreq = 4485) {
       totalVoltage = voltageA + voltageC;     //is split single phase, so only 120v per leg
     }
-    else
-    {
+    else {
       totalVoltage = voltageA;     //voltage should be 220-240 at the AC transformer
     }
 

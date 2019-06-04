@@ -1,0 +1,52 @@
+sensor:
+- platform: mqtt
+  name: "Volts 1"
+  state_topic: "home/energy/sensor"
+  value_template: '{{ value_json["V1"] }}'
+  unit_of_measurement: "Volts"
+- platform: mqtt
+  name: "Volts 2"
+  state_topic: "home/energy/sensor"
+  value_template: '{{ value_json["V2"] }}'
+  unit_of_measurement: "Volts"
+- platform: mqtt
+  name: "Amps 1"
+  state_topic: "home/energy/sensor"
+  value_template: '{{ value_json["I1"] }}'
+  unit_of_measurement: "Amps"
+- platform: mqtt
+  name: "Amps 2"
+  state_topic: "home/energy/sensor"
+  value_template: '{{ value_json["I2"] }}'
+  unit_of_measurement: "Amps"
+- platform: mqtt
+  name: "Amps Total"
+  state_topic: "home/energy/sensor"
+  value_template: '{{ value_json["totI"] }}'
+  unit_of_measurement: "Amps"
+- platform: mqtt
+  name: "Total Watts"
+  state_topic: "home/energy/sensor"
+  value_template: '{{ value_json["W"] }}'
+  unit_of_measurement: "Watts"
+- platform: mqtt
+  name: "Apparent Power"
+  state_topic: "home/energy/sensor"
+  value_template: '{{ value_json["AP"] }}'
+  unit_of_measurement: "Watts"
+- platform: mqtt
+  name: "Power Factor"
+  state_topic: "home/energy/sensor"
+  value_template: '{{ value_json["PF"] }}'
+  unit_of_measurement: "Watts"
+- platform: mqtt
+  name: "Temperature"
+  state_topic: "home/energy/sensor"
+  value_template: '{{ value_json["t"] }}'
+  unit_of_measurement: "C"
+- platform: mqtt
+  name: "Frequency"
+  state_topic: "home/energy/sensor"
+  value_template: '{{ value_json["f"] }}'
+  unit_of_measurement: "Hz"
+  

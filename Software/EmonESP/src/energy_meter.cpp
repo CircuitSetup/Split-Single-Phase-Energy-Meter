@@ -134,18 +134,17 @@ void energy_meter_loop()
   currentCT1 = eic.GetLineCurrentA();
 
   // Is net energy positive or negative?
-  unsigned short fwdEnergyA = eic.GetValueRegister(APenergyA);
-  unsigned short revEnergyA = eic.GetValueRegister(ANenergyA);
+  float fwdEnergyA = eic.GetValueRegister(APenergyA);
+  float revEnergyA = eic.GetValueRegister(ANenergyA);
   if (revEnergyA > fwdEnergyA) currentCT1 *= -1;
 
   /////// CURRENT - CT2
   currentCT2 = eic.GetLineCurrentC();
 
   // Is net energy positive or negative?
-  unsigned short fwdEnergyC = eic.GetValueRegister(APenergyC);
-  unsigned short revEnergyC = eic.GetValueRegister(ANenergyC);
+  float fwdEnergyC = eic.GetValueRegister(APenergyC);
+  float revEnergyC = eic.GetValueRegister(ANenergyC);
   if (revEnergyC > fwdEnergyC) currentCT2 *= -1;
-
 
   totalCurrent = currentCT1 + currentCT2;
 
@@ -166,7 +165,7 @@ void energy_meter_loop()
   DEBUG.println("Total Watts: " + String(totalWatts) + "W");
   DEBUG.println("Active Power: " + String(realPower) + "W");
   DEBUG.println("Power Factor: " + String(powerFactor));
-  DEBUG.println("Fundimental Power: " + String(eic.GetTotalActiveFundPower()) + "W");
+  DEBUG.println("Fundamental Power: " + String(eic.GetTotalActiveFundPower()) + "W");
   DEBUG.println("Harmonic Power: " + String(eic.GetTotalActiveHarPower()) + "W");
   DEBUG.println("Reactive Power: " + String(eic.GetTotalReactivePower()) + "var");
   DEBUG.println("Apparent Power: " + String(eic.GetTotalApparentPower()) + "VA");

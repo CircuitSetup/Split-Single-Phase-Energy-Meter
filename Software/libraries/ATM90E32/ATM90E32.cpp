@@ -132,13 +132,18 @@ int ATM90E32::Read32Register(signed short regh_addr, signed short regl_addr) {
   val = val_h << 16;
   val |= val_l; //concatenate the 2 registers to make 1 32 bit number
   
-  if ((val & 0x80000000) != 0) { //if negative
+  /* 
+  // returns positive value if negative
+  if ((val & 0x80000000) != 0) { 
 		val = (~val) + 1; //2s compliment + 1
   }
+  */
+  
   return (val);
+  
 }
 
-double ATM90E32::CalculateVIOffset(unsigned short regh_addr, unsigned short regl_addr, unsigned short offset_reg) {
+double ATM90E32::CalculateVIOffset(unsigned short regh_addr, unsigned short regl_addr /*, unsigned short offset_reg*/) {
 //for getting the lower registers of energy and calculating the offset
 //this should only be run when all inputs are disconnected
   signed int val, val_h, val_l;
@@ -153,8 +158,8 @@ double ATM90E32::CalculateVIOffset(unsigned short regh_addr, unsigned short regl
   val = (~val) + 1; //2s compliment + 1 
   
   offset = val;
-  CommEnergyIC(WRITE, offset_reg, (signed short)val);
-  return (offset);
+  //CommEnergyIC(WRITE, offset_reg, (signed short)val);
+  return double(offset);
 }
 
 double ATM90E32::CalibrateVI(unsigned short reg, unsigned short actualVal) {
@@ -238,82 +243,68 @@ double ATM90E32::GetLineCurrentN() {
 
 // ACTIVE POWER
 double ATM90E32::GetActivePowerA() {
-  int val;
-  val = Read32Register(PmeanA, PmeanALSB);
+  int val = Read32Register(PmeanA, PmeanALSB);
   return (double)val * 0.00032;
 }
 double ATM90E32::GetActivePowerB() {
-  int val;
-  val = Read32Register(PmeanB, PmeanBLSB);
+  int val = Read32Register(PmeanB, PmeanBLSB);
   return (double)val * 0.00032;
 }
 double ATM90E32::GetActivePowerC() {
-  int val;
-  val = Read32Register(PmeanC, PmeanCLSB);
+  int val = Read32Register(PmeanC, PmeanCLSB);
   return (double)val * 0.00032;
 }
 double ATM90E32::GetTotalActivePower() {
-   int val;
-   val = Read32Register(PmeanT, PmeanTLSB);
+   int val = Read32Register(PmeanT, PmeanTLSB);
    return (double)val * 0.00032;
 }
 
 // Active Fundamental Power
 double ATM90E32::GetTotalActiveFundPower() {
-  int val;
-  val = Read32Register(PmeanTF, PmeanTFLSB);
+  int val = Read32Register(PmeanTF, PmeanTFLSB);
   return (double)val * 0.00032;
 }
 
 // Active Harmonic Power
 double ATM90E32::GetTotalActiveHarPower() {
-  int val;
-  val = Read32Register(PmeanTH, PmeanTHLSB);
+  int val = Read32Register(PmeanTH, PmeanTHLSB);
   return (double)val * 0.00032;
 }
 
 
 // REACTIVE POWER
 double ATM90E32::GetReactivePowerA() {
-  int val;
-  val = Read32Register(QmeanA, QmeanALSB);
+  int val = Read32Register(QmeanA, QmeanALSB);
   return (double)val * 0.00032;
 }
 double ATM90E32::GetReactivePowerB() {
-  int val;
-  val = Read32Register(QmeanB, QmeanBLSB);
+  int val = Read32Register(QmeanB, QmeanBLSB);
   return (double)val * 0.00032;
 }
 double ATM90E32::GetReactivePowerC() {
-  int val;
-  val = Read32Register(QmeanC, QmeanCLSB);
+  int val = Read32Register(QmeanC, QmeanCLSB);
   return (double)val * 0.00032;
 }
 double ATM90E32::GetTotalReactivePower() {
-  int val;
-  val = Read32Register(QmeanT, QmeanTLSB);
+  int val = Read32Register(QmeanT, QmeanTLSB);
   return (double)val * 0.00032;
 }
 
 // APPARENT POWER
 double ATM90E32::GetApparentPowerA() {
-  int val;
-  val = Read32Register(SmeanA, SmeanALSB);
+  int val = Read32Register(SmeanA, SmeanALSB);
   return (double)val * 0.00032;
 }
 double ATM90E32::GetApparentPowerB() {
-  int val;
-  val = Read32Register(SmeanB, SmeanBLSB);
+  int val = Read32Register(SmeanB, SmeanBLSB);
   return (double)val * 0.00032;
 }
 double ATM90E32::GetApparentPowerC() {
-  int val;
-  val = Read32Register(SmeanC, SmeanCLSB);
+  int val = Read32Register(SmeanC, SmeanCLSB);
   return (double)val * 0.00032;
 }
 double ATM90E32::GetTotalApparentPower() {
-  int val;
-  val = Read32Register(SmeanT, SAmeanTLSB);
+  int val = Read32Register(SmeanT, SAmeanTLSB);
   return (double)val * 0.00032;
 }
 
@@ -379,7 +370,7 @@ double ATM90E32::GetTemperature() {
 
 /* Gets the Register Value if Desired */
 // REGISTER
-unsigned short ATM90E32::GetValueRegister(unsigned short registerRead) {
+double ATM90E32::GetValueRegister(unsigned short registerRead) {
   return (double) CommEnergyIC(READ, registerRead, 0xFFFF); //returns value register
 }
 

@@ -261,7 +261,7 @@ class ATM90E32
 		/* Initialization Functions */	
 		void begin();
 		
-		double CalculateVIOffset(unsigned short regh_addr, unsigned short regl_addr, unsigned short offset_reg);
+		double CalculateVIOffset(unsigned short regh_addr, unsigned short regl_addr/*, unsigned short offset_reg*/);
 		double CalibrateVI(unsigned short reg, unsigned short actualVal);
 		
 		/* Main Electrical Parameters (GET)*/
@@ -306,7 +306,7 @@ class ATM90E32
 		double GetTemperature();
 
 		/* Gain Parameters (GET)*/
-		unsigned short GetValueRegister(unsigned short registerRead);
+		double GetValueRegister(unsigned short registerRead);
 
 		/* Energy Consumption */
 		double GetImportEnergy();

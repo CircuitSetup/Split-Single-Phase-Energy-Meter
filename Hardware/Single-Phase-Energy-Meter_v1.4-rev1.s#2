@@ -29409,23 +29409,23 @@ Source: &lt;a href="http://www.ti.com/lit/ds/symlink/tps62140.pdf"&gt; Datasheet
 <part name="C11" library="CL31B104KACNBNC" deviceset="CAP-ARRAY4" device="" package3d_urn="urn:adsk.eagle:package:4699554/1" value="0.1uF"/>
 <part name="R7" library="Seeed-Resistor-2016" deviceset="SMD-RES-ARRAY-1K-4R(RA1206-8)" device="" override_package3d_urn="urn:adsk.eagle:package:11397172/2" override_package_urn="urn:adsk.eagle:footprint:11397173/1" value="1K"/>
 <part name="R8" library="Seeed-Resistor-2016" deviceset="SMD-RES-ARRAY-1K-4R(RA1206-8)" device="" override_package3d_urn="urn:adsk.eagle:package:11397165/2" override_package_urn="urn:adsk.eagle:footprint:11397166/1" value="100"/>
-<part name="CT1" library="SparkFun-Connectors" library_urn="urn:adsk.eagle:library:513" deviceset="CONN_02" device="3.5MM" package3d_urn="urn:adsk.eagle:package:38050/1" override_package3d_urn="urn:adsk.eagle:package:11682241/2" override_package_urn="urn:adsk.eagle:footprint:37656/1"/>
-<part name="CT2" library="SparkFun-Connectors" library_urn="urn:adsk.eagle:library:513" deviceset="CONN_02" device="3.5MM" package3d_urn="urn:adsk.eagle:package:38050/1" override_package3d_urn="urn:adsk.eagle:package:11682155/2" override_package_urn="urn:adsk.eagle:footprint:37656/1"/>
+<part name="CT1" library="SparkFun-Connectors" library_urn="urn:adsk.eagle:library:513" deviceset="CONN_02" device="3.5MM" package3d_urn="urn:adsk.eagle:package:38050/1"/>
+<part name="CT2" library="SparkFun-Connectors" library_urn="urn:adsk.eagle:library:513" deviceset="CONN_02" device="3.5MM" package3d_urn="urn:adsk.eagle:package:38050/1"/>
 <part name="JP2" library="SparkFun-Jumpers" library_urn="urn:adsk.eagle:library:528" deviceset="JUMPER-SMT_2_NC_TRACE" device="_SILK" package3d_urn="urn:adsk.eagle:package:39281/1" value=""/>
 <part name="JP1" library="SparkFun-Jumpers" library_urn="urn:adsk.eagle:library:528" deviceset="JUMPER-SMT_2_NC_TRACE" device="_SILK" package3d_urn="urn:adsk.eagle:package:39281/1" value=""/>
 <part name="JP3" library="SparkFun-Jumpers" library_urn="urn:adsk.eagle:library:528" deviceset="JUMPER-SMT_2_NC_TRACE" device="_SILK" package3d_urn="urn:adsk.eagle:package:39281/1" value=""/>
 <part name="C12" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="CPOL-US" device="153CLV-0605" package3d_urn="urn:adsk.eagle:package:23398/1" override_package3d_urn="urn:adsk.eagle:package:11397260/2" override_package_urn="urn:adsk.eagle:footprint:22904/1" value="220uF/25V"/>
 <part name="R16" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-US_" device="R0603" package3d_urn="urn:adsk.eagle:package:23555/2" value="100k"/>
-<part name="L1" library="PA4332.222NLT" deviceset="PA4332.222NLT" device="" override_package3d_urn="urn:adsk.eagle:package:11397156/4" override_package_urn="urn:adsk.eagle:footprint:11397157/1" value="2.2uH"/>
+<part name="L1" library="PA4332.222NLT" deviceset="PA4332.222NLT" device="" override_package3d_urn="urn:adsk.eagle:package:11397156/2" override_package_urn="urn:adsk.eagle:footprint:11397157/1" value="2.2uH"/>
 <part name="C13" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="C-US" device="C0805" package3d_urn="urn:adsk.eagle:package:23617/2" value="22uF/16V/0805"/>
 <part name="CT1-2" library="SJ2-35813B-SMT-TR" deviceset="SJ2-35813B-SMT-TR" device="" override_package3d_urn="urn:adsk.eagle:package:11396903/3" override_package_urn="urn:adsk.eagle:footprint:11396904/1"/>
 <part name="CT2-2" library="SJ2-35813B-SMT-TR" deviceset="SJ2-35813B-SMT-TR" device="" override_package3d_urn="urn:adsk.eagle:package:11397085/3" override_package_urn="urn:adsk.eagle:footprint:11397086/1"/>
 <part name="J1" library="SparkFun-Connectors" library_urn="urn:adsk.eagle:library:513" deviceset="CONN_09" device="" package3d_urn="urn:adsk.eagle:package:38153/1" override_package3d_urn="urn:adsk.eagle:package:11397183/2" override_package_urn="urn:adsk.eagle:footprint:37776/1"/>
-<part name="J3" library="SparkFun-Connectors" library_urn="urn:adsk.eagle:library:513" deviceset="CONN_03" device="" package3d_urn="urn:adsk.eagle:package:38063/1" override_package3d_urn="urn:adsk.eagle:package:11682112/2" override_package_urn="urn:adsk.eagle:footprint:37678/1"/>
-<part name="J4" library="SparkFun-Connectors" library_urn="urn:adsk.eagle:library:513" deviceset="CONN_02" device="" package3d_urn="urn:adsk.eagle:package:38039/1" override_package3d_urn="urn:adsk.eagle:package:11681954/2" override_package_urn="urn:adsk.eagle:footprint:37654/1"/>
+<part name="J3" library="SparkFun-Connectors" library_urn="urn:adsk.eagle:library:513" deviceset="CONN_03" device="" package3d_urn="urn:adsk.eagle:package:38063/1"/>
+<part name="J4" library="SparkFun-Connectors" library_urn="urn:adsk.eagle:library:513" deviceset="CONN_02" device="" package3d_urn="urn:adsk.eagle:package:38039/1"/>
 <part name="GND11" library="SparkFun-Aesthetics" library_urn="urn:adsk.eagle:library:507" deviceset="GND" device=""/>
-<part name="FD1" library="SparkFun-Aesthetics" library_urn="urn:adsk.eagle:library:507" deviceset="FIDUCIAL" device="UFIDUCIAL" package3d_urn="urn:adsk.eagle:package:37111/1" override_package3d_urn="urn:adsk.eagle:package:11682424/2" override_package_urn="urn:adsk.eagle:footprint:36998/1"/>
-<part name="FD2" library="SparkFun-Aesthetics" library_urn="urn:adsk.eagle:library:507" deviceset="FIDUCIAL" device="UFIDUCIAL" package3d_urn="urn:adsk.eagle:package:37111/1" override_package3d_urn="urn:adsk.eagle:package:11682118/2" override_package_urn="urn:adsk.eagle:footprint:36998/1"/>
+<part name="FD1" library="SparkFun-Aesthetics" library_urn="urn:adsk.eagle:library:507" deviceset="FIDUCIAL" device="UFIDUCIAL" package3d_urn="urn:adsk.eagle:package:37111/1"/>
+<part name="FD2" library="SparkFun-Aesthetics" library_urn="urn:adsk.eagle:library:507" deviceset="FIDUCIAL" device="UFIDUCIAL" package3d_urn="urn:adsk.eagle:package:37111/1"/>
 <part name="LOGO1" library="SparkFun-Aesthetics" library_urn="urn:adsk.eagle:library:507" deviceset="OSHW-LOGO" device="S" package3d_urn="urn:adsk.eagle:package:37099/1" value="OSHW-LOGOS"/>
 <part name="GND9" library="SparkFun-Aesthetics" library_urn="urn:adsk.eagle:library:507" deviceset="GND" device=""/>
 <part name="C16" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="C-US" device="C0603" package3d_urn="urn:adsk.eagle:package:23616/2" value="10uF"/>
@@ -29433,7 +29433,7 @@ Source: &lt;a href="http://www.ti.com/lit/ds/symlink/tps62140.pdf"&gt; Datasheet
 <part name="IC2" library="SamacSys_Parts" deviceset="TPS62142RGTR" device="" override_package3d_urn="urn:adsk.eagle:package:11397149/2" override_package_urn="urn:adsk.eagle:footprint:11397150/1"/>
 <part name="C17" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="C-US" device="C0603" package3d_urn="urn:adsk.eagle:package:23616/2" value="390pF"/>
 <part name="U$1" library="circuitsetup_logos" deviceset="CS_OSHW_LOGOS" device=""/>
-<part name="J6" library="SparkFun-Connectors" library_urn="urn:adsk.eagle:library:513" deviceset="CONN_09" device="" package3d_urn="urn:adsk.eagle:package:38153/1"/>
+<part name="J6" library="SparkFun-Connectors" library_urn="urn:adsk.eagle:library:513" deviceset="CONN_09" device="" package3d_urn="urn:adsk.eagle:package:38153/1" override_package3d_urn="urn:adsk.eagle:package:11397183/2" override_package_urn="urn:adsk.eagle:footprint:37776/1"/>
 </parts>
 <sheets>
 <sheet>

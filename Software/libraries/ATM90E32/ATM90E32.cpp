@@ -154,7 +154,7 @@ double ATM90E32::CalculateVIOffset(unsigned short regh_addr, unsigned short regl
 
   val = val_h << 16;
   val |= val_l; //concatenate the 2 registers to make 1 32 bit number
-  val = val << 7; // right shift 7 bits - lowest 7 get ignored
+  val = val >> 7; // right shift 7 bits - lowest 7 get ignored
   val = (~val) + 1; //2s compliment + 1 
   
   offset = val;

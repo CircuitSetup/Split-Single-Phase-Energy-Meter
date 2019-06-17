@@ -19,18 +19,18 @@
  *    42080 - 9v AC transformer
  *    32428 - 12v AC Transformer
  * For meter > v1.4:
- *    38465 - 9v AC transformer
+ *    38302 - 9v AC transformer
  *    29462 - 12v AC Transformer
  */
-#define VOLTAGE_GAIN 38465
+#define VOLTAGE_GAIN 38302
 
 /*
  * 25498 - SCT-013-000 100A/50mA
- * 38695 - SCT-016 120A/40mA
- * 46539 - Magnalab 100A/200A
+ * 39473 - SCT-016 120A/40mA
+ * 46539 - Magnalab 100A
  */
-#define CURRENT_GAIN_CT1 38695
-#define CURRENT_GAIN_CT2 38695
+#define CURRENT_GAIN_CT1 39473
+#define CURRENT_GAIN_CT2 39473
 
 extern void energy_meter_setup();
 extern void energy_meter_loop();

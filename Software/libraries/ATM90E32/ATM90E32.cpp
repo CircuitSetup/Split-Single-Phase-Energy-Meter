@@ -135,7 +135,7 @@ int ATM90E32::Read32Register(signed short regh_addr, signed short regl_addr) {
   /* 
   // returns positive value if negative
   if ((val & 0x80000000) != 0) { 
-		val = (~val) + 1; //2s compliment + 1
+		val = (~val) + 1; //2s compliment
   }
   */
   
@@ -146,26 +146,44 @@ int ATM90E32::Read32Register(signed short regh_addr, signed short regl_addr) {
 double ATM90E32::CalculateVIOffset(unsigned short regh_addr, unsigned short regl_addr /*, unsigned short offset_reg*/) {
 //for getting the lower registers of energy and calculating the offset
 //this should only be run when all inputs are disconnected
-  signed int val, val_h, val_l;
-  signed short offset;
+  uint32_t val, val_h, val_l;
+  uint16_t offset;
   val_h = CommEnergyIC(READ, regh_addr, 0xFFFF);
   val_l = CommEnergyIC(READ, regl_addr, 0xFFFF);
   val = CommEnergyIC(READ, regh_addr, 0xFFFF);
 
-  val = val_h << 16;
+  val = val_h << 16; //move high register up 16 bits
   val |= val_l; //concatenate the 2 registers to make 1 32 bit number
-  val = val << 7; // right shift 7 bits - lowest 7 get ignored
-  val = (~val) + 1; //2s compliment + 1 
+  val = val >> 7; //right shift 7 bits - lowest 7 get ignored
+  val = (~val) + 1; //2s compliment
   
-  offset = val;
+  offset = val; //keep lower 16 bits
   //CommEnergyIC(WRITE, offset_reg, (signed short)val);
-  return double(offset);
+  return uint16_t(offset);
+}
+
+double ATM90E32::CalculatePowerOffset(unsigned short regh_addr, unsigned short regl_addr /*, unsigned short offset_reg*/) {
+//for getting the lower registers of energy and calculating the offset
+//this should only be run when all inputs are disconnected
+  uint32_t val, val_h, val_l;
+  uint16_t offset;
+  val_h = CommEnergyIC(READ, regh_addr, 0xFFFF);
+  val_l = CommEnergyIC(READ, regl_addr, 0xFFFF);
+  val = CommEnergyIC(READ, regh_addr, 0xFFFF);
+
+  val = val_h << 16; //move high register up 16 bits
+  val |= val_l; //concatenate the 2 registers to make 1 32 bit number
+  val = (~val) + 1; //2s compliment
+  
+  offset = val; //keep lower 16 bits
+  //CommEnergyIC(WRITE, offset_reg, (signed short)val);
+  return uint16_t(offset);
 }
 
 double ATM90E32::CalibrateVI(unsigned short reg, unsigned short actualVal) {
 //input the Voltage or Current register, and the actual value that it should be
 //actualVal can be from a calibration meter or known value from a power supply
-  unsigned short gain, val, m, gainReg;
+  uint16_t gain, val, m, gainReg;
 	//sample the reading 
 	val = CommEnergyIC(READ, reg, 0xFFFF);
 	val += CommEnergyIC(READ, reg, 0xFFFF);
@@ -567,22 +585,22 @@ void ATM90E32::begin()
 
   //Set metering calibration values (CALIBRATION)
   CommEnergyIC(WRITE, PQGainA, 0x0000);     // Line calibration gain
-  CommEnergyIC(WRITE, PhiA, 0x0000);        // Line calibration angle
+  CommEnergyIC(WRITE, PhiA, 0x0049);        // Line calibration angle
   CommEnergyIC(WRITE, PQGainB, 0x0000);     // Line calibration gain
-  CommEnergyIC(WRITE, PhiB, 0x0000);        // Line calibration angle
+  CommEnergyIC(WRITE, PhiB, 0x0049);        // Line calibration angle
   CommEnergyIC(WRITE, PQGainC, 0x0000);     // Line calibration gain
-  CommEnergyIC(WRITE, PhiC, 0x0000);        // Line calibration angle
-  CommEnergyIC(WRITE, PoffsetA, 0x0000);    // A line active power offset
-  CommEnergyIC(WRITE, QoffsetA, 0x0000);    // A line reactive power offset
-  CommEnergyIC(WRITE, PoffsetB, 0x0000);    // B line active power offset
-  CommEnergyIC(WRITE, QoffsetB, 0x0000);    // B line reactive power offset
-  CommEnergyIC(WRITE, PoffsetC, 0x0000);    // C line active power offset
-  CommEnergyIC(WRITE, QoffsetC, 0x0000);    // C line reactive power offset
+  CommEnergyIC(WRITE, PhiC, 0x0049);        // Line calibration angle
+  CommEnergyIC(WRITE, PoffsetA, 0xFFDC);    // A line active power offset
+  CommEnergyIC(WRITE, QoffsetA, 0xFFDC);    // A line reactive power offset
+  CommEnergyIC(WRITE, PoffsetB, 0xFFDC);    // B line active power offset
+  CommEnergyIC(WRITE, QoffsetB, 0xFFDC);    // B line reactive power offset
+  CommEnergyIC(WRITE, PoffsetC, 0xFFDC);    // C line active power offset
+  CommEnergyIC(WRITE, QoffsetC, 0xFFDC);    // C line reactive power offset
 
   //Set metering calibration values (HARMONIC)
-  CommEnergyIC(WRITE, POffsetAF, 0x0000);   // A Fund. active power offset
-  CommEnergyIC(WRITE, POffsetBF, 0x0000);   // B Fund. active power offset
-  CommEnergyIC(WRITE, POffsetCF, 0x0000);   // C Fund. active power offset
+  CommEnergyIC(WRITE, POffsetAF, 0xFFDC);   // A Fund. active power offset
+  CommEnergyIC(WRITE, POffsetBF, 0xFFDC);   // B Fund. active power offset
+  CommEnergyIC(WRITE, POffsetCF, 0xFFDC);   // C Fund. active power offset
   CommEnergyIC(WRITE, PGainAF, 0x0000);     // A Fund. active power gain
   CommEnergyIC(WRITE, PGainBF, 0x0000);     // B Fund. active power gain
   CommEnergyIC(WRITE, PGainCF, 0x0000);     // C Fund. active power gain
@@ -590,16 +608,16 @@ void ATM90E32::begin()
   //Set measurement calibration values (ADJUST)
   CommEnergyIC(WRITE, UgainA, _ugain);      // A Voltage rms gain
   CommEnergyIC(WRITE, IgainA, _igainA);      // A line current gain
-  CommEnergyIC(WRITE, UoffsetA, 0x0000);    // A Voltage offset
-  CommEnergyIC(WRITE, IoffsetA, 0x0000);    // A line current offset
+  CommEnergyIC(WRITE, UoffsetA, 0x61A8);    // A Voltage offset
+  CommEnergyIC(WRITE, IoffsetA, 0xFC60);    // A line current offset
   CommEnergyIC(WRITE, UgainB, _ugain);      // B Voltage rms gain
   CommEnergyIC(WRITE, IgainB, _igainB);      // B line current gain
-  CommEnergyIC(WRITE, UoffsetB, 0x0000);    // B Voltage offset
-  CommEnergyIC(WRITE, IoffsetB, 0x0000);    // B line current offset
+  CommEnergyIC(WRITE, UoffsetB, 0x1D4C);    // B Voltage offset
+  CommEnergyIC(WRITE, IoffsetB, 0xFC60);    // B line current offset
   CommEnergyIC(WRITE, UgainC, _ugain);      // C Voltage rms gain
   CommEnergyIC(WRITE, IgainC, _igainC);      // C line current gain
-  CommEnergyIC(WRITE, UoffsetC, 0x0000);    // C Voltage offset
-  CommEnergyIC(WRITE, IoffsetC, 0x0000);    // C line current offset
+  CommEnergyIC(WRITE, UoffsetC, 0x1D4C);    // C Voltage offset
+  CommEnergyIC(WRITE, IoffsetC, 0xFC60);    // C line current offset
 
   CommEnergyIC(WRITE, CfgRegAccEn, 0x0000); // end configuration
 

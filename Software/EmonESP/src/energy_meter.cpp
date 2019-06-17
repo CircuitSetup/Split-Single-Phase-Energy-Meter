@@ -10,7 +10,7 @@
 
 
 /***** CALIBRATION SETTINGS *****/
-// edit in energy_meter.h
+/* edit in energy_meter.h */
 unsigned short VoltageGain = VOLTAGE_GAIN;
 unsigned short CurrentGainCT1 = CURRENT_GAIN_CT1;
 unsigned short CurrentGainCT2 = CURRENT_GAIN_CT2;
@@ -50,7 +50,8 @@ static const int LED_BUILTIN = 2; //for on-board LED
 
 unsigned long startMillis;
 unsigned long currentMillis;
-const unsigned long period = 1000; //time interval in ms to send data
+const int period = 1000; //time interval in ms to send data
+const int canBeNegative = 0; //set to 1 if current and power readings can be negative (like when exporting solar power)
 
 char result[200];
 char measurement[16];
@@ -102,8 +103,8 @@ void energy_meter_loop()
   /*Repeatedly fetch some values from the ATM90E32 */
   float voltageA, voltageC, totalVoltage;
   float currentCT1, currentCT2, totalCurrent;
-  float totalWatts;
-  float realPower, powerFactor, temp, freq;
+  float totalWatts, wattsA, wattsC;
+  float powerFactor, temp, freq;
 
   unsigned short sys0 = eic.GetSysStatus0(); //EMMState0
   unsigned short sys1 = eic.GetSysStatus1(); //EMMState1
@@ -130,28 +131,31 @@ void energy_meter_loop()
     totalVoltage = voltageA;     //voltage should be 220-240 at the AC transformer
   }
 
-  /////// CURRENT - CT1
+  /////// CURRENT & POWER
   currentCT1 = eic.GetLineCurrentA();
-
-  // Is net energy positive or negative?
-  float fwdEnergyA = eic.GetValueRegister(APenergyA);
-  float revEnergyA = eic.GetValueRegister(ANenergyA);
-  if (revEnergyA > fwdEnergyA) currentCT1 *= -1;
-
-  /////// CURRENT - CT2
   currentCT2 = eic.GetLineCurrentC();
-
-  // Is net energy positive or negative?
-  float fwdEnergyC = eic.GetValueRegister(APenergyC);
-  float revEnergyC = eic.GetValueRegister(ANenergyC);
-  if (revEnergyC > fwdEnergyC) currentCT2 *= -1;
-
+  
+  wattsA = eic.GetActivePowerA();
+  wattsC = eic.GetActivePowerC();
+  
+  if (canBeNegative == 1) {
+    /* Is net energy positive or negative?
+     * We're not reading if current is pos or neg because we're only getting
+     * the upper 16 bit register. We are getting all 32 bits of active power though */
+    if (wattsA < 0) currentCT1 *= -1; 
+    if (wattsC < 0) currentCT2 *= -1;
+    totalWatts = eic.GetTotalActivePower(); //all math is already done in the total register
+  }
+  else { 
+    /* If single split phase & 1 voltage reading, phase will be offset between the 2 phases
+     *  making one power reading negative. This will correct for that negative reading. */
+    if (wattsA < 0) wattsA *= -1;
+    if (wattsC < 0) wattsC *= -1;
+    totalWatts = wattsA + wattsC;
+  }
+  
   totalCurrent = currentCT1 + currentCT2;
-
-  /////// POWER
-  realPower = eic.GetTotalActivePower();
   powerFactor = eic.GetTotalPowerFactor();
-  totalWatts = (voltageA * currentCT1) + (voltageC * currentCT2);
 
   /////// OTHER
   temp = eic.GetTemperature();
@@ -162,8 +166,7 @@ void energy_meter_loop()
   DEBUG.println("Voltage 2: " + String(voltageC) + "V");
   DEBUG.println("Current 1: " + String(currentCT1) + "A");
   DEBUG.println("Current 2: " + String(currentCT2) + "A");
-  DEBUG.println("Total Watts: " + String(totalWatts) + "W");
-  DEBUG.println("Active Power: " + String(realPower) + "W");
+  DEBUG.println("Active Power: " + String(totalWatts) + "W");
   DEBUG.println("Power Factor: " + String(powerFactor));
   DEBUG.println("Fundamental Power: " + String(eic.GetTotalActiveFundPower()) + "W");
   DEBUG.println("Harmonic Power: " + String(eic.GetTotalActiveHarPower()) + "W");
@@ -173,6 +176,39 @@ void energy_meter_loop()
   DEBUG.println("Chip Temp: " + String(temp) + "C");
   DEBUG.println("Frequency: " + String(freq) + "Hz");
   DEBUG.println(" ");
+  /* 
+   * calibrating offsets - not important unless measuring small loads
+   * hook up CTs to meter, but not around cable
+   * voltage input should be connected
+   * average output values of the following and write to corresponding registers
+   */
+   /*
+  DEBUG.println("I1-Offset: " + String(eic.CalculateVIOffset(IrmsA, IrmsALSB)));
+  DEBUG.println("I2-Offset: " + String(eic.CalculateVIOffset(IrmsC, IrmsCLSB)));
+  DEBUG.println("V1-Offset: " + String(eic.CalculateVIOffset(UrmsA, UrmsALSB)));
+  DEBUG.println("V2-Offset: " + String(eic.CalculateVIOffset(UrmsC, UrmsCLSB)));
+  DEBUG.println("Active-Offset: " + String(eic.CalculatePowerOffset(PmeanA, PmeanALSB)));
+  DEBUG.println("Reactive-Offset: " + String(eic.CalculatePowerOffset(QmeanA, QmeanALSB)));
+  DEBUG.println("Funda-Offset: " + String(eic.CalculatePowerOffset(PmeanAF, PmeanAFLSB)));
+  */
+  /* 
+   * calibrating phase angle
+   * calculated phase_x angle = arccos(active / apparent) 
+   * phi_x = round(calculated phase_x angle - actual phase_x angle) x 113.778
+   */
+   /*
+  DEBUG.println("Power A: " + String(eic.GetActivePowerA()) + "W");
+  DEBUG.println("Power C: " + String(eic.GetActivePowerC()) + "W");
+  DEBUG.println("Apparent A: " + String(eic.GetApparentPowerA()) + "VA");
+  DEBUG.println("Apparent C: " + String(eic.GetApparentPowerC()) + "VA");
+  */
+  /*
+   * after calibrating phase angle, reactive should be close to 0 under a pure resistive load
+   */
+  /*
+  DEBUG.println("Reactive A: " + String(eic.GetReactivePowerA()) + "var");
+  DEBUG.println("Reactive C: " + String(eic.GetReactivePowerC()) + "var");
+*/
 
 // default values are passed to EmonCMS - these can be changed out for anything
 // in the ATM90E32 library 
@@ -200,10 +236,6 @@ void energy_meter_loop()
 
   strcat(result, ",totI:");
   dtostrf(totalCurrent, 2, 4, measurement);
-  strcat(result, measurement);
-
-  strcat(result, ",AP:");
-  dtostrf(realPower, 2, 4, measurement);
   strcat(result, measurement);
 
   strcat(result, ",PF:");

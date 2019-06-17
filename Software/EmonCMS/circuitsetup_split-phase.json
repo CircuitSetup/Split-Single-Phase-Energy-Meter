@@ -44,16 +44,6 @@
                 }
             ]
         },
-		{
-            "name": "AP",
-            "description": "Real Power",
-            "processList": [
-                {
-                    "process": "log_to_feed",
-                    "arguments": {"type": "ProcessArg::FEEDID", "value": "Real Power" }
-                }
-            ]
-        },
         {
             "name": "PF",
             "description": "Power Factor",

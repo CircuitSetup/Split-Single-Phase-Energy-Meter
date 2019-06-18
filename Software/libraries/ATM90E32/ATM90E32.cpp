@@ -132,13 +132,12 @@ int ATM90E32::Read32Register(signed short regh_addr, signed short regl_addr) {
   val = val_h << 16;
   val |= val_l; //concatenate the 2 registers to make 1 32 bit number
   
-  /* 
+  /*
   // returns positive value if negative
   if ((val & 0x80000000) != 0) { 
 		val = (~val) + 1; //2s compliment
   }
   */
-  
   return (val);
   
 }
@@ -576,20 +575,20 @@ void ATM90E32::begin()
   CommEnergyIC(WRITE, PLconstL, 0xC468);    // PL Constant LSB (default) - this is 4C68 in the application note, which is incorrect
   CommEnergyIC(WRITE, MMode0, _lineFreq);   // Mode Config (frequency set in main program)
   CommEnergyIC(WRITE, MMode1, _pgagain);    // PGA Gain Configuration for Current Channels - 0x002A (x4) // 0x0015 (x2) // 0x0000 (1x)
-  CommEnergyIC(WRITE, PStartTh, 0x0AFC);    // Active Startup Power Threshold - 50% of startup current = 0.9/0.00032 = 2812.5
-  CommEnergyIC(WRITE, QStartTh, 0x0AEC);    // Reactive Startup Power Threshold
-  CommEnergyIC(WRITE, SStartTh, 0x0000);    // Apparent Startup Power Threshold
-  CommEnergyIC(WRITE, PPhaseTh, 0x00BC);    // Active Phase Threshold = 10% of startup current = 0.06/0.00032 = 187.5
-  CommEnergyIC(WRITE, QPhaseTh, 0x0000);    // Reactive Phase Threshold
-  CommEnergyIC(WRITE, SPhaseTh, 0x0000);    // Apparent  Phase Threshold
+  CommEnergyIC(WRITE, PStartTh, 0x0AFC);    // All phase Active Startup Power Threshold - 50% of startup current = 0.09W/0.00032 = 2812.5
+  CommEnergyIC(WRITE, QStartTh, 0x0000);    // All phase Reactive Startup Power Threshold
+  CommEnergyIC(WRITE, SStartTh, 0x0AEC);    // All phase Apparent Startup Power Threshold
+  CommEnergyIC(WRITE, PPhaseTh, 0x00BC);    // Each phase Active Phase Threshold = 10% of startup current = 0.06W/0.00032 = 187.5
+  CommEnergyIC(WRITE, QPhaseTh, 0x0000);    // Each phase Reactive Phase Threshold
+  CommEnergyIC(WRITE, SPhaseTh, 0x00BC);    // Each phase Apparent  Phase Threshold
 
   //Set metering calibration values (CALIBRATION)
   CommEnergyIC(WRITE, PQGainA, 0x0000);     // Line calibration gain
-  CommEnergyIC(WRITE, PhiA, 0x0049);        // Line calibration angle
+  CommEnergyIC(WRITE, PhiA, 0x0032);        // Line calibration angle - accounts for a ~2.5 degree error from 9V AC transformer
   CommEnergyIC(WRITE, PQGainB, 0x0000);     // Line calibration gain
-  CommEnergyIC(WRITE, PhiB, 0x0049);        // Line calibration angle
+  CommEnergyIC(WRITE, PhiB, 0x0032);        // Line calibration angle
   CommEnergyIC(WRITE, PQGainC, 0x0000);     // Line calibration gain
-  CommEnergyIC(WRITE, PhiC, 0x0049);        // Line calibration angle
+  CommEnergyIC(WRITE, PhiC, 0x0032);        // Line calibration angle
   CommEnergyIC(WRITE, PoffsetA, 0xFFDC);    // A line active power offset
   CommEnergyIC(WRITE, QoffsetA, 0xFFDC);    // A line reactive power offset
   CommEnergyIC(WRITE, PoffsetB, 0xFFDC);    // B line active power offset
@@ -620,133 +619,4 @@ void ATM90E32::begin()
   CommEnergyIC(WRITE, IoffsetC, 0xFC60);    // C line current offset
 
   CommEnergyIC(WRITE, CfgRegAccEn, 0x0000); // end configuration
-
-  /*
-    ERROR REGISTERS
-
-    EMMState0
-    Bit Name Description
-    15 OIPhaseAST Set to 1: if there is over current on phase A
-    14 OIPhaseBST Set to 1: if there is over current on phase B
-    13 OIPhaseCST Set to 1: if there is over current on phase C
-    12 OVPhaseAST Set to 1: if there is over voltage on phase A
-    11 OVPhaseBST Set to 1: if there is over voltage on phase B
-    10 OVPhaseCST Set to 1: if there is over voltage on phase C
-    9 URevWnST Voltage Phase Sequence Error status
-    8 IRevWnST Current Phase Sequence Error status
-    7 INOv0ST When the calculated N line current is greater than the threshold set by the INWarnTh register, this bit is
-    set.
-    6 TQNoloadST All phase sum reactive power no-load condition status
-    5 TPNoloadST All phase sum active power no-load condition status
-    4 TASNoloadST All phase arithmetic sum apparent power no-load condition status
-    3 CF1RevST
-    Energy for CF1 Forward/Reverse status:
-    0: Forward
-    1: Reverse
-    2 CF2RevST
-    Energy for CF2 Forward/Reverse status:
-    0: Forward
-    1: Reverse
-    1 CF3RevST
-    Energy for CF3 Forward/Reverse status:
-    0: Forward
-    1: Reverse
-    0 CF4RevST
-    Energy for CF4 Forward/Reverse status:
-    0: Forward
-    1: Reverse
-
-
-    Bit Name Description
-    15 FreqHiST This bit indicates whether frequency is greater than the high threshold
-    14 SagPhaseAST
-    This bit indicates whether there is voltage sag on phase A
-    13 SagPhaseBST
-    This bit indicates whether there is voltage sag on phase B
-    12 SagPhaseCST
-    This bit indicates whether there is voltage sag on phase C
-    11 FreqLoST This bit indicates whether frequency is lesser than the low threshold
-    10 PhaseLossAST
-    This bit indicates whether there is a phase loss in Phase A
-    9 PhaseLossBST
-    This bit indicates whether there is a phase loss in Phase B
-    8 PhaseLossCST
-    This bit indicates whether there is a phase loss in Phase C
-    7 QERegTPST
-    ReActive (Q) Energy (E) Register (Reg) of all channel total sum (T) Positive (P) Status (ST):
-    0: Positive,
-    1: Negative
-    6 QERegAPST ReActive (Q) Energy (E) Register (Reg) of Channel (A/B/C) Positive (P) Status (ST):
-    0: Positive,
-    1: Negative
-    5 QERegBPST
-    4 QERegCPST
-    3 PERegTPST
-    Active (P) Energy (E) Register (Reg) of all channel total sum (T) Positive (P) Status (ST)
-    0: Positive,
-    1: Negative
-    2 PERegAPST Active (P) Energy (E) Register (Reg) of Channel (A/B/C) Positive (P) Status (ST)
-    0: Positive,
-    1: Negative
-    1 PERegBPST
-    0 PERegCPST
-
-    EMMIntState0
-    Bit Name Description
-    15 OIPhaseAIntS
-    T Over current on phase A status change flag
-    14 OIPhaseBIntS
-    T Over current on phase B status change flag
-    13 OIPhaseCInt
-    ST Over current on phase C status change flag
-    12 OVPhaseAInt
-    ST Over Voltage on phase A status change flag
-    11 OVPhaseBInt
-    ST Over Voltage on phase B status change flag
-    10 OVPhaseCInt
-    ST Over Voltage on phase C status change flag
-    9 URevWnIntST
-    Voltage Phase Sequence Error status change flag
-    8 IRevWnIntST Current Phase Sequence Error status change flag
-    7 INOv0IntST Neutral line over current status change flag
-    6 TQNoloadIntST
-    All phase sum reactive power no-load condition status change flag
-    5 TPNoloadIntST
-    All phase sum active power no-load condition status change flag
-    4 TASNoloadIntST
-    All phase arithmetic sum apparent power no-load condition status change flag
-    3 CF1RevIntST Energy for CF1 Forward/Reverse status change flag
-    2 CF2RevIntST Energy for CF2 Forward/Reverse status change flag
-    1 CF3RevIntST Energy for CF3 Forward/Reverse status change flag
-    0 CF4RevIntST Energy for CF4 Forward/Reverse status change flag
-
-    Bit Name Description
-    15 FreqHiIntST FreqHiST change flag
-    14 SagPhaseAIntST
-    Voltage sag on phase A status change flag
-    13 SagPhaseBIntST
-    Voltage sag on phase B status change flag
-    12 SagPhaseCIntST
-    Voltage sag on phase C status change flag
-    11 FreqLoIntST FreqLoST change flag
-    10 PhaseLossAIntST
-    Voltage PhaseLoss on phase A status change flag
-    9 PhaseLossBIntST
-    Voltage PhaseLoss on phase B status change flag
-    8 PhaseLossCIntST
-    Voltage PhaseLoss on phase C status change flag
-    7 QERegTPIntST
-    ReActive (Q) Energy (E) Register (Reg) of all channel total sum (T) Positive (P) status change flag (IntST)
-    6 QERegAPIntST
-    5 ReActive (Q) Energy (E) Register (Reg) of all channel (A/B/C) Positive (P) status change flag (IntST) QERegBPIntST
-    4 QE
-    RegCPIntST
-    3 PERegTPIntST
-    Active (P) Energy (E) Register (Reg) of all channel total sum (T) Positive (P) status change flag (IntST)
-    2 PERegAPIntST
-    1 Active (P) Energy(E) Register (Reg) of Channel (A/B/C) Positive (P) status change flag (IntST) PERegBPIntST
-    0 PE
-    RegCPIntST
-  */
-
 }

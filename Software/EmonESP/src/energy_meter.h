@@ -16,13 +16,14 @@
 
 /* 
  * For meter <= v1.3:
- *    42080 - 9v AC transformer
- *    32428 - 12v AC Transformer
+ *    42080 - 9v AC Transformer - Jameco 112336
+ *    32428 - 12v AC Transformer - Jameco 167151
  * For meter > v1.4:
- *    38302 - 9v AC transformer
- *    29462 - 12v AC Transformer
+ *    37106 - 9v AC Transformer - Jameco 157041
+ *    38302 - 9v AC Transformer - Jameco 112336
+ *    29462 - 12v AC Transformer - Jameco 167151
  */
-#define VOLTAGE_GAIN 38302
+#define VOLTAGE_GAIN 37106
 
 /*
  * 25498 - SCT-013-000 100A/50mA

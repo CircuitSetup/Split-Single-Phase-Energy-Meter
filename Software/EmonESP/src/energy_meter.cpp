@@ -176,13 +176,11 @@ void energy_meter_loop()
   DEBUG.println("Chip Temp: " + String(temp) + "C");
   DEBUG.println("Frequency: " + String(freq) + "Hz");
   DEBUG.println(" ");
-  /* 
-   * calibrating offsets - not important unless measuring small loads
+  /* For calibrating offsets - not important unless measuring small loads
    * hook up CTs to meter, but not around cable
    * voltage input should be connected
-   * average output values of the following and write to corresponding registers
-   */
-   /*
+   * average output values of the following and write to corresponding registers*/
+  /*
   DEBUG.println("I1-Offset: " + String(eic.CalculateVIOffset(IrmsA, IrmsALSB)));
   DEBUG.println("I2-Offset: " + String(eic.CalculateVIOffset(IrmsC, IrmsCLSB)));
   DEBUG.println("V1-Offset: " + String(eic.CalculateVIOffset(UrmsA, UrmsALSB)));
@@ -191,24 +189,20 @@ void energy_meter_loop()
   DEBUG.println("Reactive-Offset: " + String(eic.CalculatePowerOffset(QmeanA, QmeanALSB)));
   DEBUG.println("Funda-Offset: " + String(eic.CalculatePowerOffset(PmeanAF, PmeanAFLSB)));
   */
-  /* 
-   * calibrating phase angle
+  /* For calibrating phase angle
    * calculated phase_x angle = arccos(active / apparent) 
-   * phi_x = round(calculated phase_x angle - actual phase_x angle) x 113.778
-   */
-   /*
+   * phi_x = round(calculated phase_x angle - actual phase_x angle) x 113.778 */
+  /*
   DEBUG.println("Power A: " + String(eic.GetActivePowerA()) + "W");
   DEBUG.println("Power C: " + String(eic.GetActivePowerC()) + "W");
   DEBUG.println("Apparent A: " + String(eic.GetApparentPowerA()) + "VA");
-  DEBUG.println("Apparent C: " + String(eic.GetApparentPowerC()) + "VA");
+  DEBUG.println("Apparent C: " + String(eic.GetApparentPowerC()) + "VA"); 
   */
-  /*
-   * after calibrating phase angle, reactive should be close to 0 under a pure resistive load
-   */
+  /* after calibrating phase angle, reactive should be close to 0 under a pure resistive load */
   /*
   DEBUG.println("Reactive A: " + String(eic.GetReactivePowerA()) + "var");
   DEBUG.println("Reactive C: " + String(eic.GetReactivePowerC()) + "var");
-*/
+  */
 
 // default values are passed to EmonCMS - these can be changed out for anything
 // in the ATM90E32 library 

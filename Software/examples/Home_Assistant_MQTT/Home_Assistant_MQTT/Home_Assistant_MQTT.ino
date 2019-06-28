@@ -23,16 +23,37 @@ const char* mqttPassword = ""; //Your MQTT Password
 const char* HATopic = "home/energy/sensor"; //Home Assistant Topic - must change in sensor.yaml too
 
 /***** CALIBRATION SETTINGS *****/
-unsigned short lineFreq = 4485;         //4485 for 60 Hz (North America)
-                                        //389 for 50 hz (rest of the world)
-unsigned short PGAGain = 21;            //21 for 100A (2x), 42 for >100A (4x)
+/* 
+ * 4485 for 60 Hz (North America)
+ * 389 for 50 hz (rest of the world)
+ */
+unsigned short lineFreq = 4485;         
 
-unsigned short VoltageGain = 42080;     //42080 - 9v AC transformer.
-                                        //32428 - 12v AC Transformer
-                                        
-unsigned short CurrentGainCT1 = 38695;  //38695 - SCT-016 120A/40mA
-unsigned short CurrentGainCT2 = 38695;  //25498 - SCT-013-000 100A/50mA
-                                        //46539 - Magnalab 100A w/ built in burden resistor
+/* 
+ * 0 for 10A (1x)
+ * 21 for 100A (2x)
+ * 42 for between 100A - 200A (4x)
+ */
+unsigned short PGAGain = 21;            
+
+/* 
+ * For meter <= v1.3:
+ *    42080 - 9v AC Transformer - Jameco 112336
+ *    32428 - 12v AC Transformer - Jameco 167151
+ * For meter > v1.4:
+ *    37106 - 9v AC Transformer - Jameco 157041
+ *    38302 - 9v AC Transformer - Jameco 112336
+ *    29462 - 12v AC Transformer - Jameco 167151
+ */
+unsigned short VoltageGain = 37106;     
+                                       
+/*
+ * 25498 - SCT-013-000 100A/50mA
+ * 39473 - SCT-016 120A/40mA
+ * 46539 - Magnalab 100A
+ */                                  
+unsigned short CurrentGainCT1 = 39473;  
+unsigned short CurrentGainCT2 = 39473; 
 
 #if defined ESP8266
 const int CS_pin = 16;
@@ -62,8 +83,7 @@ const int CS_pin = 10;
 const int CS_pin = SS; // Use default SS pin for unknown Arduino
 #endif
 
-//pass CS pin and calibrations to ATM90E32 library - the 2nd (B) current channel is not used with the split phase meter 
-ATM90E32 eic(CS_pin, lineFreq, PGAGain, VoltageGain, CurrentGainCT1, 0, CurrentGainCT2); 
+ATM90E32 eic{}; //initialize the IC class
 
 // Create client for MQTT
 WiFiClient espClient;
@@ -104,9 +124,10 @@ void setup() {
     }
   }
  
-  /* Initialise the ATM90E32 + SPI port */
+  /*Initialise the ATM90E32 & Pass CS pin and calibrations to its library - 
+   *the 2nd (B) current channel is not used with the split phase meter */
   Serial.println("Start ATM90E32");
-  eic.begin();
+  eic.begin(CS_pin, LineFreq, PGAGain, VoltageGain, CurrentGainCT1, 0, CurrentGainCT2);
   delay(1000);
   
 } // end setup

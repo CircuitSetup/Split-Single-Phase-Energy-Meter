@@ -33,7 +33,7 @@
 
 #include <ArduinoOTA.h>               // local OTA update from Arduino IDE
 #ifdef ESP32
-#include <ESP32httpUpdate.h>        // remote OTA update from server
+#include <Update.h>        // remote OTA update from server
 #elif defined(ESP8266)
 #include <ESP8266httpUpdate.h>        // remote OTA update from server
 #endif
@@ -75,6 +75,7 @@ String ota_get_latest_version()
   return get_http(u_host, url);
 }
 
+#ifdef ESP8266
 t_httpUpdate_return ota_http_update()
 {
   SPIFFS.end(); // unmount filesystem
@@ -82,3 +83,5 @@ t_httpUpdate_return ota_http_update()
   SPIFFS.begin(); //mount-file system
   return ret;
 }
+#endif
+

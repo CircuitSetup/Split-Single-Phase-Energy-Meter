@@ -89,7 +89,7 @@ function ConfigViewModel() {
   BaseViewModel.call(this, {
     "ssid": "",
     "pass": "",
-    "emoncms_server": "data.openevse.com",
+    "emoncms_server": "emoncms.org",
     "emoncms_path": "/emoncms",
     "emoncms_apikey": "",
     "emoncms_node": "",
@@ -101,6 +101,11 @@ function ConfigViewModel() {
     "mqtt_pass": "",
     "www_username": "",
     "www_password": "",
+	"voltage_cal": "",
+	"ct1_cal": "",
+	"ct2_cal": "",
+	"freq_cal": "",
+	"gain_cal": "", 
     "espflash": "",
     "version": "0.0.0"
   }, baseEndpoint + '/config');
@@ -122,13 +127,16 @@ function LastValuesViewModel() {
     }
     self.fetching(true);
     $.get(self.remoteUrl, function (data) {
-      // Transform the data into somethinf a bit easier to handle as a binding
+      // Transform the data into something a bit easier to handle as a binding
       var namevaluepairs = data.split(",");
       var vals = [];
       for (var z in namevaluepairs) {
         var namevalue = namevaluepairs[z].split(":");
         var units = "";
-        if (namevalue[0].indexOf("CT") === 0) units = "W";
+        if (namevalue[0].indexOf("CT") === 0) units = "A";
+		if (namevalue[0].indexOf("totI") === 0) units = "A";
+		if (namevalue[0].indexOf("V") === 0) units = "V";
+		if (namevalue[0].indexOf("W") === 0) units = "W";
         if (namevalue[0].indexOf("T") === 0) units = String.fromCharCode(176)+"C";
         vals.push({key: namevalue[0], value: namevalue[1]+units});
       }
@@ -300,6 +308,33 @@ function EmonEspViewModel() {
       });
     }
   };
+  // -----------------------------------------------------------------------
+  // Event: Calibration save
+  // -----------------------------------------------------------------------
+  self.saveCalFetching = ko.observable(false);
+  self.saveCalSuccess = ko.observable(false);
+  self.saveCal = function () {
+	var cal = {
+		voltage: self.config.voltage_cal(), 
+		ct1: self.config.ct1_cal(), 
+		ct2: self.config.ct2_cal(), 
+		freq: self.config.freq_cal(), 
+		gain: self.config.gain_cal() 
+    };
+	if (cal.voltage_cal === "" || cal.ct1_cal === "" || cal.ct2_cal === "") {
+      alert("Please enter calibration settings");
+    } else {
+		self.saveCalFetching(true);
+		self.saveCalSuccess(false);
+	  $.post(baseEndpoint + "/savecal", cal, function (data) {
+		  self.saveCalSuccess(true);
+		}).fail(function () {
+		  alert("Failed to save calibration config");
+		}).always(function () {
+		  self.saveCalFetching(false);
+		});
+	}
+  };
 }
 
 $(function () {
@@ -371,6 +406,6 @@ document.getElementById("restart").addEventListener("click", function (e) {
 // -----------------------------------------------------------------------
 // Event:Upload Firmware
 // -----------------------------------------------------------------------
-//document.getElementById("upload").addEventListener("click", function(e) {
-//  window.location.href='/upload'
-//});
+document.getElementById("upload").addEventListener("click", function(e) {
+  window.location.href='/upload'
+});

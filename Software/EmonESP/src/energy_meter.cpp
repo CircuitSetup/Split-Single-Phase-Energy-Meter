@@ -3,6 +3,7 @@
 #include "emonesp.h"
 #include "emoncms.h"
 #include "input.h"
+#include "config.h"
 
 // for ATM90E32 energy meter
 #include <SPI.h>
@@ -10,13 +11,12 @@
 
 
 /***** CALIBRATION SETTINGS *****/
-/* edit in energy_meter.h */
-unsigned short VoltageGain = VOLTAGE_GAIN;
+/* These values are edited in the web interface or energy_meter.h */
+unsigned short VoltageGain = VOLTAGE_GAIN; //
 unsigned short CurrentGainCT1 = CURRENT_GAIN_CT1;
 unsigned short CurrentGainCT2 = CURRENT_GAIN_CT2;
 unsigned short LineFreq = LINE_FREQ;
 unsigned short PGAGain = PGA_GAIN;
-
 
 #if defined ESP8266
 const int CS_pin = 16;
@@ -56,16 +56,24 @@ const int canBeNegative = 0; //set to 1 if current and power readings can be neg
 char result[200];
 char measurement[16];
 
-//pass CS pin and calibrations to ATM90E32 library - the 2nd (B) current channel is not used with the split phase meter 
-ATM90E32 eic(CS_pin, LineFreq, PGAGain, VoltageGain, CurrentGainCT1, 0, CurrentGainCT2); 
+ATM90E32 eic{}; //initialize the IC class
 
 // -------------------------------------------------------------------
 // SETUP
 // -------------------------------------------------------------------
 void energy_meter_setup() {
-  /*Initialise the ATM90E32 + SPI port */
+
+  /*Get values from web interface and assign them if populated*/
+  if(voltage_cal.toInt()>0) VoltageGain = voltage_cal.toInt();
+  if(ct1_cal.toInt()>0) CurrentGainCT1 = ct1_cal.toInt();
+  if(ct2_cal.toInt()>0) CurrentGainCT2 = ct2_cal.toInt();
+  if(freq_cal.toInt()>0) LineFreq = freq_cal.toInt();
+  if(gain_cal.toInt()>0) PGAGain = gain_cal.toInt();
+
+  /*Initialise the ATM90E32 & Pass CS pin and calibrations to its library - 
+   *the 2nd (B) current channel is not used with the split phase meter */
   Serial.println("Start ATM90E32");
-  eic.begin();
+  eic.begin(CS_pin, LineFreq, PGAGain, VoltageGain, CurrentGainCT1, 0, CurrentGainCT2);
   delay(1000);
 
   #if defined ESP32
@@ -82,7 +90,7 @@ void energy_meter_setup() {
 // -------------------------------------------------------------------
 void energy_meter_loop()
 {
-  //get the current "time" (actually the number of milliseconds since the program started)
+  /*get the current "time" (actually the number of milliseconds since the program started)*/
   currentMillis = millis();
 
   if (startMillis == 0) {
@@ -115,7 +123,7 @@ void energy_meter_loop()
   DEBUG.println("Meter Status: E0:0x" + String(en0, HEX) + " E1:0x" + String(en1, HEX));
   delay(10);
 
-  //if true the MCU is not getting data from the energy meter
+  /*if true the MCU is not getting data from the energy meter */
   if (sys0 == 65535 || sys0 == 0) DEBUG.println("Error: Not receiving data from energy meter - check your connections");
 
   ////// VOLTAGE
@@ -148,7 +156,7 @@ void energy_meter_loop()
   }
   else { 
     /* If single split phase & 1 voltage reading, phase will be offset between the 2 phases
-     *  making one power reading negative. This will correct for that negative reading. */
+     * making one power reading negative. This will correct for that negative reading. */
     if (wattsA < 0) wattsA *= -1;
     if (wattsC < 0) wattsC *= -1;
     totalWatts = wattsA + wattsC;
@@ -176,6 +184,7 @@ void energy_meter_loop()
   DEBUG.println("Chip Temp: " + String(temp) + "C");
   DEBUG.println("Frequency: " + String(freq) + "Hz");
   DEBUG.println(" ");
+  
   /* For calibrating offsets - not important unless measuring small loads
    * hook up CTs to meter, but not around cable
    * voltage input should be connected
@@ -208,11 +217,11 @@ void energy_meter_loop()
 // in the ATM90E32 library 
   strcpy(result, "");
 
-  strcat(result, "VA:");
+  strcat(result, "V1:");
   dtostrf(voltageA, 2, 2, measurement);
   strcat(result, measurement);
 
-  strcat(result, ",VC:");
+  strcat(result, ",V2:");
   dtostrf(voltageC, 2, 2, measurement);
   strcat(result, measurement);
 
@@ -220,11 +229,11 @@ void energy_meter_loop()
   dtostrf(totalVoltage, 2, 2, measurement);
   strcat(result, measurement);
 
-  strcat(result, ",IA:");
+  strcat(result, ",CT1:");
   dtostrf(currentCT1, 2, 4, measurement);
   strcat(result, measurement);
 
-  strcat(result, ",IC:");
+  strcat(result, ",CT2:");
   dtostrf(currentCT2, 2, 4, measurement);
   strcat(result, measurement);
 
@@ -236,7 +245,7 @@ void energy_meter_loop()
   dtostrf(powerFactor, 2, 4, measurement);
   strcat(result, measurement);
 
-  strcat(result, ",t:");
+  strcat(result, ",temp:");
   dtostrf(temp, 2, 2, measurement);
   strcat(result, measurement);
 
@@ -244,11 +253,11 @@ void energy_meter_loop()
   dtostrf(totalWatts, 2, 4, measurement);
   strcat(result, measurement);
 
-  strcat(result, ",f:");
+  strcat(result, ",freq:");
   dtostrf(freq, 2, 2, measurement);
   strcat(result, measurement);
 
-  DEBUG.println(result);
+  //DEBUG.println(result);
 
   input_string = result;
 

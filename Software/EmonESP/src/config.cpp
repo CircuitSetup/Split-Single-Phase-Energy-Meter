@@ -51,13 +51,20 @@ String mqtt_user = "";
 String mqtt_pass = "";
 String mqtt_feed_prefix = "";
 
+// Calibration Settings
+String voltage_cal = "";
+String ct1_cal = "";
+String ct2_cal = "";
+String freq_cal = "";
+String gain_cal = "";
+
 #define EEPROM_ESID_SIZE          32
 #define EEPROM_EPASS_SIZE         64
 #define EEPROM_EMON_API_KEY_SIZE  32
-#define EEPROM_EMON_SERVER_SIZE   45
+#define EEPROM_EMON_SERVER_SIZE   32
 #define EEPROM_EMON_PATH_SIZE     16
 #define EEPROM_EMON_NODE_SIZE     32
-#define EEPROM_MQTT_SERVER_SIZE   45
+#define EEPROM_MQTT_SERVER_SIZE   32
 #define EEPROM_MQTT_TOPIC_SIZE    32
 #define EEPROM_MQTT_USER_SIZE     32
 #define EEPROM_MQTT_PASS_SIZE     64
@@ -65,7 +72,12 @@ String mqtt_feed_prefix = "";
 #define EEPROM_MQTT_FEED_PREFIX_SIZE  10
 #define EEPROM_WWW_USER_SIZE      16
 #define EEPROM_WWW_PASS_SIZE      16
-#define EEPROM_SIZE 512
+#define EEPROM_CAL_VOLTAGE_SIZE   6
+#define EEPROM_CAL_CT1_SIZE       6
+#define EEPROM_CAL_CT2_SIZE       6
+#define EEPROM_CAL_FREQ_SIZE      6
+#define EEPROM_CAL_GAIN_SIZE      6
+#define EEPROM_SIZE               512
 
 #define EEPROM_ESID_START         0
 #define EEPROM_ESID_END           (EEPROM_ESID_START + EEPROM_ESID_SIZE)
@@ -95,6 +107,16 @@ String mqtt_feed_prefix = "";
 #define EEPROM_WWW_PASS_END       (EEPROM_WWW_PASS_START + EEPROM_WWW_PASS_SIZE)
 #define EEPROM_EMON_PATH_START    EEPROM_WWW_PASS_END
 #define EEPROM_EMON_PATH_END      (EEPROM_EMON_PATH_START + EEPROM_EMON_PATH_SIZE)
+#define EEPROM_CAL_VOLTAGE_START  EEPROM_EMON_PATH_END
+#define EEPROM_CAL_VOLTAGE_END    (EEPROM_CAL_VOLTAGE_START + EEPROM_CAL_VOLTAGE_SIZE)
+#define EEPROM_CAL_CT1_START   EEPROM_CAL_VOLTAGE_END
+#define EEPROM_CAL_CT1_END     (EEPROM_CAL_CT1_START + EEPROM_CAL_CT1_SIZE)
+#define EEPROM_CAL_CT2_START    EEPROM_CAL_CT1_END
+#define EEPROM_CAL_CT2_END      (EEPROM_CAL_CT2_START + EEPROM_CAL_CT2_SIZE)
+#define EEPROM_CAL_FREQ_START    EEPROM_CAL_CT2_END
+#define EEPROM_CAL_FREQ_END      (EEPROM_CAL_FREQ_START + EEPROM_CAL_FREQ_SIZE)
+#define EEPROM_CAL_GAIN_START    EEPROM_CAL_FREQ_END
+#define EEPROM_CAL_GAIN_END      (EEPROM_CAL_GAIN_START + EEPROM_CAL_GAIN_SIZE)
 
 // -------------------------------------------------------------------
 // Reset EEPROM, wipes all settings
@@ -156,6 +178,13 @@ void config_load_settings()
   EEPROM_read_string(EEPROM_MQTT_USER_START, EEPROM_MQTT_USER_SIZE, mqtt_user);
   EEPROM_read_string(EEPROM_MQTT_PASS_START, EEPROM_MQTT_PASS_SIZE, mqtt_pass);
 
+  // Calibration settings
+  EEPROM_read_string(EEPROM_CAL_VOLTAGE_START, EEPROM_CAL_VOLTAGE_SIZE, voltage_cal);
+  EEPROM_read_string(EEPROM_CAL_CT1_START, EEPROM_CAL_CT1_SIZE, ct1_cal);
+  EEPROM_read_string(EEPROM_CAL_CT2_START, EEPROM_CAL_CT2_SIZE, ct2_cal);
+  EEPROM_read_string(EEPROM_CAL_FREQ_START, EEPROM_CAL_FREQ_SIZE, freq_cal);
+  EEPROM_read_string(EEPROM_CAL_GAIN_START, EEPROM_CAL_GAIN_SIZE, gain_cal);
+
   // Web server credentials
   EEPROM_read_string(EEPROM_WWW_USER_START, EEPROM_WWW_USER_SIZE, www_username);
   EEPROM_read_string(EEPROM_WWW_PASS_START, EEPROM_WWW_PASS_SIZE, www_password);
@@ -209,6 +238,23 @@ void config_save_mqtt(String server, String topic, String prefix, String user, S
 
   // Save MQTT pass max 64 characters
   EEPROM_write_string(EEPROM_MQTT_PASS_START, EEPROM_MQTT_PASS_SIZE, mqtt_pass);
+
+  EEPROM.commit();
+}
+
+void config_save_cal(String voltage, String ct1, String ct2, String freq, String gain)
+{
+  voltage_cal = voltage;
+  ct1_cal = ct1;
+  ct2_cal = ct2;
+  freq_cal = freq;
+  gain_cal = gain;
+
+  EEPROM_write_string(EEPROM_CAL_VOLTAGE_START, EEPROM_CAL_VOLTAGE_SIZE, voltage_cal);
+  EEPROM_write_string(EEPROM_CAL_CT1_START, EEPROM_CAL_CT1_SIZE, ct1_cal);
+  EEPROM_write_string(EEPROM_CAL_CT2_START, EEPROM_CAL_CT2_SIZE, ct2_cal);
+  EEPROM_write_string(EEPROM_CAL_FREQ_START, EEPROM_CAL_FREQ_SIZE, freq_cal);
+  EEPROM_write_string(EEPROM_CAL_GAIN_START, EEPROM_CAL_GAIN_SIZE, gain_cal);
 
   EEPROM.commit();
 }

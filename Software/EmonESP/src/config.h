@@ -58,6 +58,13 @@ extern String mqtt_user;
 extern String mqtt_pass;
 extern String mqtt_feed_prefix;
 
+// Calibration Settings
+extern String voltage_cal;
+extern String ct1_cal;
+extern String ct2_cal;
+extern String freq_cal;
+extern String gain_cal;
+
 // -------------------------------------------------------------------
 // Load saved settings
 // -------------------------------------------------------------------
@@ -74,6 +81,11 @@ extern void config_save_emoncms(String server, String path, String node, String 
 extern void config_save_mqtt(String server, String topic, String prefix, String user, String pass);
 
 // -------------------------------------------------------------------
+// Save the Calibration details
+// -------------------------------------------------------------------
+extern void config_save_cal(String voltage, String ct1, String ct2, String freq, String gain);
+
+// -------------------------------------------------------------------
 // Save the admin/web interface details
 // -------------------------------------------------------------------
 extern void config_save_admin(String user, String pass);
@@ -82,7 +94,6 @@ extern void config_save_admin(String user, String pass);
 // Save the Wifi details
 // -------------------------------------------------------------------
 extern void config_save_wifi(String qsid, String qpass);
-
 
 // -------------------------------------------------------------------
 // Reset the config back to defaults

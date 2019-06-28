@@ -142,9 +142,11 @@ void startClient() {
   // DEBUG.println(epass.c_str());
 
   WiFi.begin(esid.c_str(), epass.c_str());
-#ifndef ESP32
+#ifdef ESP32
+  WiFi.setHostname(esp_hostname);
+#elif
   WiFi.hostname(esp_hostname);
-#endif // !ESP32
+#endif
   WiFi.enableSTA(true);
 
   delay(50);
@@ -237,7 +239,7 @@ void wifi_loop() {
   }
 #endif
 
-  dnsServer.processNextRequest(); // Captive portal DNS re-dierct
+if(WiFi.status() != WL_CONNECTED) dnsServer.processNextRequest(); // Captive portal DNS re-dierct if wifi is not connected
 
   // Remain in AP mode for 5 Minutes before resetting
   if (wifi_mode == WIFI_MODE_AP_STA_RETRY) {

@@ -36,7 +36,7 @@ body {
 }
 }
 
-#one,#two,#three,#four,#five,#six,#seven {
+#one,#two,#three,#four,#five,#six,#seven,#eight {
     background-color: #f1f1f1;
     box-sizing: border-box;
     margin: 5px 5px 5px 5px;
@@ -51,7 +51,7 @@ body {
 }
 
 @media screen and (min-width: 1024px) {
-     #four,#five,#six,#seven {
+     #four,#five,#six,#eight {
         vertical-align: top;
          display: inline-block;
          width: 500px;

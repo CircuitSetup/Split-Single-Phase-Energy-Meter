@@ -36,8 +36,6 @@
 #include <ESP8266WiFi.h>
 #endif
 
-
-
 #include "emonesp.h"
 #include "web_server.h"
 #include "config.h"
@@ -119,7 +117,7 @@ handleScan(AsyncWebServerRequest *request) {
   String json = "[";
   int n = WiFi.scanComplete();
   if (n == -2) {
-    WiFi.scanNetworks(true);
+    WiFi.scanNetworks(true,true);
   } else if (n) {
     for (int i = 0; i < n; ++i) {
       if (i) json += ",";
@@ -129,9 +127,6 @@ handleScan(AsyncWebServerRequest *request) {
       json += ",\"bssid\":\"" + WiFi.BSSIDstr(i) + "\"";
       json += ",\"channel\":" + String(WiFi.channel(i));
       json += ",\"secure\":" + String(WiFi.encryptionType(i));
-#ifndef ESP32
-      json += ",\"hidden\":" + String(WiFi.isHidden(i) ? "true" : "false");
-#endif
       json += "}";
     }
     WiFi.scanDelete();
@@ -252,6 +247,36 @@ handleSaveMqtt(AsyncWebServerRequest *request) {
 }
 
 // -------------------------------------------------------------------
+// Save Calibration Config
+// url: /savecal
+// -------------------------------------------------------------------
+void
+handleSaveCal(AsyncWebServerRequest *request) {
+  AsyncResponseStream *response;
+  if (false == requestPreProcess(request, response, "text/plain")) {
+    return;
+  }
+
+  config_save_cal(request->arg("voltage"),
+                  request->arg("ct1"),
+                  request->arg("ct2"),
+                  request->arg("freq"),
+                  request->arg("gain"));
+
+  char tmpStr[200];
+  snprintf(tmpStr, sizeof(tmpStr), "Saved: %s %s %s %s %s", voltage_cal.c_str(),
+           ct1_cal.c_str(), ct2_cal.c_str(), freq_cal.c_str(), gain_cal.c_str());
+  DBUGLN(tmpStr);
+
+  response->setCode(200);
+  response->print(tmpStr);
+  request->send(response);
+
+  // restart the system to load values into energy meter
+  //systemRestartTime = millis() + 1000;
+}
+
+// -------------------------------------------------------------------
 // Save the web site user/pass
 // url: /saveadmin
 // -------------------------------------------------------------------
@@ -336,6 +361,11 @@ handleStatus(AsyncWebServerRequest *request) {
   s += ",\"mqtt_feed_prefix\":\"" + mqtt_feed_prefix + "\"";
   s += ",\"www_username\":\"" + www_username + "\"";
   //s += ",\"www_password\":\""+www_password+"\""; security risk: DONT RETURN PASSWORDS
+  s += "\"voltage_cal\":\"" + voltage_cal + "\"";
+  s += "\"ct1_cal\":\"" + ct1_cal + "\"";
+  s += "\"ct2_cal\":\"" + ct2_cal + "\"";
+  s += "\"freq_cal\":\"" + freq_cal + "\"";
+  s += "\"gain_cal\":\"", + gain_cal + "\"";
 #endif
   s += "}";
 
@@ -345,7 +375,7 @@ handleStatus(AsyncWebServerRequest *request) {
 }
 
 // -------------------------------------------------------------------
-// Returns OpenEVSE Config json
+// Returns EmonESP Config json
 // url: /config
 // -------------------------------------------------------------------
 void
@@ -371,8 +401,13 @@ handleConfig(AsyncWebServerRequest *request) {
   s += "\"mqtt_feed_prefix\":\"" + mqtt_feed_prefix + "\",";
   s += "\"mqtt_user\":\"" + mqtt_user + "\",";
   //s += "\"mqtt_pass\":\""+mqtt_pass+"\","; security risk: DONT RETURN PASSWORDS
-  s += "\"www_username\":\"" + www_username + "\"";
+  s += "\"www_username\":\"" + www_username + "\",";
   //s += "\"www_password\":\""+www_password+"\","; security risk: DONT RETURN PASSWORDS
+  s += "\"voltage_cal\":\"" + voltage_cal + "\",";
+  s += "\"ct1_cal\":\"" + ct1_cal + "\",";
+  s += "\"ct2_cal\":\"" + ct2_cal + "\",";
+  s += "\"freq_cal\":\"" + freq_cal + "\",";
+  s += "\"gain_cal\":\"" + gain_cal + "\"";
   s += "}";
 
   response->setCode(200);
@@ -477,10 +512,11 @@ void handleUpdate(AsyncWebServerRequest *request) {
     return;
   }
 
-
   DBUGLN("UPDATING...");
   delay(500);
 
+  //will not work with ESP32 Update.h
+  #ifdef ESP8266
   t_httpUpdate_return ret = ota_http_update();
 
   int retCode = 400;
@@ -505,6 +541,7 @@ void handleUpdate(AsyncWebServerRequest *request) {
   request->send(response);
 
   DBUGLN(str);
+  #endif
 }
 
 // -------------------------------------------------------------------
@@ -512,13 +549,22 @@ void handleUpdate(AsyncWebServerRequest *request) {
 // url: /update
 // -------------------------------------------------------------------
 void handleUpdateGet(AsyncWebServerRequest *request) {
-  request->send(200, "text/html", "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>");
+  AsyncResponseStream *response;
+  if(false == requestPreProcess(request, response, "text/html")) {
+    return;
+  }
+  
+  response->setCode(200);
+  response->print(
+    F("<html><form method='POST' action='/upload' enctype='multipart/form-data'><input type='file' name='update' accept='.bin'><input type='submit' value='Update Firmware'></form></html>"));
+  request->send(response);
 }
 
 void handleUpdatePost(AsyncWebServerRequest *request) {
   bool shouldReboot = !Update.hasError();
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", shouldReboot ? "OK" : "FAIL");
-  response->addHeader("Connection", "close");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", shouldReboot ? "Update Complete. Reloading." : "Update FAIL");
+  response->addHeader("Refresh", "20");  
+  response->addHeader("Location", "/");
   request->send(response);
 
   if (shouldReboot) {
@@ -527,23 +573,33 @@ void handleUpdatePost(AsyncWebServerRequest *request) {
 }
 
 void handleUpdateUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
-#ifndef ESP32
+
   if (!index) {
     DBUGF("Update Start: %s\n", filename.c_str());
-    Update.runAsync(true);
-    if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000)) {
-#ifdef ENABLE_DEBUG
-      Update.printError(DEBUG_PORT);
-#endif
-    }
+    #ifdef ESP32
+      // if filename includes spiffs, update the spiffs partition
+      int cmd = (filename.indexOf("spiffs") > 0) ? U_SPIFFS : U_FLASH;
+      if (!Update.begin(UPDATE_SIZE_UNKNOWN, cmd)) {
+        #ifdef ENABLE_DEBUG
+        Update.printError(DEBUG_PORT);
+        #endif
+      }
+    #elif defined(ESP8266)
+      Update.runAsync(true);
+      if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000)) {
+        #ifdef ENABLE_DEBUG
+        Update.printError(DEBUG_PORT);
+        #endif
+      }
+    #endif
   }
-  if (!Update.hasError()) {
-    if (Update.write(data, len) != len) {
+
+  if (Update.write(data, len) != len) {
 #ifdef ENABLE_DEBUG
-      Update.printError(DEBUG_PORT);
+    Update.printError(DEBUG_PORT);
 #endif
-    }
   }
+  
   if (final) {
     if (Update.end(true)) {
       DBUGF("Update Success: %uB\n", index + len);
@@ -553,7 +609,6 @@ void handleUpdateUpload(AsyncWebServerRequest *request, String filename, size_t 
 #endif
     }
   }
-#endif // ESP32
 }
 
 
@@ -628,6 +683,7 @@ void web_server_setup()
   server.on("/savenetwork", handleSaveNetwork);
   server.on("/saveemoncms", handleSaveEmoncms);
   server.on("/savemqtt", handleSaveMqtt);
+  server.on("/savecal", handleSaveCal);
   server.on("/saveadmin", handleSaveAdmin);
 
   server.on("/reset", handleRst);
@@ -639,8 +695,10 @@ void web_server_setup()
   server.on("/lastvalues", handleLastValues);
 
   // Simple Firmware Update Form
-  server.on("/upload", HTTP_GET, handleUpdateGet);
-  server.on("/upload", HTTP_POST, handleUpdatePost, handleUpdateUpload);
+  server.on("/upload", HTTP_GET, [](AsyncWebServerRequest *request){handleUpdateGet(request);});
+  server.on("/upload", HTTP_POST, [](AsyncWebServerRequest *request){handleUpdatePost(request);}, 
+                                  [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data,
+                                      size_t len, bool final) {handleUpdateUpload(request, filename, index, data, len, final);});
 
   server.on("/firmware", handleUpdateCheck);
   server.on("/update", handleUpdate);

@@ -15,15 +15,23 @@
 
 #include "ATM90E32.h"
 
-ATM90E32::ATM90E32(int pin, unsigned short lineFreq, unsigned short pgagain, unsigned short ugain, unsigned short igainA, unsigned short igainB, unsigned short igainC)   // Object
+ATM90E32::ATM90E32(void){
+}
+
+ATM90E32::ATM90E32(int pin, unsigned short lineFreq, unsigned short pgagain, unsigned short ugain, unsigned short igainA, unsigned short igainB, unsigned short igainC)
 {
-  _cs = pin;  // SS PIN
-  _lineFreq = lineFreq; //frequency of power
-  _pgagain = pgagain; //PGA Gain for current channels
-  _ugain = ugain; //voltage rms gain
-  _igainA = igainA; //CT1
-  _igainB = igainB; //CT2 - not used for single split phase meter
-  _igainC = igainC; //CT2 for single split phase meter - CT3 otherwise
+	// for compatibility - was moved from constructor to begin function so variables can be assigned later
+  _cs = pin;  
+  _lineFreq = lineFreq; 
+  _pgagain = pgagain;
+  _ugain = ugain; 
+  _igainA = igainA; 
+  _igainB = igainB; 
+  _igainC = igainC; 
+}
+
+ATM90E32::~ATM90E32() {
+	// end 
 }
 
 /* CommEnergyIC - Communication Establishment */
@@ -163,7 +171,8 @@ double ATM90E32::CalculateVIOffset(unsigned short regh_addr, unsigned short regl
 
 double ATM90E32::CalculatePowerOffset(unsigned short regh_addr, unsigned short regl_addr /*, unsigned short offset_reg*/) {
 //for getting the lower registers of energy and calculating the offset
-//this should only be run when all inputs are disconnected
+//should only be run when CT sensors are connected to the meter,
+//but not connected around wires
   uint32_t val, val_h, val_l;
   uint16_t offset;
   val_h = CommEnergyIC(READ, regh_addr, 0xFFFF);
@@ -506,17 +515,20 @@ bool ATM90E32::calibrationError()
   - Set serialFlag to true for serial debugging
   - Use SPI MODE 0 for the ATM90E32
 */
-void ATM90E32::begin()
+void ATM90E32::begin(int pin, unsigned short lineFreq, unsigned short pgagain, unsigned short ugain, unsigned short igainA, unsigned short igainB, unsigned short igainC)
 {
+  _cs = pin;  // SS PIN
+  _lineFreq = lineFreq; //frequency of power
+  _pgagain = pgagain; //PGA Gain for current channels
+  _ugain = ugain; //voltage rms gain
+  _igainA = igainA; //CT1
+  _igainB = igainB; //CT2 - not used for single split phase meter
+  _igainC = igainC; //CT2 for single split phase meter - CT3 otherwise
 
-  // pinMode(energy_IRQ, INPUT); // (In development...)
   pinMode(_cs, OUTPUT);
-  // pinMode(energy_WO, INPUT);  // (In development...)
 
   /* Enable SPI */
   SPI.begin();
-
-  //SPI.setHwCs(_cs);
 
   Serial.println("Connecting to ATM90E32");
 #if defined(ENERGIA)

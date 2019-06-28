@@ -18,18 +18,6 @@
 ATM90E32::ATM90E32(void){
 }
 
-ATM90E32::ATM90E32(int pin, unsigned short lineFreq, unsigned short pgagain, unsigned short ugain, unsigned short igainA, unsigned short igainB, unsigned short igainC)
-{
-	// for compatibility - was moved from constructor to begin function so variables can be assigned later
-  _cs = pin;  
-  _lineFreq = lineFreq; 
-  _pgagain = pgagain;
-  _ugain = ugain; 
-  _igainA = igainA; 
-  _igainB = igainB; 
-  _igainC = igainC; 
-}
-
 ATM90E32::~ATM90E32() {
 	// end 
 }

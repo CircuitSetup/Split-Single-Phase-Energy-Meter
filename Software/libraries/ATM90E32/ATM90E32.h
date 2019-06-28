@@ -258,12 +258,11 @@ class ATM90E32
 	public:
 		/* Construct */
 		ATM90E32(void);
-		ATM90E32(int pin, unsigned short _lineFreq, unsigned short _pgagain, unsigned short ugain, unsigned short igainA, unsigned short igainB, unsigned short igainC);
 		/* Destruct */
 		~ATM90E32(void);
 
 		/* Initialization Functions */	
-		void begin(int pin, unsigned short _lineFreq, unsigned short _pgagain, unsigned short ugain, unsigned short igainA, unsigned short igainB, unsigned short igainC);
+		void begin(int pin, unsigned short lineFreq, unsigned short pgagain, unsigned short ugain, unsigned short igainA, unsigned short igainB, unsigned short igainC);
 		
 		double CalculateVIOffset(unsigned short regh_addr, unsigned short regl_addr/*, unsigned short offset_reg*/);
 		double CalculatePowerOffset(unsigned short regh_addr, unsigned short regl_addr/*, unsigned short offset_reg*/);

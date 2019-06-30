@@ -5,8 +5,8 @@
     "description": "CircuitSetup Split Single Phase Energy Meter",
     "inputs": [
 		{
-            "name": "VA",
-            "description": "Voltage 1",
+            "name": "V1",
+            "description": "Voltage1",
             "processList": [
                 {
                     "process": "log_to_feed",
@@ -15,8 +15,8 @@
             ]
         },
 		{
-            "name": "VC",
-            "description": "Voltage 2",
+            "name": "V2",
+            "description": "Voltage2",
             "processList": [
                 {
                     "process": "log_to_feed",
@@ -25,7 +25,7 @@
             ]
         },
 		{
-            "name": "IA",
+            "name": "CT1",
             "description": "Current1",
             "processList": [
                 {
@@ -35,7 +35,7 @@
             ]
         },
 		{
-            "name": "IC",
+            "name": "CT2",
             "description": "Current2",
             "processList": [
                 {
@@ -144,13 +144,6 @@
             "unit": "V"
         },
 		{
-            "name": "Temp",
-            "type": "DataType::REALTIME",
-            "engine": "Engine::PHPFINA",
-            "interval": "10",
-            "unit": "°C"
-        },
-		{
             "name": "Total Watts",
             "type": "DataType::REALTIME",
             "engine": "Engine::PHPFINA",
@@ -165,11 +158,11 @@
             "unit": ""
         },
 		{
-            "name": "Real Power",
+            "name": "Temp",
             "type": "DataType::REALTIME",
             "engine": "Engine::PHPFINA",
             "interval": "10",
-            "unit": ""
+            "unit": "°C"
         },
 		{
             "name": "kWh",

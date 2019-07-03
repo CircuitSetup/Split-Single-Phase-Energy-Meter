@@ -1,6 +1,8 @@
 #ifndef _ENERGY_METER
 #define _ENERGY_METER
 
+//#define ENABLE_OLED_DISPLAY
+
 /* 
  * 4485 for 60 Hz (North America)
  * 389 for 50 hz (rest of the world)

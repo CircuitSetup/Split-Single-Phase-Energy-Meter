@@ -54,7 +54,7 @@ boolean input_get(String& data)
     data.trim();
 
     if(data.length() > 0) {
-      DEBUG.printf("Got '%s'\n", data.c_str());
+      DBUGS.printf("Got '%s'\n", data.c_str());
       last_datastr = data;
     } else {
       gotData = false;

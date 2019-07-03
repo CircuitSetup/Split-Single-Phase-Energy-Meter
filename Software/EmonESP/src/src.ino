@@ -73,7 +73,7 @@ void setup() {
   energy_meter_setup();
 #endif
 
-  DEBUG.println("Server started");
+  DBUGS.println("Server started");
 
 } // end setup
 
@@ -82,9 +82,9 @@ void setup() {
 // -------------------------------------------------------------------
 void loop()
 {
-  ota_loop();
   web_server_loop();
   wifi_loop();
+  ota_loop();
 
 #ifdef ENABLE_ENERGY_METER
   energy_meter_loop();
@@ -93,12 +93,12 @@ void loop()
   String input = "";
   boolean gotInput = input_get(input);
   if (gotInput) {
-    DEBUG.println(".");
+    DBUGS.println(".");
   }
 
-  if (wifi_mode == WIFI_MODE_CLIENT || wifi_mode == WIFI_MODE_AP_AND_STA) {
+  if (wifi_client_connected()) {
     if (emoncms_apikey != 0 && gotInput) {
-      DEBUG.println(input);
+      DBUGS.println(input);
       emoncms_publish(input);
     }
     if (mqtt_server != 0) {

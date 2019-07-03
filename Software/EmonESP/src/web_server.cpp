@@ -61,20 +61,70 @@ unsigned long systemRebootTime = 0;
 #define ESCAPEQUOTE(A) TEXTIFY(A)
 String currentfirmware = ESCAPEQUOTE(BUILD_TAG);
 
+void dumpRequest(AsyncWebServerRequest *request) {
+  if(request->method() == HTTP_GET) {
+    DBUGF("GET");
+  } else if(request->method() == HTTP_POST) {
+    DBUGF("POST");
+  } else if(request->method() == HTTP_DELETE) {
+    DBUGF("DELETE");
+  } else if(request->method() == HTTP_PUT) {
+    DBUGF("PUT");
+  } else if(request->method() == HTTP_PATCH) {
+    DBUGF("PATCH");
+  } else if(request->method() == HTTP_HEAD) {
+    DBUGF("HEAD");
+  } else if(request->method() == HTTP_OPTIONS) {
+    DBUGF("OPTIONS");
+  } else {
+    DBUGF("UNKNOWN");
+  }
+  DBUGF(" http://%s%s", request->host().c_str(), request->url().c_str());
+
+  if(request->contentLength()){
+    DBUGF("_CONTENT_TYPE: %s", request->contentType().c_str());
+    DBUGF("_CONTENT_LENGTH: %u", request->contentLength());
+  }
+
+  int headers = request->headers();
+  int i;
+  for(i=0; i<headers; i++) {
+    AsyncWebHeader* h = request->getHeader(i);
+    DBUGF("_HEADER[%s]: %s", h->name().c_str(), h->value().c_str());
+  }
+
+  int params = request->params();
+  for(i = 0; i < params; i++) {
+    AsyncWebParameter* p = request->getParam(i);
+    if(p->isFile()){
+      DBUGF("_FILE[%s]: %s, size: %u", p->name().c_str(), p->value().c_str(), p->size());
+    } else if(p->isPost()){
+      DBUGF("_POST[%s]: %s", p->name().c_str(), p->value().c_str());
+    } else {
+      DBUGF("_GET[%s]: %s", p->name().c_str(), p->value().c_str());
+    }
+  }
+}
+
 // -------------------------------------------------------------------
 // Helper function to perform the standard operations on a request
 // -------------------------------------------------------------------
 bool requestPreProcess(AsyncWebServerRequest *request, AsyncResponseStream *&response, const char *contentType = "application/json")
 {
-  if (www_username != "" && !request->authenticate(www_username.c_str(), www_password.c_str())) {
-    request->requestAuthentication();
+ dumpRequest(request);
+ 
+  if(wifi_mode_is_sta() && www_username!="" &&
+     false == request->authenticate(www_username.c_str(), www_password.c_str())) {
+    request->requestAuthentication(esp_hostname);
     return false;
   }
 
-  response = request->beginResponseStream(contentType);
-  if (enableCors) {
-    response->addHeader("Access-Control-Allow-Origin", "*");
+  response = request->beginResponseStream(String(contentType));
+  if(enableCors) {
+    response->addHeader(F("Access-Control-Allow-Origin"), F("*"));
   }
+
+  response->addHeader(F("Cache-Control"), F("no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0"));
 
   return true;
 }
@@ -83,12 +133,11 @@ bool requestPreProcess(AsyncWebServerRequest *request, AsyncResponseStream *&res
 // Load Home page
 // url: /
 // -------------------------------------------------------------------
-void
-handleHome(AsyncWebServerRequest *request) {
+void handleHome(AsyncWebServerRequest *request) {
   if (www_username != ""
       && !request->authenticate(www_username.c_str(),
                                 www_password.c_str())
-      && wifi_mode == WIFI_MODE_CLIENT) {
+      && wifi_mode_is_sta()) {
     return request->requestAuthentication();
   }
 
@@ -107,8 +156,7 @@ handleHome(AsyncWebServerRequest *request) {
 // First request will return 0 results unless you start scan from somewhere else (loop/setup)
 // Do not request more often than 3-5 seconds
 // -------------------------------------------------------------------
-void
-handleScan(AsyncWebServerRequest *request) {
+void handleScan(AsyncWebServerRequest *request) {
   AsyncResponseStream *response;
   if (false == requestPreProcess(request, response)) {
     return;
@@ -117,7 +165,7 @@ handleScan(AsyncWebServerRequest *request) {
   String json = "[";
   int n = WiFi.scanComplete();
   if (n == -2) {
-    WiFi.scanNetworks(true,true);
+    WiFi.scanNetworks(true,true); //2nd true handles isHidden on ESP32
   } else if (n) {
     for (int i = 0; i < n; ++i) {
       if (i) json += ",";
@@ -142,8 +190,7 @@ handleScan(AsyncWebServerRequest *request) {
 // Handle turning Access point off
 // url: /apoff
 // -------------------------------------------------------------------
-void
-handleAPOff(AsyncWebServerRequest *request) {
+void handleAPOff(AsyncWebServerRequest *request) {
   AsyncResponseStream *response;
   if (false == requestPreProcess(request, response, "text/plain")) {
     return;
@@ -161,8 +208,7 @@ handleAPOff(AsyncWebServerRequest *request) {
 // Save selected network to EEPROM and attempt connection
 // url: /savenetwork
 // -------------------------------------------------------------------
-void
-handleSaveNetwork(AsyncWebServerRequest *request) {
+void handleSaveNetwork(AsyncWebServerRequest *request) {
   AsyncResponseStream *response;
   if (false == requestPreProcess(request, response, "text/plain")) {
     return;
@@ -189,8 +235,7 @@ handleSaveNetwork(AsyncWebServerRequest *request) {
 // Save Emoncms
 // url: /saveemoncms
 // -------------------------------------------------------------------
-void
-handleSaveEmoncms(AsyncWebServerRequest *request) {
+void handleSaveEmoncms(AsyncWebServerRequest *request) {
   AsyncResponseStream *response;
   if (false == requestPreProcess(request, response, "text/plain")) {
     return;
@@ -220,8 +265,7 @@ handleSaveEmoncms(AsyncWebServerRequest *request) {
 // Save MQTT Config
 // url: /savemqtt
 // -------------------------------------------------------------------
-void
-handleSaveMqtt(AsyncWebServerRequest *request) {
+void handleSaveMqtt(AsyncWebServerRequest *request) {
   AsyncResponseStream *response;
   if (false == requestPreProcess(request, response, "text/plain")) {
     return;
@@ -250,8 +294,7 @@ handleSaveMqtt(AsyncWebServerRequest *request) {
 // Save Calibration Config
 // url: /savecal
 // -------------------------------------------------------------------
-void
-handleSaveCal(AsyncWebServerRequest *request) {
+void handleSaveCal(AsyncWebServerRequest *request) {
   AsyncResponseStream *response;
   if (false == requestPreProcess(request, response, "text/plain")) {
     return;
@@ -280,8 +323,7 @@ handleSaveCal(AsyncWebServerRequest *request) {
 // Save the web site user/pass
 // url: /saveadmin
 // -------------------------------------------------------------------
-void
-handleSaveAdmin(AsyncWebServerRequest *request) {
+void handleSaveAdmin(AsyncWebServerRequest *request) {
   AsyncResponseStream *response;
   if (false == requestPreProcess(request, response, "text/plain")) {
     return;
@@ -316,20 +358,18 @@ void handleLastValues(AsyncWebServerRequest *request) {
 // Returns status json
 // url: /status
 // -------------------------------------------------------------------
-void
-handleStatus(AsyncWebServerRequest *request) {
+void handleStatus(AsyncWebServerRequest *request) {
   AsyncResponseStream *response;
   if (false == requestPreProcess(request, response)) {
     return;
   }
 
   String s = "{";
-  if (wifi_mode == WIFI_MODE_CLIENT) {
+  if (wifi_mode_is_sta_only()) {
     s += "\"mode\":\"STA\",";
-  } else if (wifi_mode == WIFI_MODE_AP_STA_RETRY
-             || wifi_mode == WIFI_MODE_AP_ONLY) {
+  } else if (wifi_mode_is_ap_only()) {
     s += "\"mode\":\"AP\",";
-  } else if (wifi_mode == WIFI_MODE_AP_AND_STA) {
+  } else if (wifi_mode_is_ap() && wifi_mode_is_sta()) {
     s += "\"mode\":\"STA+AP\",";
   }
   s += "\"networks\":[" + st + "],";
@@ -378,8 +418,7 @@ handleStatus(AsyncWebServerRequest *request) {
 // Returns EmonESP Config json
 // url: /config
 // -------------------------------------------------------------------
-void
-handleConfig(AsyncWebServerRequest *request) {
+void handleConfig(AsyncWebServerRequest *request) {
   AsyncResponseStream *response;
   if (false == requestPreProcess(request, response)) {
     return;
@@ -426,7 +465,11 @@ void handleRst(AsyncWebServerRequest *request) {
   }
 
   config_reset();
-  #ifndef ESP32
+
+  #ifdef ESP32
+  WiFi.disconnect(false,true);
+  #else
+  WiFi.disconnect();
   ESP.eraseConfig();
   #endif
 
@@ -724,7 +767,11 @@ void web_server_loop() {
   if (systemRestartTime > 0 && millis() > systemRestartTime) {
     systemRestartTime = 0;
     wifi_disconnect();
+    #ifdef ESP32
+    esp_restart();
+    #else
     ESP.restart();
+    #endif
   }
 
   // Do we need to reboot the system?

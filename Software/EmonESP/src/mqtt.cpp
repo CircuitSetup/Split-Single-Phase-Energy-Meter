@@ -45,7 +45,7 @@ int i = 0;
 boolean mqtt_connect()
 {
   mqttclient.setServer(mqtt_server.c_str(), 1883);
-  DEBUG.println("MQTT Connecting...");
+  DBUGS.println("MQTT Connecting...");
   
   #ifdef ESP32
   String strID = String((uint32_t)ESP.getEfuseMac());
@@ -54,11 +54,11 @@ boolean mqtt_connect()
   #endif
   
   if (mqttclient.connect(strID.c_str(), mqtt_user.c_str(), mqtt_pass.c_str())) {  // Attempt to connect
-    DEBUG.println("MQTT connected");
+    DBUGS.println("MQTT connected");
     mqttclient.publish(mqtt_topic.c_str(), "connected"); // Once connected, publish an announcement..
   } else {
-    DEBUG.print("MQTT failed: ");
-    DEBUG.println(mqttclient.state());
+    DBUGS.print("MQTT failed: ");
+    DBUGS.println(mqttclient.state());
     return(0);
   }
   return (1);
@@ -97,7 +97,7 @@ void mqtt_publish(String data)
     }
     // send data via mqtt
     //delay(100);
-    DEBUG.printf("%s = %s\r\n", topic.c_str(), mqtt_data.c_str());
+    DBUGS.printf("%s = %s\r\n", topic.c_str(), mqtt_data.c_str());
     mqttclient.publish(topic.c_str(), mqtt_data.c_str());
     topic = mqtt_topic + "/" + mqtt_feed_prefix;
     mqtt_data="";

@@ -51,7 +51,7 @@ get_https(const char *fingerprint, const char *host, String url,
           int httpsPort) {
   // Use WiFiClient class to create TCP connections
   if (!client.connect(host, httpsPort)) {
-    DEBUG.print(host + httpsPort);      //debug
+    DBUGS.print(host + httpsPort);      //debug
     return ("Connection error");
   }
 #ifndef ESP32
@@ -71,7 +71,7 @@ get_https(const char *fingerprint, const char *host, String url,
     // Handle message receive
     while (client.available()) {
       String line = client.readStringUntil('\r');
-      DEBUG.println(line);      //debug
+      DBUGS.println(line);      //debug
       if (line.startsWith("HTTP/1.1 200 OK")) {
         return ("ok");
       }
@@ -94,7 +94,7 @@ get_http(const char *host, String url) {
   int httpCode = http.GET();
   if ((httpCode > 0) && (httpCode == HTTP_CODE_OK)) {
     String payload = http.getString();
-    DEBUG.println(payload);
+    DBUGS.println(payload);
     http.end();
     return (payload);
   } else {

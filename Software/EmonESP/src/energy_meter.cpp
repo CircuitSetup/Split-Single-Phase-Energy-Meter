@@ -1,4 +1,3 @@
-
 #include "energy_meter.h"
 #include "emonesp.h"
 #include "emoncms.h"
@@ -9,6 +8,18 @@
 #include <SPI.h>
 #include <ATM90E32.h>
 
+#ifdef ENABLE_OLED_DISPLAY
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+
+// Declaration for SSD1306 display connected using software SPI (default case):
+#define OLED_DC     0
+#define OLED_CS     16
+#define OLED_RESET  2 //17
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &SPI, OLED_DC, OLED_RESET, OLED_CS);
+#endif
 
 /***** CALIBRATION SETTINGS *****/
 /* These values are edited in the web interface or energy_meter.h */
@@ -46,10 +57,9 @@ const int CS_pin = 10;
 const int CS_pin = SS; // Use default SS pin for unknown Arduino
 #endif
 
-static const int LED_BUILTIN = 2; //for on-board LED
-
 unsigned long startMillis;
 unsigned long currentMillis;
+
 const int period = 1000; //time interval in ms to send data
 const int canBeNegative = 0; //set to 1 if current and power readings can be negative (like when exporting solar power)
 
@@ -76,9 +86,19 @@ void energy_meter_setup() {
   eic.begin(CS_pin, LineFreq, PGAGain, VoltageGain, CurrentGainCT1, 0, CurrentGainCT2);
   delay(1000);
 
-  #if defined ESP32
-  // if there is an onboard LED, set it up
-  pinMode(LED_BUILTIN, OUTPUT);
+  #ifdef ENABLE_OLED_DISPLAY
+   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+  if(!display.begin(SSD1306_SWITCHCAPVCC)) {
+    Serial.println(F("OLED allocation failed"));
+  }
+ 
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(WHITE);  
+  display.setCursor(0, 0);
+  display.println("Starting up...");
+  display.display();
+
   #endif
 
   startMillis = millis();  //initial start time
@@ -103,11 +123,6 @@ void energy_meter_loop()
   }
   startMillis = currentMillis;
 
-
-#if defined ESP32
-    digitalWrite(LED_BUILTIN, HIGH);
-#endif
-
   /*Repeatedly fetch some values from the ATM90E32 */
   float voltageA, voltageC, totalVoltage;
   float currentCT1, currentCT2, totalCurrent;
@@ -118,14 +133,14 @@ void energy_meter_loop()
   unsigned short sys1 = eic.GetSysStatus1(); //EMMState1
   unsigned short en0 = eic.GetMeterStatus0();//EMMIntState0
   unsigned short en1 = eic.GetMeterStatus1();//EMMIntState1
-
-  DEBUG.println("Sys Status: S0:0x" + String(sys0, HEX) + " S1:0x" + String(sys1, HEX));
-  DEBUG.println("Meter Status: E0:0x" + String(en0, HEX) + " E1:0x" + String(en1, HEX));
+/*
+  DBUGS.println("Sys Status: S0:0x" + String(sys0, HEX) + " S1:0x" + String(sys1, HEX));
+  DBUGS.println("Meter Status: E0:0x" + String(en0, HEX) + " E1:0x" + String(en1, HEX));
   delay(10);
 
   /*if true the MCU is not getting data from the energy meter */
-  if (sys0 == 65535 || sys0 == 0) DEBUG.println("Error: Not receiving data from energy meter - check your connections");
-
+/*  if (sys0 == 65535 || sys0 == 0) DBUGS.println("Error: Not receiving data from energy meter - check your connections");
+*/
   ////// VOLTAGE
   voltageA = eic.GetLineVoltageA();
   voltageC = eic.GetLineVoltageC();
@@ -169,52 +184,72 @@ void energy_meter_loop()
   temp = eic.GetTemperature();
   freq = eic.GetFrequency();
 
-  DEBUG.println(" ");
-  DEBUG.println("Voltage 1: " + String(voltageA) + "V");
-  DEBUG.println("Voltage 2: " + String(voltageC) + "V");
-  DEBUG.println("Current 1: " + String(currentCT1) + "A");
-  DEBUG.println("Current 2: " + String(currentCT2) + "A");
-  DEBUG.println("Active Power: " + String(totalWatts) + "W");
-  DEBUG.println("Power Factor: " + String(powerFactor));
-  DEBUG.println("Fundamental Power: " + String(eic.GetTotalActiveFundPower()) + "W");
-  DEBUG.println("Harmonic Power: " + String(eic.GetTotalActiveHarPower()) + "W");
-  DEBUG.println("Reactive Power: " + String(eic.GetTotalReactivePower()) + "var");
-  DEBUG.println("Apparent Power: " + String(eic.GetTotalApparentPower()) + "VA");
-  DEBUG.println("Phase Angle A: " + String(eic.GetPhaseA()));
-  DEBUG.println("Chip Temp: " + String(temp) + "C");
-  DEBUG.println("Frequency: " + String(freq) + "Hz");
-  DEBUG.println(" ");
+/*
+  DBUGS.println(" ");
+  DBUGS.println("Voltage 1: " + String(voltageA) + "V");
+  DBUGS.println("Voltage 2: " + String(voltageC) + "V");
+  DBUGS.println("Current 1: " + String(currentCT1) + "A");
+  DBUGS.println("Current 2: " + String(currentCT2) + "A");
+  DBUGS.println("Active Power: " + String(totalWatts) + "W");
+  DBUGS.println("Power Factor: " + String(powerFactor));
+  DBUGS.println("Fundamental Power: " + String(eic.GetTotalActiveFundPower()) + "W");
+  DBUGS.println("Harmonic Power: " + String(eic.GetTotalActiveHarPower()) + "W");
+  DBUGS.println("Reactive Power: " + String(eic.GetTotalReactivePower()) + "var");
+  DBUGS.println("Apparent Power: " + String(eic.GetTotalApparentPower()) + "VA");
+  DBUGS.println("Phase Angle A: " + String(eic.GetPhaseA()));
+  DBUGS.println("Chip Temp: " + String(temp) + "C");
+  DBUGS.println("Frequency: " + String(freq) + "Hz");
+  DBUGS.println(" ");
   
   /* For calibrating offsets - not important unless measuring small loads
    * hook up CTs to meter, but not around cable
    * voltage input should be connected
    * average output values of the following and write to corresponding registers*/
   /*
-  DEBUG.println("I1-Offset: " + String(eic.CalculateVIOffset(IrmsA, IrmsALSB)));
-  DEBUG.println("I2-Offset: " + String(eic.CalculateVIOffset(IrmsC, IrmsCLSB)));
-  DEBUG.println("V1-Offset: " + String(eic.CalculateVIOffset(UrmsA, UrmsALSB)));
-  DEBUG.println("V2-Offset: " + String(eic.CalculateVIOffset(UrmsC, UrmsCLSB)));
-  DEBUG.println("Active-Offset: " + String(eic.CalculatePowerOffset(PmeanA, PmeanALSB)));
-  DEBUG.println("Reactive-Offset: " + String(eic.CalculatePowerOffset(QmeanA, QmeanALSB)));
-  DEBUG.println("Funda-Offset: " + String(eic.CalculatePowerOffset(PmeanAF, PmeanAFLSB)));
+  DBUGS.println("I1-Offset: " + String(eic.CalculateVIOffset(IrmsA, IrmsALSB)));
+  DBUGS.println("I2-Offset: " + String(eic.CalculateVIOffset(IrmsC, IrmsCLSB)));
+  DBUGS.println("V1-Offset: " + String(eic.CalculateVIOffset(UrmsA, UrmsALSB)));
+  DBUGS.println("V2-Offset: " + String(eic.CalculateVIOffset(UrmsC, UrmsCLSB)));
+  DBUGS.println("Active-Offset: " + String(eic.CalculatePowerOffset(PmeanA, PmeanALSB)));
+  DBUGS.println("Reactive-Offset: " + String(eic.CalculatePowerOffset(QmeanA, QmeanALSB)));
+  DBUGS.println("Funda-Offset: " + String(eic.CalculatePowerOffset(PmeanAF, PmeanAFLSB)));
   */
   /* For calibrating phase angle
    * calculated phase_x angle = arccos(active / apparent) 
    * phi_x = round(calculated phase_x angle - actual phase_x angle) x 113.778 */
   /*
-  DEBUG.println("Power A: " + String(eic.GetActivePowerA()) + "W");
-  DEBUG.println("Power C: " + String(eic.GetActivePowerC()) + "W");
-  DEBUG.println("Apparent A: " + String(eic.GetApparentPowerA()) + "VA");
-  DEBUG.println("Apparent C: " + String(eic.GetApparentPowerC()) + "VA"); 
+  DBUGS.println("Power A: " + String(eic.GetActivePowerA()) + "W");
+  DBUGS.println("Power C: " + String(eic.GetActivePowerC()) + "W");
+  DBUGS.println("Apparent A: " + String(eic.GetApparentPowerA()) + "VA");
+  DBUGS.println("Apparent C: " + String(eic.GetApparentPowerC()) + "VA"); 
   */
   /* after calibrating phase angle, reactive should be close to 0 under a pure resistive load */
   /*
-  DEBUG.println("Reactive A: " + String(eic.GetReactivePowerA()) + "var");
-  DEBUG.println("Reactive C: " + String(eic.GetReactivePowerC()) + "var");
+  DBUGS.println("Reactive A: " + String(eic.GetReactivePowerA()) + "var");
+  DBUGS.println("Reactive C: " + String(eic.GetReactivePowerC()) + "var");
   */
+  
+#ifdef ENABLE_OLED_DISPLAY
+  /* Write meter data to the display */
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.setTextSize(2);
+  display.setTextColor(WHITE);  
+  display.println("CT1:" + String(currentCT1) + "A");
+  display.println("CT2:" + String(currentCT2) + "A");
+  display.println("V:" + String(voltageA) + "V");
+  display.println("W:" + String(totalWatts) + "W");
+  /*
+  display.println("Freq: " + String(freq) + "Hz");
+  display.println("PF: " + String(powerFactor));
+  display.println("Chip Temp: " + String(temp) + "C");
+  */
+  display.display();
+#endif
 
-// default values are passed to EmonCMS - these can be changed out for anything
-// in the ATM90E32 library 
+/* Default values are passed to EmonCMS - these can be changed out for anything
+ * in the ATM90E32 library 
+ */
   strcpy(result, "");
 
   strcat(result, "V1:");
@@ -257,11 +292,8 @@ void energy_meter_loop()
   dtostrf(freq, 2, 2, measurement);
   strcat(result, measurement);
 
-  //DEBUG.println(result);
+  //DBUGS.println(result);
 
   input_string = result;
 
-  #if defined ESP32
-    digitalWrite(LED_BUILTIN, LOW);
-  #endif
 }

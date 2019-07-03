@@ -58,7 +58,7 @@ extern String mqtt_user;
 extern String mqtt_pass;
 extern String mqtt_feed_prefix;
 
-// Calibration Settings
+// Calibration Settings for CircuitSetup energy meter
 extern String voltage_cal;
 extern String ct1_cal;
 extern String ct2_cal;

@@ -7,5 +7,6 @@ This example software was created by us and the community to use the CircuitSetu
 - **Home_Assistant_MQTT** - an Arduino sketch to send data to Home Assistant using MQTT. Includes the Home Assistant sensor file. Thanks to Richard Talley for supplying this.
 
 ### ATM90E32 Libraries ###
-- **[CircuitPython](https://github.com/BitKnitting/CircuitSetup_CircuitPython)** - The ATM90E32 library converted to work with Adafruit's CitcuitPython. Created by BitKnitting
-- **[ESPHome](https://github.com/thompsa/esphome/tree/40f83136974202f400410fd9f5a18c1a5f2b3b35/esphome/components/atm90e32)** (beta) - direct integration for ESPHome, which allows you to more easily import energy data into home automation systems. Created by thompsa.
+- **[CircuitPython](https://github.com/BitKnitting/CircuitSetup_CircuitPython)** - The ATM90E32 library converted to work with Adafruit's CircuitPython. Created by BitKnitting
+- **[MicroPython](https://github.com/BitKnitting/CircuitSetup_micropython)** - The ATM90E32 library converted to work with MicroPython. Created by BitKnitting
+- **[ESPHome](https://github.com/esphome/esphome/tree/dev/esphome/components/atm90e32)** - direct integration for ESPHome, which allows you to more easily import energy data directly into home automation systems like Home Assistant. Created by thompsa.

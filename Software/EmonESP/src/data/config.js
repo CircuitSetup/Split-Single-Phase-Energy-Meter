@@ -317,9 +317,9 @@ function EmonEspViewModel() {
 	var cal = {
 		voltage: self.config.voltage_cal(), 
 		ct1: self.config.ct1_cal(), 
-		ct2: self.config.ct2_cal(), 
+		ct2: self.config.ct2_cal(),
 		freq: self.config.freq_cal(), 
-		gain: self.config.gain_cal() 
+		gain: self.config.gain_cal()
     };
 	if (cal.voltage_cal === "" || cal.ct1_cal === "" || cal.ct2_cal === "") {
       alert("Please enter calibration settings");
@@ -397,7 +397,7 @@ document.getElementById("restart").addEventListener("click", function (e) {
       var str = r.responseText;
       console.log(str);
       if (str !== 0)
-        document.getElementById("reset").innerHTML = "Restarting";
+        document.getElementById("restart").innerHTML = "Restarting";
     };
     r.send();
   }

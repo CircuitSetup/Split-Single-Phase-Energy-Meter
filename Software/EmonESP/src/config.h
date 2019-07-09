@@ -64,6 +64,11 @@ extern String ct1_cal;
 extern String ct2_cal;
 extern String freq_cal;
 extern String gain_cal;
+#ifdef SOLAR_METER
+extern String svoltage_cal;
+extern String sct1_cal;
+extern String sct2_cal;
+#endif
 
 // -------------------------------------------------------------------
 // Load saved settings
@@ -83,7 +88,11 @@ extern void config_save_mqtt(String server, String topic, String prefix, String 
 // -------------------------------------------------------------------
 // Save the Calibration details
 // -------------------------------------------------------------------
+#ifdef SOLAR_METER
+extern void config_save_cal(String voltage, String ct1, String ct2, String freq, String gain, String svoltage, String sct1, String sct2);
+#else
 extern void config_save_cal(String voltage, String ct1, String ct2, String freq, String gain);
+#endif
 
 // -------------------------------------------------------------------
 // Save the admin/web interface details

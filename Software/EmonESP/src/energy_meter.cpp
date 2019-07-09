@@ -28,6 +28,11 @@ unsigned short CurrentGainCT1 = CURRENT_GAIN_CT1;
 unsigned short CurrentGainCT2 = CURRENT_GAIN_CT2;
 unsigned short LineFreq = LINE_FREQ;
 unsigned short PGAGain = PGA_GAIN;
+#ifdef SOLAR_METER
+unsigned short VoltageGainSolar = VOLTAGE_GAIN_SOLAR;
+unsigned short SolarGainCT1 = SOLAR_GAIN_CT1;
+unsigned short SolarGainCT2 = SOLAR_GAIN_CT2;
+#endif
 
 #if defined ESP8266
 const int CS_pin = 16;
@@ -38,6 +43,9 @@ const int CS_pin = 16;
 */
 #elif defined ESP32
 const int CS_pin = 5;
+#ifdef SOLAR_METER
+const int CS_solar_pin = 4;
+#endif
 /*
   18 - CLK
   19 - MISO
@@ -61,12 +69,19 @@ unsigned long startMillis;
 unsigned long currentMillis;
 
 const int period = 1000; //time interval in ms to send data
-const int canBeNegative = 0; //set to 1 if current and power readings can be negative (like when exporting solar power)
+#ifdef SOLAR_METER
+bool canBeNegative = true;
+#else
+bool canBeNegative = false; //set to true if current and power readings can be negative (like when exporting solar power)
+#endif
 
 char result[200];
 char measurement[16];
 
 ATM90E32 eic{}; //initialize the IC class
+#ifdef SOLAR_METER
+ATM90E32 eic_solar{};
+#endif
 
 // -------------------------------------------------------------------
 // SETUP
@@ -85,6 +100,14 @@ void energy_meter_setup() {
   Serial.println("Start ATM90E32");
   eic.begin(CS_pin, LineFreq, PGAGain, VoltageGain, CurrentGainCT1, 0, CurrentGainCT2);
   delay(1000);
+  
+  #ifdef SOLAR_METER
+  if(svoltage_cal.toInt()>0) VoltageGainSolar = svoltage_cal.toInt();
+  if(sct1_cal.toInt()>0) SolarGainCT1 = sct1_cal.toInt();
+  if(sct2_cal.toInt()>0) SolarGainCT2 = sct2_cal.toInt();
+  
+  eic_solar.begin(CS_solar_pin, LineFreq, PGAGain, VoltageGainSolar, SolarGainCT1, 0, SolarGainCT2);
+  #endif
 
   #ifdef ENABLE_OLED_DISPLAY
    // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
@@ -98,7 +121,6 @@ void energy_meter_setup() {
   display.setCursor(0, 0);
   display.println("Starting up...");
   display.display();
-
   #endif
 
   startMillis = millis();  //initial start time
@@ -133,24 +155,22 @@ void energy_meter_loop()
   unsigned short sys1 = eic.GetSysStatus1(); //EMMState1
   unsigned short en0 = eic.GetMeterStatus0();//EMMIntState0
   unsigned short en1 = eic.GetMeterStatus1();//EMMIntState1
-/*
+
   DBUGS.println("Sys Status: S0:0x" + String(sys0, HEX) + " S1:0x" + String(sys1, HEX));
   DBUGS.println("Meter Status: E0:0x" + String(en0, HEX) + " E1:0x" + String(en1, HEX));
   delay(10);
 
   /*if true the MCU is not getting data from the energy meter */
-/*  if (sys0 == 65535 || sys0 == 0) DBUGS.println("Error: Not receiving data from energy meter - check your connections");
-*/
+  if (sys0 == 65535 || sys0 == 0) DBUGS.println("Error: Not receiving data from energy meter - check your connections");
+
   ////// VOLTAGE
   voltageA = eic.GetLineVoltageA();
   voltageC = eic.GetLineVoltageC();
 
-  if (LineFreq == 4485)
-  {
+  if (LineFreq == 4485) {
     totalVoltage = voltageA + voltageC;     //is split single phase, so only 120v per leg
   }
-  else
-  {
+  else {
     totalVoltage = voltageA;     //voltage should be 220-240 at the AC transformer
   }
 
@@ -161,7 +181,7 @@ void energy_meter_loop()
   wattsA = eic.GetActivePowerA();
   wattsC = eic.GetActivePowerC();
   
-  if (canBeNegative == 1) {
+  if (canBeNegative) {
     /* Is net energy positive or negative?
      * We're not reading if current is pos or neg because we're only getting
      * the upper 16 bit register. We are getting all 32 bits of active power though */
@@ -184,19 +204,72 @@ void energy_meter_loop()
   temp = eic.GetTemperature();
   freq = eic.GetFrequency();
 
+
+#ifdef SOLAR_METER
+  float solarVoltageA, solarVoltageC, totalSolarVoltage;
+  float solarCurrentCT1, solarCurrentCT2, totalSolarCurrent;
+  float totalSolarWatts, solarWattsA, solarWattsC;
+  float solarPowerFactor, solarTemp, solarFreq;
+
+  unsigned short sys0s = eic_solar.GetSysStatus0(); //EMMState0
+  unsigned short sys1s = eic_solar.GetSysStatus1(); //EMMState1
+  unsigned short en0s = eic_solar.GetMeterStatus0();//EMMIntState0
+  unsigned short en1s = eic_solar.GetMeterStatus1();//EMMIntState1
+  
+  DBUGS.println("Solar Sys Status: S0:0x" + String(sys0s, HEX) + " S1:0x" + String(sys1s, HEX));
+  DBUGS.println("Solar Meter Status: E0:0x" + String(en0s, HEX) + " E1:0x" + String(en1s, HEX));
+  delay(10);
+
+  ////// SOLAR VOLTAGE
+  /*if true the MCU is not getting data from the energy meter */
+  if (sys0s == 65535 || sys0s == 0) DBUGS.println("Error: Not receiving data from the solar energy meter - check your connections");
+
+  solarVoltageA = eic_solar.GetLineVoltageA();
+  solarVoltageC = eic_solar.GetLineVoltageC();
+
+  if (LineFreq == 4485) {
+    totalSolarVoltage = solarVoltageA + solarVoltageC;     //is split single phase, so only 120v per leg
+  }
+  else {
+    totalSolarVoltage = solarVoltageA;     //voltage should be 220-240 at the AC transformer
+  }
+
+  /////// SOLAR CURRENT & POWER
+  solarCurrentCT1 = eic_solar.GetLineCurrentA();
+  solarCurrentCT2 = eic_solar.GetLineCurrentC();
+  
+  solarWattsA = eic_solar.GetActivePowerA();
+  solarWattsC = eic_solar.GetActivePowerC();
+
+  /* Is net energy positive or negative?
+   * We're not reading if current is pos or neg because we're only getting
+   * the upper 16 bit register. We are getting all 32 bits of active power though */
+  if (solarWattsA < 0) solarCurrentCT1 *= -1; 
+  if (solarWattsC < 0) solarCurrentCT2 *= -1;
+  totalSolarWatts = eic_solar.GetTotalActivePower(); //all math is already done in the total register
+#endif
 /*
   DBUGS.println(" ");
   DBUGS.println("Voltage 1: " + String(voltageA) + "V");
   DBUGS.println("Voltage 2: " + String(voltageC) + "V");
   DBUGS.println("Current 1: " + String(currentCT1) + "A");
   DBUGS.println("Current 2: " + String(currentCT2) + "A");
-  DBUGS.println("Active Power: " + String(totalWatts) + "W");
+#ifdef SOLAR_METER
+  DBUGS.println("Watts/Active Power: " + String(totalWatts) + "W");
+  DBUGS.println("Solar Voltage: " + String(solarVoltageA) + "V");
+  DBUGS.println("Solar Current 1: " + String(solarCurrentCT1) + "A");
+  DBUGS.println("Solar Current 2: " + String(solarCurrentCT2) + "A");
+  DBUGS.println("Solar Watts/AP: " + String(totalSolarWatts) + "W");
+#endif
   DBUGS.println("Power Factor: " + String(powerFactor));
+#ifdef EXPORT_METERING_VALS
   DBUGS.println("Fundamental Power: " + String(eic.GetTotalActiveFundPower()) + "W");
   DBUGS.println("Harmonic Power: " + String(eic.GetTotalActiveHarPower()) + "W");
   DBUGS.println("Reactive Power: " + String(eic.GetTotalReactivePower()) + "var");
   DBUGS.println("Apparent Power: " + String(eic.GetTotalApparentPower()) + "VA");
   DBUGS.println("Phase Angle A: " + String(eic.GetPhaseA()));
+  DBUGS.println("Phase Angle C: " + String(eic.GetPhaseC()));
+#endif
   DBUGS.println("Chip Temp: " + String(temp) + "C");
   DBUGS.println("Frequency: " + String(freq) + "Hz");
   DBUGS.println(" ");
@@ -233,12 +306,18 @@ void energy_meter_loop()
   /* Write meter data to the display */
   display.clearDisplay();
   display.setCursor(0, 0);
-  display.setTextSize(2);
+  display.setTextSize(1);
   display.setTextColor(WHITE);  
   display.println("CT1:" + String(currentCT1) + "A");
   display.println("CT2:" + String(currentCT2) + "A");
   display.println("V:" + String(voltageA) + "V");
   display.println("W:" + String(totalWatts) + "W");
+#ifdef SOLAR_METER
+  display.println("SCT1:" + String(solarCurrentCT1) + "A");
+  display.println("SCT2:" + String(solarCurrentCT2) + "A");
+  display.println("SV:" + String(solarVoltageA) + "V");
+  display.println("SW:" + String(totalSolarWatts) + "W");
+#endif
   /*
   display.println("Freq: " + String(freq) + "Hz");
   display.println("PF: " + String(powerFactor));
@@ -276,16 +355,62 @@ void energy_meter_loop()
   dtostrf(totalCurrent, 2, 4, measurement);
   strcat(result, measurement);
 
+  strcat(result, ",W:");
+  dtostrf(totalWatts, 2, 4, measurement);
+  strcat(result, measurement);
+  
+#ifdef SOLAR_METER
+  strcat(result, ",SolarV:");
+  dtostrf(solarVoltageA, 2, 2, measurement);
+  strcat(result, measurement);
+  
+  strcat(result, ",SCT1:");
+  dtostrf(solarCurrentCT1, 2, 4, measurement);
+  strcat(result, measurement);
+
+  strcat(result, ",SCT2:");
+  dtostrf(solarCurrentCT2, 2, 4, measurement);
+  strcat(result, measurement);
+
+  strcat(result, ",totSolarI:");
+  dtostrf(totalSolarCurrent, 2, 4, measurement);
+  strcat(result, measurement);
+
+  strcat(result, ",SolarW:");
+  dtostrf(totalSolarWatts, 2, 4, measurement);
+  strcat(result, measurement);
+#endif
+#ifdef EXPORT_METERING_VALS
+  strcat(result, ",FundPow:");
+  dtostrf(eic.GetTotalActiveFundPower(), 2, 4, measurement);
+  strcat(result, measurement);
+
+  strcat(result, ",HarPow:");
+  dtostrf(eic.GetTotalActiveHarPower(), 2, 4, measurement);
+  strcat(result, measurement);
+
+  strcat(result, ",ReactPow:");
+  dtostrf(eic.GetTotalReactivePower(), 2, 4, measurement);
+  strcat(result, measurement);
+
+  strcat(result, ",AppPow:");
+  dtostrf(eic.GetTotalApparentPower(), 2, 4, measurement);
+  strcat(result, measurement);
+
+  strcat(result, ",PhaseA:");
+  dtostrf(eic.GetPhaseA(), 2, 2, measurement);
+  strcat(result, measurement);
+
+  strcat(result, ",PhaseC:");
+  dtostrf(eic.GetPhaseC(), 2, 2, measurement);
+  strcat(result, measurement);
+#endif
   strcat(result, ",PF:");
-  dtostrf(powerFactor, 2, 4, measurement);
+  dtostrf(powerFactor, 2, 2, measurement);
   strcat(result, measurement);
 
   strcat(result, ",temp:");
   dtostrf(temp, 2, 2, measurement);
-  strcat(result, measurement);
-
-  strcat(result, ",W:");
-  dtostrf(totalWatts, 2, 4, measurement);
   strcat(result, measurement);
 
   strcat(result, ",freq:");

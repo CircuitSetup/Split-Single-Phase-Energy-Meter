@@ -28,6 +28,45 @@
 
 #include <Arduino.h>
 
+#ifndef WIFI_LED
+#define WIFI_LED 2
+#endif
+
+#ifdef WIFI_LED
+#ifndef WIFI_LED_ON_STATE
+#define WIFI_LED_ON_STATE LOW
+#endif
+
+#ifndef WIFI_LED_AP_TIME
+#define WIFI_LED_AP_TIME 1000
+#endif
+
+#ifndef WIFI_LED_AP_CONNECTED_TIME
+#define WIFI_LED_AP_CONNECTED_TIME 100
+#endif
+
+#ifndef WIFI_LED_STA_CONNECTING_TIME
+#define WIFI_LED_STA_CONNECTING_TIME 500
+#endif
+
+#endif
+
+#ifndef WIFI_BUTTON
+#define WIFI_BUTTON 3
+#endif
+
+#ifndef WIFI_BUTTON_AP_TIMEOUT
+#define WIFI_BUTTON_AP_TIMEOUT              (5 * 1000)  
+#endif
+
+#ifndef WIFI_BUTTON_FACTORY_RESET_TIMEOUT
+#define WIFI_BUTTON_FACTORY_RESET_TIMEOUT   (10 * 1000)
+#endif
+
+#ifndef WIFI_CLIENT_RETRY_TIMEOUT
+#define WIFI_CLIENT_RETRY_TIMEOUT           (5 * 60 * 1000)
+#endif
+
 
 // Last discovered WiFi access points
 extern String st;

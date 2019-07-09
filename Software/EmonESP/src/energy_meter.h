@@ -2,7 +2,18 @@
 #define _ENERGY_METER
 
 //#define ENABLE_OLED_DISPLAY
+//#define SOLAR_METER
 
+/* 
+ *  Uncomment to send metering values, like Fundamental, Harmonic, Reactive, Apparent Power, and Phase Angle
+ */
+//#define EXPORT_METERING_VALS
+
+/* 
+ * The following calibration values can be set here or in the EmonESP interface
+ * EmonESP values take priority if they are set
+ */
+ 
 /* 
  * 4485 for 60 Hz (North America)
  * 389 for 50 hz (rest of the world)
@@ -34,6 +45,12 @@
  */
 #define CURRENT_GAIN_CT1 39473
 #define CURRENT_GAIN_CT2 39473
+
+#ifdef SOLAR_METER
+#define VOLTAGE_GAIN_SOLAR 37106
+#define SOLAR_GAIN_CT1 39473
+#define SOLAR_GAIN_CT2 39473
+#endif
 
 extern void energy_meter_setup();
 extern void energy_meter_loop();

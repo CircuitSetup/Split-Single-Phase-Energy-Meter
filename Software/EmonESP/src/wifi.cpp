@@ -51,6 +51,11 @@ int apClients = 0;
 // hostname for mDNS. Should work at least on windows. Try http://emonesp.local
 const char *esp_hostname = "emonesp";
 
+#ifdef WIFI_LED
+int wifiLedState = !WIFI_LED_ON_STATE;
+unsigned long wifiLedTimeOut = millis();
+#endif
+
 // Wifi Network Strings
 String connected_network = "";
 String status_string = "";
@@ -63,47 +68,6 @@ unsigned long client_retry_time = 0;
 
 unsigned long Timer;
 String st, rssi;
-
-#ifndef WIFI_LED
-#define WIFI_LED 2
-#endif
-
-#ifdef WIFI_LED
-#ifndef WIFI_LED_ON_STATE
-#define WIFI_LED_ON_STATE LOW
-#endif
-
-#ifndef WIFI_LED_AP_TIME
-#define WIFI_LED_AP_TIME 1000
-#endif
-
-#ifndef WIFI_LED_AP_CONNECTED_TIME
-#define WIFI_LED_AP_CONNECTED_TIME 100
-#endif
-
-#ifndef WIFI_LED_STA_CONNECTING_TIME
-#define WIFI_LED_STA_CONNECTING_TIME 500
-#endif
-
-int wifiLedState = !WIFI_LED_ON_STATE;
-unsigned long wifiLedTimeOut = millis();
-#endif
-
-#ifndef WIFI_BUTTON
-#define WIFI_BUTTON 3
-#endif
-
-#ifndef WIFI_BUTTON_AP_TIMEOUT
-#define WIFI_BUTTON_AP_TIMEOUT              (5 * 1000)  
-#endif
-
-#ifndef WIFI_BUTTON_FACTORY_RESET_TIMEOUT
-#define WIFI_BUTTON_FACTORY_RESET_TIMEOUT   (10 * 1000)
-#endif
-
-#ifndef WIFI_CLIENT_RETRY_TIMEOUT
-#define WIFI_CLIENT_RETRY_TIMEOUT (5 * 60 * 1000)
-#endif
 
 int wifiButtonState = HIGH;
 unsigned long wifiButtonTimeOut = millis();
@@ -121,9 +85,7 @@ void startAP() {
   }
 
   wifi_scan();
-
   WiFi.enableAP(true);
-
   WiFi.softAPConfig(apIP, apIP, netMsk);
 
   // Create Unique SSID e.g "emonESP_XXXXXX"
@@ -223,8 +185,7 @@ void WiFiEvent(WiFiEvent_t event)
             break;
         case SYSTEM_EVENT_STA_GOT_IP: {
               #ifdef WIFI_LED
-                wifiLedState = WIFI_LED_ON_STATE;
-                digitalWrite(WIFI_LED, wifiLedState);
+                digitalWrite(WIFI_LED, HIGH);
               #endif
             
               IPAddress myAddress = WiFi.localIP();
@@ -287,8 +248,7 @@ void WiFiEvent(WiFiEvent_t event)
 void wifi_onStationModeGotIP(const WiFiEventStationModeGotIP &event)
 {
   #ifdef WIFI_LED
-    wifiLedState = WIFI_LED_ON_STATE;
-    digitalWrite(WIFI_LED, wifiLedState);
+    digitalWrite(WIFI_LED, HIGH);
   #endif
 
   IPAddress myAddress = WiFi.localIP();
@@ -400,6 +360,11 @@ void wifi_loop()
   bool isAp = wifi_mode_is_ap();
   bool isApOnly = wifi_mode_is_ap_only();
 
+// flash the LED according to what state wifi is in
+// if AP mode - flash slow
+// if AP mode & someone is connected - flash fast
+// if Client mode - led on
+
 #ifdef WIFI_LED
   if ((isApOnly || !WiFi.isConnected()) && millis() > wifiLedTimeOut)
   {
@@ -473,14 +438,14 @@ void wifi_loop()
     #elif
     if(client_disconnects > 2) {
     #endif
-      DBUGS.println("Start AP after WIFI disconnected");
+      DBUGS.println("Start AP if WIFI is disconnected");
       startAP();
       client_retry = true;
       client_retry_time = millis() + WIFI_CLIENT_RETRY_TIMEOUT;
     }
   }
 
-  // Remain in AP mode for 5 Minutes before resetting
+  // Remain in AP mode if no one is connected for 5 Minutes before resetting
   if(isApOnly && 0 == apClients && client_retry && millis() > client_retry_time) {
     DBUGS.println("Try to connect to client again - resetting");
     delay(50);

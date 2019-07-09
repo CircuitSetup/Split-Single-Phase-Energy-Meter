@@ -37,6 +37,7 @@
 #endif
 
 #include "emonesp.h"
+#include "energy_meter.h"
 #include "web_server.h"
 #include "config.h"
 #include "wifi.h"
@@ -165,7 +166,11 @@ void handleScan(AsyncWebServerRequest *request) {
   String json = "[";
   int n = WiFi.scanComplete();
   if (n == -2) {
+    #ifdef ESP32
     WiFi.scanNetworks(true,true); //2nd true handles isHidden on ESP32
+    #else
+    WiFi.scanNetworks(true);
+    #endif
   } else if (n) {
     for (int i = 0; i < n; ++i) {
       if (i) json += ",";
@@ -300,6 +305,22 @@ void handleSaveCal(AsyncWebServerRequest *request) {
     return;
   }
 
+#ifdef SOLAR_METER
+  config_save_cal(request->arg("voltage"),
+                  request->arg("ct1"),
+                  request->arg("ct2"),
+                  request->arg("freq"),
+                  request->arg("gain"),
+                  request->arg("svoltage"),
+                  request->arg("sct1"),
+                  request->arg("sct2"));
+
+  char tmpStr[200];
+  snprintf(tmpStr, sizeof(tmpStr), "Saved: %s %s %s %s %s %s %s %s", voltage_cal.c_str(),
+           ct1_cal.c_str(), ct2_cal.c_str(), freq_cal.c_str(), gain_cal.c_str(),
+           svoltage_cal.c_str(), sct1_cal.c_str(), sct2_cal.c_str());
+  DBUGLN(tmpStr);
+#else
   config_save_cal(request->arg("voltage"),
                   request->arg("ct1"),
                   request->arg("ct2"),
@@ -310,13 +331,14 @@ void handleSaveCal(AsyncWebServerRequest *request) {
   snprintf(tmpStr, sizeof(tmpStr), "Saved: %s %s %s %s %s", voltage_cal.c_str(),
            ct1_cal.c_str(), ct2_cal.c_str(), freq_cal.c_str(), gain_cal.c_str());
   DBUGLN(tmpStr);
+#endif
 
   response->setCode(200);
   response->print(tmpStr);
   request->send(response);
 
   // restart the system to load values into energy meter
-  //systemRestartTime = millis() + 1000;
+  systemRestartTime = millis() + 1000;
 }
 
 // -------------------------------------------------------------------
@@ -406,6 +428,11 @@ void handleStatus(AsyncWebServerRequest *request) {
   s += "\"ct2_cal\":\"" + ct2_cal + "\"";
   s += "\"freq_cal\":\"" + freq_cal + "\"";
   s += "\"gain_cal\":\"", + gain_cal + "\"";
+  #ifdef #SOLAR_METER
+  s += "\"svoltage_cal\":\"" + svoltage_cal + "\"";
+  s += "\"sct1_cal\":\"" + sct1_cal + "\"";
+  s += "\"sct2_cal\":\"" + sct2_cal + "\"";
+  #endif
 #endif
   s += "}";
 
@@ -446,7 +473,14 @@ void handleConfig(AsyncWebServerRequest *request) {
   s += "\"ct1_cal\":\"" + ct1_cal + "\",";
   s += "\"ct2_cal\":\"" + ct2_cal + "\",";
   s += "\"freq_cal\":\"" + freq_cal + "\",";
+  #ifdef SOLAR_METER
+  s += "\"gain_cal\":\"" + gain_cal + "\","; //comma
+  s += "\"svoltage_cal\":\"" + svoltage_cal + "\",";
+  s += "\"sct1_cal\":\"" + sct1_cal + "\",";
+  s += "\"sct2_cal\":\"" + sct2_cal + "\"";
+  #else
   s += "\"gain_cal\":\"" + gain_cal + "\"";
+  #endif
   s += "}";
 
   response->setCode(200);

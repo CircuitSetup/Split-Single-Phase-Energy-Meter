@@ -24,6 +24,7 @@
  */
 
 #include "emonesp.h"
+#include "energy_meter.h"
 #include "config.h"
 
 #include <Arduino.h>
@@ -57,6 +58,11 @@ String ct1_cal = "";
 String ct2_cal = "";
 String freq_cal = "";
 String gain_cal = "";
+#ifdef SOLAR_METER
+String svoltage_cal = "";
+String sct1_cal = "";
+String sct2_cal = "";
+#endif
 
 #define EEPROM_ESID_SIZE          32
 #define EEPROM_EPASS_SIZE         64
@@ -77,6 +83,11 @@ String gain_cal = "";
 #define EEPROM_CAL_CT2_SIZE       6
 #define EEPROM_CAL_FREQ_SIZE      6
 #define EEPROM_CAL_GAIN_SIZE      6
+#ifdef SOLAR_METER
+#define EEPROM_CAL_SVOLTAGE_SIZE  6
+#define EEPROM_CAL_SCT1_SIZE      6
+#define EEPROM_CAL_SCT2_SIZE      6
+#endif
 #define EEPROM_SIZE               1024
 
 #define EEPROM_ESID_START         0
@@ -117,7 +128,17 @@ String gain_cal = "";
 #define EEPROM_CAL_FREQ_END      (EEPROM_CAL_FREQ_START + EEPROM_CAL_FREQ_SIZE)
 #define EEPROM_CAL_GAIN_START    EEPROM_CAL_FREQ_END
 #define EEPROM_CAL_GAIN_END      (EEPROM_CAL_GAIN_START + EEPROM_CAL_GAIN_SIZE)
+#ifdef SOLAR_METER
+#define EEPROM_CAL_SVOLTAGE_START EEPROM_CAL_GAIN_END
+#define EEPROM_CAL_SVOLTAGE_END   (EEPROM_CAL_SVOLTAGE_START + EEPROM_CAL_SVOLTAGE_SIZE)
+#define EEPROM_CAL_SCT1_START     EEPROM_CAL_SVOLTAGE_END
+#define EEPROM_CAL_SCT1_END       (EEPROM_CAL_SCT1_START + EEPROM_CAL_SCT1_SIZE)
+#define EEPROM_CAL_SCT2_START     EEPROM_CAL_SCT1_END
+#define EEPROM_CAL_SCT2_END       (EEPROM_CAL_SCT2_START + EEPROM_CAL_SCT2_SIZE)
+#define EEPROM_CONFIG_END         EEPROM_CAL_SCT2_END
+#else
 #define EEPROM_CONFIG_END         EEPROM_CAL_GAIN_END
+#endif
 
 #if EEPROM_CONFIG_END > EEPROM_SIZE
 #error EEPROM_SIZE too small
@@ -210,6 +231,11 @@ void config_load_settings()
   EEPROM_read_string(EEPROM_CAL_CT2_START, EEPROM_CAL_CT2_SIZE, ct2_cal);
   EEPROM_read_string(EEPROM_CAL_FREQ_START, EEPROM_CAL_FREQ_SIZE, freq_cal);
   EEPROM_read_string(EEPROM_CAL_GAIN_START, EEPROM_CAL_GAIN_SIZE, gain_cal);
+  #ifdef SOLAR_METER
+  EEPROM_read_string(EEPROM_CAL_SVOLTAGE_START, EEPROM_CAL_SVOLTAGE_SIZE, svoltage_cal);
+  EEPROM_read_string(EEPROM_CAL_SCT1_START, EEPROM_CAL_SCT1_SIZE, sct1_cal);
+  EEPROM_read_string(EEPROM_CAL_SCT2_START, EEPROM_CAL_SCT2_SIZE, sct2_cal);
+  #endif
 
   // Web server credentials
   EEPROM_read_string(EEPROM_WWW_USER_START, EEPROM_WWW_USER_SIZE, www_username);
@@ -275,6 +301,32 @@ void config_save_mqtt(String server, String topic, String prefix, String user, S
 }
 
 //for CircuitSetup energy meter
+#ifdef SOLAR_METER
+void config_save_cal(String voltage, String ct1, String ct2, String freq, String gain, String svoltage, String sct1, String sct2)
+{
+  EEPROM.begin(EEPROM_SIZE);
+  
+  voltage_cal = voltage;
+  ct1_cal = ct1;
+  ct2_cal = ct2;
+  freq_cal = freq;
+  gain_cal = gain;
+  svoltage_cal = svoltage;
+  sct1_cal = sct1;
+  sct2_cal = sct2;
+
+  EEPROM_write_string(EEPROM_CAL_VOLTAGE_START, EEPROM_CAL_VOLTAGE_SIZE, voltage_cal);
+  EEPROM_write_string(EEPROM_CAL_CT1_START, EEPROM_CAL_CT1_SIZE, ct1_cal);
+  EEPROM_write_string(EEPROM_CAL_CT2_START, EEPROM_CAL_CT2_SIZE, ct2_cal);
+  EEPROM_write_string(EEPROM_CAL_FREQ_START, EEPROM_CAL_FREQ_SIZE, freq_cal);
+  EEPROM_write_string(EEPROM_CAL_GAIN_START, EEPROM_CAL_GAIN_SIZE, gain_cal);
+  EEPROM_write_string(EEPROM_CAL_SVOLTAGE_START, EEPROM_CAL_SVOLTAGE_SIZE, svoltage_cal);
+  EEPROM_write_string(EEPROM_CAL_SCT1_START, EEPROM_CAL_SCT1_SIZE, sct1_cal);
+  EEPROM_write_string(EEPROM_CAL_SCT2_START, EEPROM_CAL_SCT2_SIZE, sct2_cal);
+  
+  EEPROM.end();
+}
+#else
 void config_save_cal(String voltage, String ct1, String ct2, String freq, String gain)
 {
   EEPROM.begin(EEPROM_SIZE);
@@ -293,6 +345,7 @@ void config_save_cal(String voltage, String ct1, String ct2, String freq, String
 
   EEPROM.end();
 }
+#endif
 
 void config_save_admin(String user, String pass)
 {

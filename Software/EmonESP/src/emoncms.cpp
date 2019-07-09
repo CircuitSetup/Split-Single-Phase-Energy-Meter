@@ -27,6 +27,7 @@
 #include "emoncms.h"
 #include "config.h"
 #include "http.h"
+#include "wifi.h"
 
 #include <Arduino.h>
 

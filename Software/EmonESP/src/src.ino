@@ -44,6 +44,10 @@
 #include "mqtt.h"
 
 #ifdef ENABLE_ENERGY_METER
+#ifdef ESP32
+#include "soc/soc.h"
+#include "soc/rtc_cntl_reg.h"
+#endif
 #include "energy_meter.h"
 #endif
 
@@ -56,6 +60,8 @@ void setup() {
 #ifdef DEBUG_SERIAL1
   Serial1.begin(115200);
 #endif
+
+  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector
 
   // Read saved settings from the config
   config_load_settings();

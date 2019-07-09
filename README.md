@@ -173,21 +173,28 @@ If you purchased a kit with the black SCT016 current transformers, or have the b
 
 ## Calibration
 
-The default configuration of the Energy Meter software is set to use the [SCT-013-000 100A/50mA current transformers](https://amzn.to/2E0KVvo), and the [Jameco Reliapro 9v AC transformer](https://amzn.to/2XcWJjI). There are also values for the Magnalab current transformers, and the 12v version of the AC transformer located in the **energy_meter.h** file. Simply change the values under CALIBRATION SETTINGS if you are using a 12v AC Transformer or the Magnalab current transformers.  **If you are using any of these you likely will not need to calibrate, but if you want to be sure your readings are more accurate then calibration is recommended.** 
+The default configuration of the Energy Meter software is set to use the SCT-016 120A/40mA current transformers, and the [Jameco Reliapro 9v AC transformer](https://amzn.to/2XcWJjI). There are also values for 100A Magnalab, SCT-013 100A 50mV current tranaformers, and the 12v version of the AC transformer located in the **energy_meter.h** file, and in the EmonESP web interface. Simply change the values under CALIBRATION SETTINGS if you are using a 12v AC Transformer or the Magnalab current transformers.  **If you are using any of these you likely will not need to calibrate, but if you want to be sure your readings are the most accurate then calibration is recommended.** 
 
 Alternatively, if you have equipment that can read active and reactive energy pulse outputs, CT1-CT4 pins can be used for this. It is recommended that these connections are opto-isolated to prevent interference. 
 
 ### For calibration you will need:
-1.  A multi-meter, or to make it easier and safer, a [kill-a-watt](https://amzn.to/2TXT7jx) or similar.
-2.  A hair dryer, soldering iron, electric heater, or anything else that uses a large amount of current.
+1.  A multi-meter, or to make it easier and safer, a [kill-a-watt](https://amzn.to/2TXT7jx) or similar. A clamp meter will also work if you would like to measure mains power directly.
+2.  A hair dryer, soldering iron, electric heater, or anything else that uses a large amount of resistive current.
 3.  A modified power cable that allows you to put a current transformer around only the hot (usually black) wire.
 
 ### Setup
 1.  At this point all wires should be connected between your ESP and the Energy Monitor.
 2.  Connect the Energy Monitor to the AC Transformer and plug it in - the ESP and Energy Meter should both have power. If either do not, check your connections.
-3.  Connect your ESP to your computer via USB cable
-4.  Open the Arduino IDE, and go to Tools > Serial Monitor
-5.  Values should be scrolling by. If you do not see anything in the serial window, make sure the correct COM port is selected for your ESP in the Arduino IDE.
+
+#### With the Arduino IDE
+1.  Connect your ESP to your computer via USB cable
+2.  Open the Arduino IDE, and go to Tools > Serial Monitor
+3.  Values should be scrolling by. If you do not see anything in the serial window, make sure the correct COM port is selected for your ESP in the Arduino IDE.
+
+#### With EmonESP
+1.  The first time the ESP32 or ESP8266 is started with EmonESP it will not be connected to local router, and will go into AP mode. You can connect to the interface via a cell phone or other wireless device to access the interface via a web browser at 192.168.4.1 or emonesp.local.
+2.  If the ESP is already connected to a network, you can access the interface with the IP address that your router assigned to it.
+3.  Go to the Calibration section. 
 
 ### Voltage Procedure 
 

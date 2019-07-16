@@ -4,6 +4,9 @@
    -------------------------------------------------------------------
    Adaptation of Chris Howells OpenEVSE ESP Wifi
    by Trystan Lea, Glyn Hudson, OpenEnergyMonitor
+
+   Modified to use with the CircuitSetup.us Split Phase Energy Meter by jdeglavina
+
    All adaptation GNU General Public License as below.
 
    -------------------------------------------------------------------
@@ -22,7 +25,6 @@
    Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.
 */
-
 #include "emonesp.h"
 #include "wifi.h"
 #include "config.h"
@@ -63,7 +65,6 @@ String ipaddress = "";
 
 int client_disconnects = 0;
 bool client_retry = false;
-bool wifiConnected = false;
 unsigned long client_retry_time = 0;
 
 unsigned long Timer;
@@ -83,6 +84,11 @@ void startAP() {
   if (wifi_mode_is_sta()) {
     wifi_disconnect();
   }
+
+  //turn off LED while doing wifi things
+  #ifdef WIFI_LED
+    digitalWrite(WIFI_LED, LOW);
+  #endif
 
   wifi_scan();
   WiFi.enableAP(true);
@@ -124,8 +130,12 @@ void startClient() {
   // DBUGS.print(" epass:");
   // DBUGS.println(epass.c_str());
 
+  //turn off LED while doing wifi things
+  #ifdef WIFI_LED
+    digitalWrite(WIFI_LED, LOW);
+  #endif
+
   client_disconnects = 0;
-  //WiFi.disconnect();
   
   WiFi.begin(esid.c_str(), epass.c_str());
 #ifdef ESP32
@@ -154,8 +164,6 @@ static void wifi_start()
 
 void WiFiEvent(WiFiEvent_t event)
 {
-    DBUGS.printf("[WiFi-event] event: %d\n", event);
-    
     switch (event) {
         case SYSTEM_EVENT_WIFI_READY: 
             DBUGS.println("WiFi interface ready");
@@ -178,16 +186,11 @@ void WiFiEvent(WiFiEvent_t event)
             DBUGS.println("Disconnected from WiFi access point");
             client_disconnects++;
             DBUGS.println(client_disconnects);
-            wifiConnected = false;
             break;
         case SYSTEM_EVENT_STA_AUTHMODE_CHANGE:
             DBUGS.println("Authentication mode of access point has changed");
             break;
         case SYSTEM_EVENT_STA_GOT_IP: {
-              #ifdef WIFI_LED
-                digitalWrite(WIFI_LED, HIGH);
-              #endif
-            
               IPAddress myAddress = WiFi.localIP();
               char tmpStr[40];
               sprintf(tmpStr, "%d.%d.%d.%d", myAddress[0], myAddress[1], myAddress[2], myAddress[3]);
@@ -200,7 +203,6 @@ void WiFiEvent(WiFiEvent_t event)
             
               // Clear any error state
               client_disconnects = 0;
-              wifiConnected = true;
               client_retry = false;
             }
             break;
@@ -247,10 +249,6 @@ void WiFiEvent(WiFiEvent_t event)
 #else //ESP8266
 void wifi_onStationModeGotIP(const WiFiEventStationModeGotIP &event)
 {
-  #ifdef WIFI_LED
-    digitalWrite(WIFI_LED, HIGH);
-  #endif
-
   IPAddress myAddress = WiFi.localIP();
   char tmpStr[40];
   sprintf(tmpStr, "%d.%d.%d.%d", myAddress[0], myAddress[1], myAddress[2], myAddress[3]);
@@ -361,18 +359,34 @@ void wifi_loop()
   bool isApOnly = wifi_mode_is_ap_only();
 
 // flash the LED according to what state wifi is in
-// if AP mode - flash slow
-// if AP mode & someone is connected - flash fast
-// if Client mode - led on
+// if AP mode & disconnected - blink every 2 seconds
+// if AP mode & someone is connected - blink fast
+// if Client mode - slow blink every 4 seconds
 
 #ifdef WIFI_LED
-  if ((isApOnly || !WiFi.isConnected()) && millis() > wifiLedTimeOut)
-  {
+  if ((isApOnly || !WiFi.isConnected()) && millis() > wifiLedTimeOut)  {
     wifiLedState = !wifiLedState;
     digitalWrite(WIFI_LED, wifiLedState);
-
-    int ledTime = isApOnly ? (0 == apClients ? WIFI_LED_AP_TIME : WIFI_LED_AP_CONNECTED_TIME) : WIFI_LED_STA_CONNECTING_TIME;
-    wifiLedTimeOut = millis() + ledTime;
+    
+    if(wifiLedState) {
+      wifiLedTimeOut = millis() + WIFI_LED_ON_TIME;
+    }
+    else {
+      int ledTime = isApOnly ? (0 == apClients ? WIFI_LED_AP_TIME : WIFI_LED_AP_CONNECTED_TIME) : WIFI_LED_STA_CONNECTING_TIME;
+      wifiLedTimeOut = millis() + ledTime;
+    }
+  }
+  if ((isClientOnly || WiFi.isConnected()) && millis() > wifiLedTimeOut)  {
+    wifiLedState = !wifiLedState;
+    digitalWrite(WIFI_LED, wifiLedState);
+    
+    if(wifiLedState) {
+      wifiLedTimeOut = millis() + WIFI_LED_ON_TIME;
+    }
+    else {
+      int ledTime = WIFI_LED_STA_CONNECTED_TIME;
+      wifiLedTimeOut = millis() + ledTime;
+    }
   }
 #endif
 
@@ -434,7 +448,7 @@ void wifi_loop()
   {
     // If we have failed to connect turn on the AP
     #ifdef ESP32
-    if (WiFi.onEvent(WiFiEvent) == 5 && !wifiConnected) { //SYSTEM_EVENT_STA_DISCONNECTED 
+    if (WiFi.onEvent(WiFiEvent) == 5) { //SYSTEM_EVENT_STA_DISCONNECTED 
     #elif
     if(client_disconnects > 2) {
     #endif

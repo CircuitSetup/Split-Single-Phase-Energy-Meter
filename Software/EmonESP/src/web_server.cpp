@@ -4,6 +4,9 @@
    -------------------------------------------------------------------
    Adaptation of Chris Howells OpenEVSE ESP Wifi
    by Trystan Lea, Glyn Hudson, OpenEnergyMonitor
+
+   Modified to use with the CircuitSetup.us Split Phase Energy Meter by jdeglavina
+
    All adaptation GNU General Public License as below.
 
    -------------------------------------------------------------------

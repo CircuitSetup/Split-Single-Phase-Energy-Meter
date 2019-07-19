@@ -66,8 +66,10 @@ void setup() {
   // Bring up the web server
   web_server_setup();
 
+#ifdef ESP8266
   // Start the OTA update systems
   ota_setup();
+#endif
 
 #ifdef ENABLE_ENERGY_METER
   energy_meter_setup();
@@ -84,7 +86,10 @@ void loop()
 {
   web_server_loop();
   wifi_loop();
+
+#ifdef ESP8266
   ota_loop();
+#endif
 
 #ifdef ENABLE_ENERGY_METER
   energy_meter_loop();

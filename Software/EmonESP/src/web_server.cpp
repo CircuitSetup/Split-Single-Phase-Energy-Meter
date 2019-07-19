@@ -642,7 +642,7 @@ void handleUpdateGet(AsyncWebServerRequest *request) {
 
 void handleUpdatePost(AsyncWebServerRequest *request) {
   bool shouldReboot = !Update.hasError();
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", shouldReboot ? "Update Complete. Reloading." : "Update FAIL");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", shouldReboot ? "Update Complete. Rebooting in 20 seconds." : "Update FAIL");
   response->addHeader("Refresh", "20");  
   response->addHeader("Location", "/");
   request->send(response);
@@ -695,50 +695,26 @@ void handleUpdateUpload(AsyncWebServerRequest *request, String filename, size_t 
 void handleNotFound(AsyncWebServerRequest *request)
 {
   DBUG("NOT_FOUND: ");
-  if (request->method() == HTTP_GET) {
-    DBUGF("GET");
-  } else if (request->method() == HTTP_POST) {
-    DBUGF("POST");
-  } else if (request->method() == HTTP_DELETE) {
-    DBUGF("DELETE");
-  } else if (request->method() == HTTP_PUT) {
-    DBUGF("PUT");
-  } else if (request->method() == HTTP_PATCH) {
-    DBUGF("PATCH");
-  } else if (request->method() == HTTP_HEAD) {
-    DBUGF("HEAD");
-  } else if (request->method() == HTTP_OPTIONS) {
-    DBUGF("OPTIONS");
+  dumpRequest(request);
+
+  if(wifi_mode_is_ap_only()) {
+    // Redirect to the home page in AP mode (for the captive portal)
+    AsyncResponseStream *response = request->beginResponseStream(String("text/html"));
+
+    String url = F("http://");
+    url += ipaddress;
+
+    String s = F("<html><body><a href=\"");
+    s += url;
+    s += F("\">EmonESP</a></body></html>");
+
+    response->setCode(301);
+    response->addHeader(F("Location"), url);
+    response->print(s);
+    request->send(response);
   } else {
-    DBUGF("UNKNOWN");
+    request->send(404);
   }
-  DBUGF(" http://%s%s", request->host().c_str(), request->url().c_str());
-
-  if (request->contentLength()) {
-    DBUGF("_CONTENT_TYPE: %s", request->contentType().c_str());
-    DBUGF("_CONTENT_LENGTH: %u", request->contentLength());
-  }
-
-  int headers = request->headers();
-  int i;
-  for (i = 0; i < headers; i++) {
-    AsyncWebHeader* h = request->getHeader(i);
-    DBUGF("_HEADER[%s]: %s", h->name().c_str(), h->value().c_str());
-  }
-
-  int params = request->params();
-  for (i = 0; i < params; i++) {
-    AsyncWebParameter* p = request->getParam(i);
-    if (p->isFile()) {
-      DBUGF("_FILE[%s]: %s, size: %u", p->name().c_str(), p->value().c_str(), p->size());
-    } else if (p->isPost()) {
-      DBUGF("_POST[%s]: %s", p->name().c_str(), p->value().c_str());
-    } else {
-      DBUGF("_GET[%s]: %s", p->name().c_str(), p->value().c_str());
-    }
-  }
-
-  request->send(404);
 }
 
 void web_server_setup()

@@ -236,15 +236,24 @@ function EmonEspViewModel() {
   self.saveAdminFetching = ko.observable(false);
   self.saveAdminSuccess = ko.observable(false);
   self.saveAdmin = function () {
+	var adminsave = {
+		user: self.config.www_username(),
+		pass: self.config.www_password()
+	};
+	
+	if (adminsave.user.length > 16 || adminsave.pass.length > 16) {
+		alert("Please enter a username and password that is 16 characters or less");
+	} else {
     self.saveAdminFetching(true);
     self.saveAdminSuccess(false);
-    $.post(baseEndpoint + "/saveadmin", { user: self.config.www_username(), pass: self.config.www_password() }, function (data) {
+    $.post(baseEndpoint + "/saveadmin", adminsave, function (data) {
       self.saveAdminSuccess(true);
     }).fail(function () {
       alert("Failed to save Admin config");
     }).always(function () {
       self.saveAdminFetching(false);
     });
+   }
   };
 
   // -----------------------------------------------------------------------
@@ -262,18 +271,18 @@ function EmonEspViewModel() {
     };
 
     if (emoncms.server === "" || emoncms.node === "") {
-      alert("Please enter Emoncms server and node");
+      alert("Please enter EmonCMS server and node");
     } else if (emoncms.apikey.length != 32) {
-      alert("Please enter valid Emoncms apikey");
+      alert("Please enter a valid Emoncms apikey");
     } else if (emoncms.fingerprint !== "" && emoncms.fingerprint.length != 59) {
-      alert("Please enter valid SSL SHA-1 fingerprint");
+      alert("Please enter a valid SSL SHA-1 fingerprint");
     } else {
       self.saveEmonCmsFetching(true);
       self.saveEmonCmsSuccess(false);
       $.post(baseEndpoint + "/saveemoncms", emoncms, function (data) {
         self.saveEmonCmsSuccess(true);
       }).fail(function () {
-        alert("Failed to save Admin config");
+        alert("Failed to save EmonCMS config");
       }).always(function () {
         self.saveEmonCmsFetching(false);
       });
@@ -321,8 +330,10 @@ function EmonEspViewModel() {
 		freq: self.config.freq_cal(), 
 		gain: self.config.gain_cal()
     };
-	if (cal.voltage_cal === "" || cal.ct1_cal === "" || cal.ct2_cal === "") {
-      alert("Please enter calibration settings");
+	if (isNaN(cal.voltage) || isNaN(cal.ct1) || isNaN(cal.ct2) || isNaN(cal.freq) || isNaN(cal.gain)) {
+		alert("Please enter a number for calibration values");
+	} else if (cal.voltage > 65535 || cal.ct1 > 65535 || cal.ct2 > 65535) {
+		alert("Please enter calibration settings less than 65535");
     } else {
 		self.saveCalFetching(true);
 		self.saveCalSuccess(false);
@@ -407,5 +418,5 @@ document.getElementById("restart").addEventListener("click", function (e) {
 // Event:Upload Firmware
 // -----------------------------------------------------------------------
 document.getElementById("upload").addEventListener("click", function(e) {
-  window.location.href='/upload'
+  window.location.href='/upload';
 });

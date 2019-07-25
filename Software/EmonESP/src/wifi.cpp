@@ -81,9 +81,8 @@ bool apMessage = false;
 // -------------------------------------------------------------------
 void startAP() {
   DBUGS.println("Starting AP");
-  if (wifi_mode_is_sta()) {
-    wifi_disconnect();
-  }
+  
+  wifi_disconnect();
 
   //turn off LED while doing wifi things
 #ifdef WIFI_LED
@@ -91,15 +90,16 @@ void startAP() {
 #endif
 
   wifi_scan();
+  delay(100);
   WiFi.enableAP(true);
+  delay(100);
   WiFi.softAPConfig(apIP, apIP, netMsk);
 
   // Create Unique SSID e.g "emonESP_XXXXXX"
-#ifdef ESP32
   String softAP_ssid_ID =
+#ifdef ESP32
     String(softAP_ssid) + "_" + String((uint32_t)ESP.getEfuseMac());
 #else
-  String softAP_ssid_ID =
     String(softAP_ssid) + "_" + String(ESP.getChipId());
 #endif
 
@@ -136,15 +136,17 @@ void startClient() {
   digitalWrite(WIFI_LED, LOW);
 #endif
 
-  client_disconnects = 0;
-
+  WiFi.enableSTA(true);
+  delay(100);
   WiFi.begin(esid.c_str(), epass.c_str());
+  WiFi.waitForConnectResult(); //yields until wifi connects or not
 #ifdef ESP32
   WiFi.setHostname(esp_hostname);
 #elif
   WiFi.hostname(esp_hostname);
 #endif
-  WiFi.enableSTA(true);
+
+  delay(50);
 }
 
 static void wifi_start()
@@ -185,8 +187,6 @@ void WiFiEvent(WiFiEvent_t event)
       break;
     case SYSTEM_EVENT_STA_DISCONNECTED:
       DBUGS.println("Disconnected from WiFi access point");
-      client_disconnects++;
-      DBUGS.println(client_disconnects);
       break;
     case SYSTEM_EVENT_STA_AUTHMODE_CHANGE:
       DBUGS.println("Authentication mode of access point has changed");
@@ -304,13 +304,14 @@ void wifi_onStationModeDisconnected(const WiFiEventStationModeDisconnected &even
 #endif
 
 void wifi_setup() {
+  
 #ifdef WIFI_LED
   pinMode(WIFI_LED, OUTPUT);
   digitalWrite(WIFI_LED, wifiLedState);
 #endif
 
   randomSeed(analogRead(0));
-
+  
   // If we have an SSID configured at this point we have likely
   // been running another firmware, clear the results
   /*
@@ -447,40 +448,39 @@ void wifi_loop()
   }
 
   // Manage state while connecting
-  if (isClientOnly && !WiFi.isConnected())
+  while (wifi_mode_is_sta_only() && !wifi_mode_is_ap_only() && !WiFi.isConnected())
   {
-    // If we have failed to connect turn on the AP
-#ifdef ESP32
-    if (WiFi.onEvent(WiFiEvent) == 5) { //SYSTEM_EVENT_STA_DISCONNECTED
-#elif
-    if (client_disconnects > 2) {
-#endif
-      DBUGS.println("Start AP if WIFI is disconnected");
-      startAP();
-      client_retry = true;
-      client_retry_time = millis() + WIFI_CLIENT_RETRY_TIMEOUT;
-    }
-  }
+      client_disconnects++; //set to 0 when connection to AP is made
+      
+      // If we have failed to connect 3 times, turn on the AP
+      if (client_disconnects > 2) {
+        DBUGS.println("Start AP if WiFi can not reconnect to AP");
+        startAP();
+        client_retry = true;
+        client_retry_time = millis() + WIFI_CLIENT_RETRY_TIMEOUT;
+        client_disconnects = 0;
+      }
+      else { 
+         // wait 5 seconds and retry
+         delay(5000);
+         wifi_restart();
+      }
+   }
+  
 
-  // Remain in AP mode if no one is connected for 5 Minutes before resetting
+  // Remain in AP mode if no one is connected for 2 Minutes before resetting
   if (isApOnly && 0 == apClients && client_retry && millis() > client_retry_time) {
     DBUGS.println("Try to connect to client again - resetting");
     delay(50);
-
     wifi_turn_off_ap();
-#ifdef ESP32
-    esp_restart();
-#elif
-    ESP.reset();
-#endif
-
+    delay(50);
+    wifi_restart();
   }
 
   if (isApOnly) dnsServer.processNextRequest(); // Captive portal DNS re-dierct
 }
 
 void wifi_scan() {
-  DBUGS.println("WIFI Scan");
   int n = WiFi.scanNetworks();
   DBUGS.print(n);
   DBUGS.println(" networks found");
@@ -497,30 +497,31 @@ void wifi_scan() {
 }
 
 void wifi_restart() {
-  DBUGS.println("WIFI restart called");
+  DBUGS.println("WiFi restart called");
   wifi_disconnect();
+  delay(50);
   wifi_start();
 }
 
 void wifi_disconnect() {
-  DBUGS.println("WIFI disconnect called");
   if (wifi_mode_is_sta()) {
+    DBUGS.println("WiFi disconnect called");
     WiFi.persistent(false);
+    delay(50);
     WiFi.disconnect(true);
   }
 }
 
 void wifi_turn_off_ap() {
-  DBUGS.println("WIFI turn off AP called");
-  if (wifi_mode_is_ap())
-  {
+  if (wifi_mode_is_ap())  {
+    DBUGS.println("WiFi turn off AP called");
     WiFi.softAPdisconnect(true);
     dnsServer.stop();
   }
 }
 
 void wifi_turn_on_ap() {
-  DBUGF("WIFI turn on AP called %d", WiFi.getMode());
+  DBUGF("WiFi turn on AP called %d", WiFi.getMode());
   if (!wifi_mode_is_ap()) {
     startAP();
   }

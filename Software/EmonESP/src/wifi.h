@@ -77,7 +77,7 @@
 #endif
 
 #ifndef WIFI_CLIENT_RETRY_TIMEOUT
-#define WIFI_CLIENT_RETRY_TIMEOUT           (5 * 60 * 1000)
+#define WIFI_CLIENT_RETRY_TIMEOUT           (2 * 60 * 1000) //2 min
 #endif
 
 

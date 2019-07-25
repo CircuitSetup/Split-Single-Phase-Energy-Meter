@@ -60,10 +60,9 @@ unsigned long mqttRestartTime = 0;
 unsigned long systemRestartTime = 0;
 unsigned long systemRebootTime = 0;
 
-// Get running firmware version from build tag environment variable
 #define TEXTIFY(A) #A
 #define ESCAPEQUOTE(A) TEXTIFY(A)
-String currentfirmware = ESCAPEQUOTE(BUILD_TAG);
+String currentfirmware = "2.5.0"; //ESCAPEQUOTE(BUILD_TAG);
 
 void dumpRequest(AsyncWebServerRequest *request) {
   if(request->method() == HTTP_GET) {

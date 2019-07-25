@@ -56,15 +56,19 @@ void setup() {
 #ifdef DEBUG_SERIAL1
   Serial1.begin(115200);
 #endif
-
+  delay(1000);
+  
   // Read saved settings from the config
   config_load_settings();
+  delay(500);
 
   // Initialise the WiFi
   wifi_setup();
+  delay(500);
 
   // Bring up the web server
   web_server_setup();
+  delay(500);
 
 #ifdef ESP8266
   // Start the OTA update systems

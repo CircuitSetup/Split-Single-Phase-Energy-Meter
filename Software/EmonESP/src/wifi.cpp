@@ -49,6 +49,12 @@ const char* softAP_password = "";
 IPAddress apIP(192, 168, 4, 1);
 IPAddress netMsk(255, 255, 255, 0);
 int apClients = 0;
+//set this to false if you do not want the ESP to go into SoftAP mode
+//when the connection to the previously configured main AP is lost.
+//By default it will try to reconnect 3 times within 30 seconds after
+//the connection to wifi is lost, turn on the soft AP, and then
+//try to reconnect to the main AP every 5 min.
+bool startAPonWifiDisconnect = true; 
 
 // hostname for mDNS. Should work at least on windows. Try http://emonesp.local
 const char *esp_hostname = "emonesp";
@@ -152,13 +158,11 @@ void startClient() {
 static void wifi_start()
 {
   // 1) If no network configured start up access point
-  if (esid == 0 || esid == "")
-  {
+  if (esid == 0 || esid == "")  {
     startAP();
   }
   // 2) else try and connect to the configured network
-  else
-  {
+  else  {
     startClient();
   }
 }
@@ -331,7 +335,6 @@ void wifi_setup() {
     WiFi.mode(WIFI_OFF);
   */
 #ifdef ESP32
-
   WiFi.onEvent(WiFiEvent);
 
 #else
@@ -448,6 +451,8 @@ void wifi_loop()
   }
 
   // Manage state while connecting
+
+  if (startAPonWifiDisconnect) {
   while (wifi_mode_is_sta_only() && !wifi_mode_is_ap_only() && !WiFi.isConnected())
   {
       client_disconnects++; //set to 0 when connection to AP is made
@@ -461,14 +466,16 @@ void wifi_loop()
         client_disconnects = 0;
       }
       else { 
-         // wait 5 seconds and retry
-         delay(5000);
+         // wait 10 seconds and retry
+         delay(WIFI_CLIENT_DISCONNECT_RETRY);
          wifi_restart();
       }
    }
+   }
+
   
 
-  // Remain in AP mode if no one is connected for 2 Minutes before resetting
+  // Remain in AP mode if no one is connected for 5 Minutes before resetting
   if (isApOnly && 0 == apClients && client_retry && millis() > client_retry_time) {
     DBUGS.println("Try to connect to client again - resetting");
     delay(50);

@@ -60,6 +60,9 @@ unsigned long mqttRestartTime = 0;
 unsigned long systemRestartTime = 0;
 unsigned long systemRebootTime = 0;
 
+static const char _DUMMY_PASSWORD[] PROGMEM = "_DUMMY_PASSWORD";
+#define DUMMY_PASSWORD FPSTR(_DUMMY_PASSWORD)
+
 #define TEXTIFY(A) #A
 #define ESCAPEQUOTE(A) TEXTIFY(A)
 String currentfirmware = "2.5.0"; //ESCAPEQUOTE(BUILD_TAG);
@@ -223,6 +226,10 @@ void handleSaveNetwork(AsyncWebServerRequest *request) {
 
   String qsid = request->arg("ssid");
   String qpass = request->arg("pass");
+  
+  if(qpass.equals(DUMMY_PASSWORD)) {
+    qpass = epass;
+  }
 
   if (qsid != 0) {
     config_save_wifi(qsid, qpass);
@@ -248,10 +255,15 @@ void handleSaveEmoncms(AsyncWebServerRequest *request) {
     return;
   }
 
+  String apikey = request->arg("apikey");
+  if(apikey.equals(DUMMY_PASSWORD)) {
+    apikey = emoncms_apikey;
+  }
+
   config_save_emoncms(request->arg("server"),
                       request->arg("path"),
                       request->arg("node"),
-                      request->arg("apikey"),
+                      apikey,
                       request->arg("fingerprint"));
 
   char tmpStr[200];
@@ -278,11 +290,16 @@ void handleSaveMqtt(AsyncWebServerRequest *request) {
     return;
   }
 
+  String pass = request->arg("pass");
+  if(pass.equals(DUMMY_PASSWORD)) {
+    pass = mqtt_pass;
+  }
+
   config_save_mqtt(request->arg("server"),
                    request->arg("topic"),
                    request->arg("prefix"),
                    request->arg("user"),
-                   request->arg("pass"));
+                   pass);
 
   char tmpStr[200];
   snprintf(tmpStr, sizeof(tmpStr), "Saved: %s %s %s %s %s", mqtt_server.c_str(),
@@ -355,6 +372,10 @@ void handleSaveAdmin(AsyncWebServerRequest *request) {
 
   String quser = request->arg("user");
   String qpass = request->arg("pass");
+
+  if(qpass.equals(DUMMY_PASSWORD)) {
+    qpass = www_password;
+  }
 
   config_save_admin(quser, qpass);
 
@@ -453,24 +474,42 @@ void handleConfig(AsyncWebServerRequest *request) {
     return;
   }
 
+  String dummyPassword = String(DUMMY_PASSWORD);
+
   String s = "{";
   s += "\"espflash\":\"" + String(ESP.getFlashChipSize()) + "\",";
   s += "\"version\":\"" + currentfirmware + "\",";
 
   s += "\"ssid\":\"" + esid + "\",";
-  //s += "\"pass\":\""+epass+"\","; security risk: DONT RETURN PASSWORDS
+  s += "\"pass\":\"";
+  if(epass != 0) {
+    s += dummyPassword;
+  }
+  s += "\",";
   s += "\"emoncms_server\":\"" + emoncms_server + "\",";
   s += "\"emoncms_path\":\"" + emoncms_path + "\",";
   s += "\"emoncms_node\":\"" + emoncms_node + "\",";
-  // s += "\"emoncms_apikey\":\""+emoncms_apikey+"\","; security risk: DONT RETURN APIKEY
+  s += "\"emoncms_apikey\":\"";
+  if(emoncms_apikey != 0) {
+    s += dummyPassword;
+  }
+  s += "\",";
   s += "\"emoncms_fingerprint\":\"" + emoncms_fingerprint + "\",";
   s += "\"mqtt_server\":\"" + mqtt_server + "\",";
   s += "\"mqtt_topic\":\"" + mqtt_topic + "\",";
   s += "\"mqtt_feed_prefix\":\"" + mqtt_feed_prefix + "\",";
   s += "\"mqtt_user\":\"" + mqtt_user + "\",";
-  //s += "\"mqtt_pass\":\""+mqtt_pass+"\","; security risk: DONT RETURN PASSWORDS
+  s += "\"mqtt_pass\":\"";
+  if(mqtt_pass != 0) {
+    s += dummyPassword;
+  }
+  s += "\",";
   s += "\"www_username\":\"" + www_username + "\",";
-  //s += "\"www_password\":\""+www_password+"\","; security risk: DONT RETURN PASSWORDS
+  s += "\"www_password\":\"";
+  if(www_password != 0) {
+    s += dummyPassword;
+  }
+  s += "\",";
   s += "\"voltage_cal\":\"" + voltage_cal + "\",";
   s += "\"ct1_cal\":\"" + ct1_cal + "\",";
   s += "\"ct2_cal\":\"" + ct2_cal + "\",";

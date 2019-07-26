@@ -36,6 +36,7 @@
 #endif
 
 #ifdef WIFI_LED
+
 #ifndef WIFI_LED_ON_STATE
 #define WIFI_LED_ON_STATE LOW
 #endif
@@ -76,8 +77,12 @@
 #define WIFI_BUTTON_FACTORY_RESET_TIMEOUT   (10 * 1000)
 #endif
 
+#ifndef WIFI_CLIENT_DISCONNECT_RETRY
+#define WIFI_CLIENT_DISCONNECT_RETRY         (10 * 1000)
+#endif
+
 #ifndef WIFI_CLIENT_RETRY_TIMEOUT
-#define WIFI_CLIENT_RETRY_TIMEOUT           (2 * 60 * 1000) //2 min
+#define WIFI_CLIENT_RETRY_TIMEOUT           (5 * 60 * 1000) //5 min
 #endif
 
 

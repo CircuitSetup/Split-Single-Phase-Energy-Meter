@@ -69,7 +69,7 @@
             <p data-bind="text: config.ssid"></p>
             <p>
               <b>Passkey:</b><br>
-              <input type="text" data-bind="textInput: config.pass">
+              <input type="password" data-bind="textInput: config.pass">
               <button data-bind="click: saveNetwork, text: (saveNetworkFetching() ? 'Saving' : (saveNetworkSuccess() ? 'Saved' : 'Connect')), disable: saveNetworkFetching">Connect</button>
             </p>
           </div>
@@ -104,8 +104,7 @@
           </p>
           <p>
             <b>Write apikey*:</b><br>
-            <input type="text" data-bind="textInput: config.emoncms_apikey"><br>
-			<div class="small-text">(Will not display after being saved)</div>
+            <input type="password" data-bind="textInput: config.emoncms_apikey"><br>
           </p>
           <p>
             <b>SSL SHA-1 Fingerprint:</b><br>
@@ -188,7 +187,7 @@
           </p>
           <p>
             <b>Password:</b><br>
-            <input type="text" data-bind="textInput: config.www_password"><br><br>
+            <input type="password" data-bind="textInput: config.www_password"><br><br>
             <span>Web interface HTTP authentication.</span><br><br>
             <button data-bind="click: saveAdmin, text: (saveAdminFetching() ? 'Saving' : (saveAdminSuccess() ? 'Saved' : 'Save')), disable: saveAdminFetching">Save</button>
           </p>

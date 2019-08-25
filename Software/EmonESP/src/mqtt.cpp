@@ -49,20 +49,20 @@ boolean mqtt_connect()
 {
   mqttclient.setServer(mqtt_server.c_str(), 1883);
   DBUGS.println("MQTT Connecting...");
-  
-  #ifdef ESP32
+
+#ifdef ESP32
   String strID = String((uint32_t)ESP.getEfuseMac());
-  #else
+#else
   String strID = String(ESP.getChipId());
-  #endif
-  
+#endif
+
   if (mqttclient.connect(strID.c_str(), mqtt_user.c_str(), mqtt_pass.c_str())) {  // Attempt to connect
     DBUGS.println("MQTT connected");
     mqttclient.publish(mqtt_topic.c_str(), "connected"); // Once connected, publish an announcement..
   } else {
     DBUGS.print("MQTT failed: ");
     DBUGS.println(mqttclient.state());
-    return(0);
+    return (0);
   }
   return (1);
 }
@@ -78,23 +78,23 @@ void mqtt_publish(String data)
 {
   String mqtt_data = "";
   String topic = mqtt_topic + "/" + mqtt_feed_prefix;
-  int i=0;
+  int i = 0;
   while (int (data[i]) != 0)
   {
     // Construct MQTT topic e.g. <base_topic>/CT1 e.g. emonesp/CT1
-    while (data[i]!=':'){
-      topic+= data[i];
+    while (data[i] != ':') {
+      topic += data[i];
       i++;
-      if (int(data[i])==0){
+      if (int(data[i]) == 0) {
         break;
       }
     }
     i++;
     // Construct data string to publish to above topic
-    while (data[i]!=','){
-      mqtt_data+= data[i];
+    while (data[i] != ',') {
+      mqtt_data += data[i];
       i++;
-      if (int(data[i])==0){
+      if (int(data[i]) == 0) {
         break;
       }
     }
@@ -103,7 +103,7 @@ void mqtt_publish(String data)
     DBUGS.printf("%s = %s\r\n", topic.c_str(), mqtt_data.c_str());
     mqttclient.publish(topic.c_str(), mqtt_data.c_str());
     topic = mqtt_topic + "/" + mqtt_feed_prefix;
-    mqtt_data="";
+    mqtt_data = "";
     i++;
     if (int(data[i]) == 0) break;
   }

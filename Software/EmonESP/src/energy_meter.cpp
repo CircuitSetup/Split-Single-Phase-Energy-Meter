@@ -48,7 +48,8 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &SPI, OLED_DC, OLED_RESET,
 
 /***** CALIBRATION SETTINGS *****/
 /* These values are edited in the web interface or energy_meter.h */
-unsigned short VoltageGain = VOLTAGE_GAIN; //
+/* Values in the web interface take priority */
+unsigned short VoltageGain = VOLTAGE_GAIN;
 unsigned short CurrentGainCT1 = CURRENT_GAIN_CT1;
 unsigned short CurrentGainCT2 = CURRENT_GAIN_CT2;
 unsigned short LineFreq = LINE_FREQ;
@@ -105,7 +106,7 @@ char measurement[16];
 
 ATM90E32 eic{}; //initialize the IC class
 #ifdef SOLAR_METER
-ATM90E32 eic_solar{};
+ATM90E32 eic_solar {};
 #endif
 
 // -------------------------------------------------------------------
@@ -114,39 +115,39 @@ ATM90E32 eic_solar{};
 void energy_meter_setup() {
 
   /*Get values from web interface and assign them if populated*/
-  if(voltage_cal.toInt()>0) VoltageGain = voltage_cal.toInt();
-  if(ct1_cal.toInt()>0) CurrentGainCT1 = ct1_cal.toInt();
-  if(ct2_cal.toInt()>0) CurrentGainCT2 = ct2_cal.toInt();
-  if(freq_cal.toInt()>0) LineFreq = freq_cal.toInt();
-  if(gain_cal.toInt()>0) PGAGain = gain_cal.toInt();
+  if (voltage_cal.toInt() > 0) VoltageGain = voltage_cal.toInt();
+  if (ct1_cal.toInt() > 0) CurrentGainCT1 = ct1_cal.toInt();
+  if (ct2_cal.toInt() > 0) CurrentGainCT2 = ct2_cal.toInt();
+  if (freq_cal.toInt() > 0) LineFreq = freq_cal.toInt();
+  if (gain_cal.toInt() > 0) PGAGain = gain_cal.toInt();
 
-  /*Initialise the ATM90E32 & Pass CS pin and calibrations to its library - 
-   *the 2nd (B) current channel is not used with the split phase meter */
+  /*Initialise the ATM90E32 & Pass CS pin and calibrations to its library -
+    the 2nd (B) current channel is not used with the split phase meter */
   Serial.println("Start ATM90E32");
   eic.begin(CS_pin, LineFreq, PGAGain, VoltageGain, CurrentGainCT1, 0, CurrentGainCT2);
   delay(1000);
-  
-  #ifdef SOLAR_METER
-  if(svoltage_cal.toInt()>0) VoltageGainSolar = svoltage_cal.toInt();
-  if(sct1_cal.toInt()>0) SolarGainCT1 = sct1_cal.toInt();
-  if(sct2_cal.toInt()>0) SolarGainCT2 = sct2_cal.toInt();
-  
-  eic_solar.begin(CS_solar_pin, LineFreq, PGAGain, VoltageGainSolar, SolarGainCT1, 0, SolarGainCT2);
-  #endif
 
-  #ifdef ENABLE_OLED_DISPLAY
-   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-  if(!display.begin(SSD1306_SWITCHCAPVCC)) {
+#ifdef SOLAR_METER
+  if (svoltage_cal.toInt() > 0) VoltageGainSolar = svoltage_cal.toInt();
+  if (sct1_cal.toInt() > 0) SolarGainCT1 = sct1_cal.toInt();
+  if (sct2_cal.toInt() > 0) SolarGainCT2 = sct2_cal.toInt();
+
+  eic_solar.begin(CS_solar_pin, LineFreq, PGAGain, VoltageGainSolar, SolarGainCT1, 0, SolarGainCT2);
+#endif
+
+#ifdef ENABLE_OLED_DISPLAY
+  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+  if (!display.begin(SSD1306_SWITCHCAPVCC)) {
     Serial.println(F("OLED allocation failed"));
   }
- 
+
   display.clearDisplay();
   display.setTextSize(2);
-  display.setTextColor(WHITE);  
+  display.setTextColor(WHITE);
   display.setCursor(0, 0);
   display.println("Starting up...");
   display.display();
-  #endif
+#endif
 
   startMillis = millis();  //initial start time
 
@@ -161,12 +162,12 @@ void energy_meter_loop()
   currentMillis = millis();
 
   if (startMillis == 0) {
-  	startMillis = currentMillis;
-  	return;
+    startMillis = currentMillis;
+    return;
   }
   if (currentMillis - startMillis < period)  //test whether the period has elapsed
   {
-  	return;
+    return;
   }
   startMillis = currentMillis;
 
@@ -202,26 +203,26 @@ void energy_meter_loop()
   /////// CURRENT & POWER
   currentCT1 = eic.GetLineCurrentA();
   currentCT2 = eic.GetLineCurrentC();
-  
+
   wattsA = eic.GetActivePowerA();
   wattsC = eic.GetActivePowerC();
-  
+
   if (canBeNegative) {
     /* Is net energy positive or negative?
-     * We're not reading if current is pos or neg because we're only getting
-     * the upper 16 bit register. We are getting all 32 bits of active power though */
-    if (wattsA < 0) currentCT1 *= -1; 
+       We're not reading if current is pos or neg because we're only getting
+       the upper 16 bit register. We are getting all 32 bits of active power though */
+    if (wattsA < 0) currentCT1 *= -1;
     if (wattsC < 0) currentCT2 *= -1;
     totalWatts = eic.GetTotalActivePower(); //all math is already done in the total register
   }
-  else { 
+  else {
     /* If single split phase & 1 voltage reading, phase will be offset between the 2 phases
-     * making one power reading negative. This will correct for that negative reading. */
+       making one power reading negative. This will correct for that negative reading. */
     if (wattsA < 0) wattsA *= -1;
     if (wattsC < 0) wattsC *= -1;
     totalWatts = wattsA + wattsC;
   }
-  
+
   totalCurrent = currentCT1 + currentCT2;
   powerFactor = eic.GetTotalPowerFactor();
 
@@ -240,7 +241,7 @@ void energy_meter_loop()
   unsigned short sys1s = eic_solar.GetSysStatus1(); //EMMState1
   unsigned short en0s = eic_solar.GetMeterStatus0();//EMMIntState0
   unsigned short en1s = eic_solar.GetMeterStatus1();//EMMIntState1
-  
+
   DBUGS.println("Solar Sys Status: S0:0x" + String(sys0s, HEX) + " S1:0x" + String(sys1s, HEX));
   DBUGS.println("Solar Meter Status: E0:0x" + String(en0s, HEX) + " E1:0x" + String(en1s, HEX));
   delay(10);
@@ -262,77 +263,77 @@ void energy_meter_loop()
   /////// SOLAR CURRENT & POWER
   solarCurrentCT1 = eic_solar.GetLineCurrentA();
   solarCurrentCT2 = eic_solar.GetLineCurrentC();
-  
+
   solarWattsA = eic_solar.GetActivePowerA();
   solarWattsC = eic_solar.GetActivePowerC();
 
   /* Is net energy positive or negative?
-   * We're not reading if current is pos or neg because we're only getting
-   * the upper 16 bit register. We are getting all 32 bits of active power though */
-  if (solarWattsA < 0) solarCurrentCT1 *= -1; 
+     We're not reading if current is pos or neg because we're only getting
+     the upper 16 bit register. We are getting all 32 bits of active power though */
+  if (solarWattsA < 0) solarCurrentCT1 *= -1;
   if (solarWattsC < 0) solarCurrentCT2 *= -1;
   totalSolarWatts = eic_solar.GetTotalActivePower(); //all math is already done in the total register
 #endif
-/*
-  DBUGS.println(" ");
-  DBUGS.println("Voltage 1: " + String(voltageA) + "V");
-  DBUGS.println("Voltage 2: " + String(voltageC) + "V");
-  DBUGS.println("Current 1: " + String(currentCT1) + "A");
-  DBUGS.println("Current 2: " + String(currentCT2) + "A");
-#ifdef SOLAR_METER
-  DBUGS.println("Watts/Active Power: " + String(totalWatts) + "W");
-  DBUGS.println("Solar Voltage: " + String(solarVoltageA) + "V");
-  DBUGS.println("Solar Current 1: " + String(solarCurrentCT1) + "A");
-  DBUGS.println("Solar Current 2: " + String(solarCurrentCT2) + "A");
-  DBUGS.println("Solar Watts/AP: " + String(totalSolarWatts) + "W");
-#endif
-  DBUGS.println("Power Factor: " + String(powerFactor));
-#ifdef EXPORT_METERING_VALS
-  DBUGS.println("Fundamental Power: " + String(eic.GetTotalActiveFundPower()) + "W");
-  DBUGS.println("Harmonic Power: " + String(eic.GetTotalActiveHarPower()) + "W");
-  DBUGS.println("Reactive Power: " + String(eic.GetTotalReactivePower()) + "var");
-  DBUGS.println("Apparent Power: " + String(eic.GetTotalApparentPower()) + "VA");
-  DBUGS.println("Phase Angle A: " + String(eic.GetPhaseA()));
-  DBUGS.println("Phase Angle C: " + String(eic.GetPhaseC()));
-#endif
-  DBUGS.println("Chip Temp: " + String(temp) + "C");
-  DBUGS.println("Frequency: " + String(freq) + "Hz");
-  DBUGS.println(" ");
-  
-  /* For calibrating offsets - not important unless measuring small loads
-   * hook up CTs to meter, but not around cable
-   * voltage input should be connected
-   * average output values of the following and write to corresponding registers*/
   /*
-  DBUGS.println("I1-Offset: " + String(eic.CalculateVIOffset(IrmsA, IrmsALSB)));
-  DBUGS.println("I2-Offset: " + String(eic.CalculateVIOffset(IrmsC, IrmsCLSB)));
-  DBUGS.println("V1-Offset: " + String(eic.CalculateVIOffset(UrmsA, UrmsALSB)));
-  DBUGS.println("V2-Offset: " + String(eic.CalculateVIOffset(UrmsC, UrmsCLSB)));
-  DBUGS.println("Active-Offset: " + String(eic.CalculatePowerOffset(PmeanA, PmeanALSB)));
-  DBUGS.println("Reactive-Offset: " + String(eic.CalculatePowerOffset(QmeanA, QmeanALSB)));
-  DBUGS.println("Funda-Offset: " + String(eic.CalculatePowerOffset(PmeanAF, PmeanAFLSB)));
+    DBUGS.println(" ");
+    DBUGS.println("Voltage 1: " + String(voltageA) + "V");
+    DBUGS.println("Voltage 2: " + String(voltageC) + "V");
+    DBUGS.println("Current 1: " + String(currentCT1) + "A");
+    DBUGS.println("Current 2: " + String(currentCT2) + "A");
+    #ifdef SOLAR_METER
+    DBUGS.println("Watts/Active Power: " + String(totalWatts) + "W");
+    DBUGS.println("Solar Voltage: " + String(solarVoltageA) + "V");
+    DBUGS.println("Solar Current 1: " + String(solarCurrentCT1) + "A");
+    DBUGS.println("Solar Current 2: " + String(solarCurrentCT2) + "A");
+    DBUGS.println("Solar Watts/AP: " + String(totalSolarWatts) + "W");
+    #endif
+    DBUGS.println("Power Factor: " + String(powerFactor));
+    #ifdef EXPORT_METERING_VALS
+    DBUGS.println("Fundamental Power: " + String(eic.GetTotalActiveFundPower()) + "W");
+    DBUGS.println("Harmonic Power: " + String(eic.GetTotalActiveHarPower()) + "W");
+    DBUGS.println("Reactive Power: " + String(eic.GetTotalReactivePower()) + "var");
+    DBUGS.println("Apparent Power: " + String(eic.GetTotalApparentPower()) + "VA");
+    DBUGS.println("Phase Angle A: " + String(eic.GetPhaseA()));
+    DBUGS.println("Phase Angle C: " + String(eic.GetPhaseC()));
+    #endif
+    DBUGS.println("Chip Temp: " + String(temp) + "C");
+    DBUGS.println("Frequency: " + String(freq) + "Hz");
+    DBUGS.println(" ");
+
+    /* For calibrating offsets - not important unless measuring small loads
+       hook up CTs to meter, but not around cable
+       voltage input should be connected
+       average output values of the following and write to corresponding registers*/
+  /*
+    DBUGS.println("I1-Offset: " + String(eic.CalculateVIOffset(IrmsA, IrmsALSB)));
+    DBUGS.println("I2-Offset: " + String(eic.CalculateVIOffset(IrmsC, IrmsCLSB)));
+    DBUGS.println("V1-Offset: " + String(eic.CalculateVIOffset(UrmsA, UrmsALSB)));
+    DBUGS.println("V2-Offset: " + String(eic.CalculateVIOffset(UrmsC, UrmsCLSB)));
+    DBUGS.println("Active-Offset: " + String(eic.CalculatePowerOffset(PmeanA, PmeanALSB)));
+    DBUGS.println("Reactive-Offset: " + String(eic.CalculatePowerOffset(QmeanA, QmeanALSB)));
+    DBUGS.println("Funda-Offset: " + String(eic.CalculatePowerOffset(PmeanAF, PmeanAFLSB)));
   */
   /* For calibrating phase angle
-   * calculated phase_x angle = arccos(active / apparent) 
-   * phi_x = round(calculated phase_x angle - actual phase_x angle) x 113.778 */
+     calculated phase_x angle = arccos(active / apparent)
+     phi_x = round(calculated phase_x angle - actual phase_x angle) x 113.778 */
   /*
-  DBUGS.println("Power A: " + String(eic.GetActivePowerA()) + "W");
-  DBUGS.println("Power C: " + String(eic.GetActivePowerC()) + "W");
-  DBUGS.println("Apparent A: " + String(eic.GetApparentPowerA()) + "VA");
-  DBUGS.println("Apparent C: " + String(eic.GetApparentPowerC()) + "VA"); 
+    DBUGS.println("Power A: " + String(eic.GetActivePowerA()) + "W");
+    DBUGS.println("Power C: " + String(eic.GetActivePowerC()) + "W");
+    DBUGS.println("Apparent A: " + String(eic.GetApparentPowerA()) + "VA");
+    DBUGS.println("Apparent C: " + String(eic.GetApparentPowerC()) + "VA");
   */
   /* after calibrating phase angle, reactive should be close to 0 under a pure resistive load */
   /*
-  DBUGS.println("Reactive A: " + String(eic.GetReactivePowerA()) + "var");
-  DBUGS.println("Reactive C: " + String(eic.GetReactivePowerC()) + "var");
+    DBUGS.println("Reactive A: " + String(eic.GetReactivePowerA()) + "var");
+    DBUGS.println("Reactive C: " + String(eic.GetReactivePowerC()) + "var");
   */
-  
+
 #ifdef ENABLE_OLED_DISPLAY
   /* Write meter data to the display */
   display.clearDisplay();
   display.setCursor(0, 0);
   display.setTextSize(1);
-  display.setTextColor(WHITE);  
+  display.setTextColor(WHITE);
   display.println("CT1:" + String(currentCT1) + "A");
   display.println("CT2:" + String(currentCT2) + "A");
   display.println("V:" + String(voltageA) + "V");
@@ -344,16 +345,16 @@ void energy_meter_loop()
   display.println("SW:" + String(totalSolarWatts) + "W");
 #endif
   /*
-  display.println("Freq: " + String(freq) + "Hz");
-  display.println("PF: " + String(powerFactor));
-  display.println("Chip Temp: " + String(temp) + "C");
+    display.println("Freq: " + String(freq) + "Hz");
+    display.println("PF: " + String(powerFactor));
+    display.println("Chip Temp: " + String(temp) + "C");
   */
   display.display();
 #endif
 
-/* Default values are passed to EmonCMS - these can be changed out for anything
- * in the ATM90E32 library 
- */
+  /* Default values are passed to EmonCMS - these can be changed out for anything
+     in the ATM90E32 library
+  */
   strcpy(result, "");
 
   strcat(result, "V1:");
@@ -383,12 +384,12 @@ void energy_meter_loop()
   strcat(result, ",W:");
   dtostrf(totalWatts, 2, 4, measurement);
   strcat(result, measurement);
-  
+
 #ifdef SOLAR_METER
   strcat(result, ",SolarV:");
   dtostrf(solarVoltageA, 2, 2, measurement);
   strcat(result, measurement);
-  
+
   strcat(result, ",SCT1:");
   dtostrf(solarCurrentCT1, 2, 4, measurement);
   strcat(result, measurement);

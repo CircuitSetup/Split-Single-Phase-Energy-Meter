@@ -57,7 +57,7 @@ void setup() {
   Serial1.begin(115200);
 #endif
   delay(1000);
-  
+
   // Read saved settings from the config
   config_load_settings();
   delay(500);

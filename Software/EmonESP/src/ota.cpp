@@ -57,13 +57,13 @@ void ota_setup()
   // Start local OTA update server
   ArduinoOTA.setHostname(esp_hostname);
   ArduinoOTA.begin();
-  #ifdef WIFI_LED
+#ifdef WIFI_LED
   ArduinoOTA.onProgress([](unsigned int pos, unsigned int size) {
     static int state = LOW;
     state = !state;
     digitalWrite(WIFI_LED, state);
   });
-  #endif
+#endif
 }
 
 void ota_loop()

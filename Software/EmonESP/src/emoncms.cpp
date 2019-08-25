@@ -48,7 +48,7 @@ void emoncms_publish(String data)
   url += e_url;
   url += "{";
   // Copy across, data length
-  for (int i = 0; i < data.length(); ++i){
+  for (int i = 0; i < data.length(); ++i) {
     url += data[i];
   }
   url += ",psent:";
@@ -66,8 +66,8 @@ void emoncms_publish(String data)
   packets_sent++;
 
   // Send data to Emoncms server
-  String result="";
-  if (emoncms_fingerprint!=0){
+  String result = "";
+  if (emoncms_fingerprint != 0) {
     // HTTPS on port 443 if HTTPS fingerprint is present
     DBUGS.println("HTTPS Enabled"); delay(10);
     result = get_https(emoncms_fingerprint.c_str(), emoncms_server.c_str(), url, 443);
@@ -76,22 +76,22 @@ void emoncms_publish(String data)
     DBUGS.println("Plain old HTTP"); delay(10);
     result = get_http(emoncms_server.c_str(), url);
   }
-  if (result == "ok"){
+  if (result == "ok") {
     packets_success++;
     emoncms_connected = true;
     emoncms_connection_error_count = 0;
   }
-  else{
-    emoncms_connected=false;
+  else {
+    emoncms_connected = false;
     DBUGS.print("Emoncms error: ");
     DBUGS.println(result);
     emoncms_connection_error_count ++;
-    if (emoncms_connection_error_count>30) {
-      #ifdef ESP32
+    if (emoncms_connection_error_count > 30) {
+#ifdef ESP32
       esp_restart();
-      #else
+#else
       ESP.restart();
-      #endif
+#endif
     }
   }
 }

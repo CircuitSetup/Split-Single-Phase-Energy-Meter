@@ -49,12 +49,13 @@ const char* softAP_password = "";
 IPAddress apIP(192, 168, 4, 1);
 IPAddress netMsk(255, 255, 255, 0);
 int apClients = 0;
+
 //set this to false if you do not want the ESP to go into SoftAP mode
 //when the connection to the previously configured main AP is lost.
 //By default it will try to reconnect 3 times within 30 seconds after
 //the connection to wifi is lost, turn on the soft AP, and then
 //try to reconnect to the main AP every 5 min.
-bool startAPonWifiDisconnect = true; 
+bool startAPonWifiDisconnect = true;
 
 // hostname for mDNS. Should work at least on windows. Try http://emonesp.local
 const char *esp_hostname = "emonesp";
@@ -87,7 +88,7 @@ bool apMessage = false;
 // -------------------------------------------------------------------
 void startAP() {
   DBUGS.println("Starting AP");
-  
+
   wifi_disconnect();
 
   //turn off LED while doing wifi things
@@ -308,14 +309,14 @@ void wifi_onStationModeDisconnected(const WiFiEventStationModeDisconnected &even
 #endif
 
 void wifi_setup() {
-  
+
 #ifdef WIFI_LED
   pinMode(WIFI_LED, OUTPUT);
   digitalWrite(WIFI_LED, wifiLedState);
 #endif
 
   randomSeed(analogRead(0));
-  
+
   // If we have an SSID configured at this point we have likely
   // been running another firmware, clear the results
   /*
@@ -453,10 +454,10 @@ void wifi_loop()
   // Manage state while connecting
 
   if (startAPonWifiDisconnect) {
-  while (wifi_mode_is_sta_only() && !wifi_mode_is_ap_only() && !WiFi.isConnected())
-  {
+    while (wifi_mode_is_sta_only() && !wifi_mode_is_ap_only() && !WiFi.isConnected())
+    {
       client_disconnects++; //set to 0 when connection to AP is made
-      
+
       // If we have failed to connect 3 times, turn on the AP
       if (client_disconnects > 2) {
         DBUGS.println("Start AP if WiFi can not reconnect to AP");
@@ -465,15 +466,15 @@ void wifi_loop()
         client_retry_time = millis() + WIFI_CLIENT_RETRY_TIMEOUT;
         client_disconnects = 0;
       }
-      else { 
-         // wait 10 seconds and retry
-         delay(WIFI_CLIENT_DISCONNECT_RETRY);
-         wifi_restart();
+      else {
+        // wait 10 seconds and retry
+        delay(WIFI_CLIENT_DISCONNECT_RETRY);
+        wifi_restart();
       }
-   }
-   }
+    }
+  }
 
-  
+
 
   // Remain in AP mode if no one is connected for 5 Minutes before resetting
   if (isApOnly && 0 == apClients && client_retry && millis() > client_retry_time) {
@@ -515,14 +516,14 @@ void wifi_disconnect() {
     DBUGS.println("WiFi disconnect called");
     WiFi.persistent(false);
     delay(50);
-    WiFi.disconnect(true);
+    WiFi.disconnect();
   }
 }
 
 void wifi_turn_off_ap() {
   if (wifi_mode_is_ap())  {
     DBUGS.println("WiFi turn off AP called");
-    WiFi.softAPdisconnect(true);
+    WiFi.softAPdisconnect();
     dnsServer.stop();
   }
 }

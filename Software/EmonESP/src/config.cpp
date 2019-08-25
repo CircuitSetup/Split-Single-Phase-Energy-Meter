@@ -178,7 +178,7 @@ void EEPROM_read_string(int start, int count, String & val, String defaultVal = 
   // Check the checksum
   byte c = EEPROM.read(start + (count - 1));
   DBUGF("Got '%s' %d == %d @ %d:%d", val.c_str(), c, checksum, start, count);
-  if(c != checksum) {
+  if (c != checksum) {
     DBUGF("Using default '%s'", defaultVal.c_str());
     val = defaultVal;
   }
@@ -234,11 +234,11 @@ void config_load_settings()
   EEPROM_read_string(EEPROM_CAL_CT2_START, EEPROM_CAL_CT2_SIZE, ct2_cal);
   EEPROM_read_string(EEPROM_CAL_FREQ_START, EEPROM_CAL_FREQ_SIZE, freq_cal);
   EEPROM_read_string(EEPROM_CAL_GAIN_START, EEPROM_CAL_GAIN_SIZE, gain_cal);
-  #ifdef SOLAR_METER
+#ifdef SOLAR_METER
   EEPROM_read_string(EEPROM_CAL_SVOLTAGE_START, EEPROM_CAL_SVOLTAGE_SIZE, svoltage_cal);
   EEPROM_read_string(EEPROM_CAL_SCT1_START, EEPROM_CAL_SCT1_SIZE, sct1_cal);
   EEPROM_read_string(EEPROM_CAL_SCT2_START, EEPROM_CAL_SCT2_SIZE, sct2_cal);
-  #endif
+#endif
 
   // Web server credentials
   EEPROM_read_string(EEPROM_WWW_USER_START, EEPROM_WWW_USER_SIZE, www_username);
@@ -250,7 +250,7 @@ void config_load_settings()
 void config_save_emoncms(String server, String path, String node, String apikey, String fingerprint)
 {
   EEPROM.begin(EEPROM_SIZE);
-  
+
   emoncms_server = server;
   emoncms_path = path;
   emoncms_node = node;
@@ -278,7 +278,7 @@ void config_save_emoncms(String server, String path, String node, String apikey,
 void config_save_mqtt(String server, String topic, String prefix, String user, String pass)
 {
   EEPROM.begin(EEPROM_SIZE);
-  
+
   mqtt_server = server;
   mqtt_topic = topic;
   mqtt_feed_prefix = prefix;
@@ -308,7 +308,7 @@ void config_save_mqtt(String server, String topic, String prefix, String user, S
 void config_save_cal(String voltage, String ct1, String ct2, String freq, String gain, String svoltage, String sct1, String sct2)
 {
   EEPROM.begin(EEPROM_SIZE);
-  
+
   voltage_cal = voltage;
   ct1_cal = ct1;
   ct2_cal = ct2;
@@ -326,14 +326,14 @@ void config_save_cal(String voltage, String ct1, String ct2, String freq, String
   EEPROM_write_string(EEPROM_CAL_SVOLTAGE_START, EEPROM_CAL_SVOLTAGE_SIZE, svoltage_cal);
   EEPROM_write_string(EEPROM_CAL_SCT1_START, EEPROM_CAL_SCT1_SIZE, sct1_cal);
   EEPROM_write_string(EEPROM_CAL_SCT2_START, EEPROM_CAL_SCT2_SIZE, sct2_cal);
-  
+
   EEPROM.end();
 }
 #else
 void config_save_cal(String voltage, String ct1, String ct2, String freq, String gain)
 {
   EEPROM.begin(EEPROM_SIZE);
-  
+
   voltage_cal = voltage;
   ct1_cal = ct1;
   ct2_cal = ct2;
@@ -353,7 +353,7 @@ void config_save_cal(String voltage, String ct1, String ct2, String freq, String
 void config_save_admin(String user, String pass)
 {
   EEPROM.begin(EEPROM_SIZE);
-  
+
   www_username = user;
   www_password = pass;
 
@@ -366,7 +366,7 @@ void config_save_admin(String user, String pass)
 void config_save_wifi(String qsid, String qpass)
 {
   EEPROM.begin(EEPROM_SIZE);
-  
+
   esid = qsid;
   epass = qpass;
 

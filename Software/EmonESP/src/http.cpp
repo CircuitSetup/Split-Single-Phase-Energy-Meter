@@ -57,7 +57,7 @@ get_https(const char *fingerprint, const char *host, String url,
     return ("Connection error");
   }
 #ifndef ESP32
-  #warning HTTPS verification not enabled
+#warning HTTPS verification not enabled
   if (client.verify(fingerprint, host)) {
 #endif
     client.print(String("GET ") + url + " HTTP/1.1\r\n" + "Host: " + host +

@@ -81,7 +81,7 @@ The Energy Meter kit available on CrowdSupply:
 
 ## Software Setup
 
-If you purchased an energy meter kit EmonESP is pre-loaded onto the included ESP32. You can skip this section and go to **Setting up EmonCMS**
+If you purchased an energy meter kit EmonESP is pre-loaded onto the included ESP32. You can skip this section and go to [Setting up EmonCMS](#setting-up-emoncms)
 
 1.  Clone this repository in Github desktop or [download all the files and extract them to a folder](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/archive/master.zip)
 2.  Place the ATM90E32 folder in your Arduino libraries folder. This is usually under Documents > Arduino > libraries
@@ -94,6 +94,7 @@ If you purchased an energy meter kit EmonESP is pre-loaded onto the included ESP
 8.  Follow the directions to configure the Access Point in the [EmonESP directions](/Software/EmonESP#first-setup)
 
 ### Setting up EmonCMS 
+
 There are a few options for doing this:
 - You can use the [EmonCMS.org service](https://emoncms.org/site/home), which costs roughly $15 a year with the data that we send from the energy meter (you don't _have_ to send all of the data)
 - [Install on a computer within your network](https://github.com/emoncms/emoncms). To do this, you will need to have [apache/php/mysql installed](https://www.znetlive.com/blog/how-to-install-apache-php-and-mysql-on-windows-10-machine/)) [This can also be done with a Raspberry Pi.](https://github.com/emoncms/emoncms/blob/master/docs/RaspberryPi/readme.md)
@@ -117,10 +118,12 @@ For all but the EmonCMS.org service, (currently for EmonCMS.org these feeds and 
    ![EmonCMS Inputs](/images/emoncms_device_inputs2.PNG?raw=true)
 
 ### Other software options
-If you would like to use something other than EmonCMS, you can do that too! Make sure the ATM90E32 library is included in the sketch. See the [examples folder](/tree/master/Software/examples) for examples of how things could be done using JSON or MQTT. Users have already setup feeds to Home Assistant, Influxdb, and Graphina.
+If you would like to use something other than EmonCMS, you can do that too! Make sure the ATM90E32 library is included in the sketch. See the [examples folder](/Software/examples) for examples of how things could be done using JSON or MQTT. Users have already setup feeds to Home Assistant, Influxdb, and Graphina. 
+
+Support for this energy meter, and the ATM90E32 is not included in (the dev branch of) [ESPHome.](https://github.com/esphome/esphome/tree/dev)
 
 ## Hardware Setup
-If you purchased an energy meter kit you can skip this section and go to **Installing the Energy Meter**
+If you purchased an energy meter kit you can skip this section and go to [Installing the Energy Meter](#installing-the-energy-meter)
 
 ### Connect your controller to the energy meter
 Connect the pins on the Energy Monitor to your MCU. If you have the adapter board, everything should already be connected properly. The following are the default for each, but they can be changed in software if you are using these pins for something else. 
@@ -149,7 +152,7 @@ More than one meter can be hooked up to a single MCU to monitor a solar grid, fo
 To do this:
 - Connect all CLK, MISO, and MOSI pins together
 - Connect the GND and 3V3 from one meter to the MCU
-- Connect the CS pin of one energy meter to an open GPIO on your MCU, and the CS pin on the second energy meter to another open GPIO on your MCU. These pins have to be set in the software. See the [examples folder](/tree/master/Software/examples) for the example with more than one energy meter.
+- Connect the CS pin of one energy meter to an open GPIO on your MCU, and the CS pin on the second energy meter to another open GPIO on your MCU. These pins have to be set in the software. See the [examples folder](/Software/examples) for the example with more than one energy meter.
 - If you would like to monitor voltage from two sources, you will need two AC transformers. If only one voltage, you can split the output of 1 AC transformer using a 2.5mm DC jack Y-cable.
 
 ## Installing the Energy Meter
@@ -159,9 +162,15 @@ To do this:
 ### **Disclaimer**
 **The Split-Single Phase Energy Meter should be installed by a qualified professional, and in compliance with all local electrical codes that apply. CircuitSetup, and its parent company Sugarman Studios, LLC, can not be held liable for damages or injury incured by incorrectly installing the Split-Single Phase Energy Meter.**
 
-1. Decide where to mount the energy meter. We recommend installing the box outside of your panel for better wifi signal.  **The AC transformer wire will need to be passed through a grommet in the side of the panel** It is against NEC code (US) to not route wires going in or out of an electrical panel through a grommet. 
+1. Decide where to mount the energy meter. We recommend installing the box outside of your panel for a better wifi signal.  **The current transformer wires will need to be passed through a grommet in the side of the panel** It is against NEC code (US) to not route wires going in or out of an electrical panel through a grommet. 
 2. The AC Transformer should be plugged into an outlet close to the panel. If you do not have one close, it is recommened that you have one installed by a licensed electrician. This isn't absolutely needed, but it will give you more accurate readings. 
-3. If you wish to read the **voltage from both sides of your panel**, you need a second AC transformer hooked up to a single pole breaker or outlet on the opposing side of the panel. There is a jumper on the back of the energy meter that will need to be severed **before hooking up the second AC transformer.** The connection for the second AC transformer is next to the power plug on the energy meter board.
+3. If you wish to read the **voltage from both sides of your panel**:
+   - Hook up a second AC transformer to a single pole breaker, or a second outlet, that is wired to the opposite phase of the first AC transformer. So if the breaker for the first outlet is on the left of your panel, you will need to wire the second AC transformer or outlet to a breaker on the right of the panel (Split phase US breaker panels)
+   - Sever jumper JP3 on the back of the energy meter **before hooking up the second AC transformer.** 
+   - Solder 2 pin headers to the right of the main AC power plug labeled GND and VC+. 
+   - Hook up the second AC transformer to the GND and AC+ pins
+   - Modify software to accomodate for this second voltage reading
+
 
 
 ### Connect Current Transformers to the energy meter

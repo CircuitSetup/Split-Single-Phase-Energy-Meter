@@ -70,7 +70,9 @@ The Energy Meter kit available on CrowdSupply:
 * Current Transformers for wire:
    * **13mm and less**, the [SCT-013-000 100A/50mA](https://circuitsetup.us/index.php/product/100a-50ma-current-transformer-yhdc-sct-013/) has a 13mm opening for wire.
    * **13.5mm - 16mm - 4/0 AWG** (usually aluminum, 200A service) not thicker than 16mm with insulation, we recommend the [YHDC SCT-016 120A/40mA](https://circuitsetup.us/index.php/product/120a-40ma-current-transformer-yhdc-sct-016-with-3-5mm-jack-16mm-opening/). The ones available on CircuitSetup.us, and included with the energy meter kit have 3.5mm plugs. 
+   ![SCT016](/images/current_transformer_SCT016.jpg)
    * **Greater than 16mm**, the [Magnelab SCT-0750-100](https://amzn.to/2IF8xnY) (must sever burden resistor connection on the back of the board since they have a built in burden resistor). These have wire leads and will need an adapter or screw connectors soldered to the energy meter board.
+   ![JP1-JP2](/images/energy_meter_JP1-JP2.jpg)
    * Other CTs can also be used as long as they're rated for the amount of power that you are wanting to measure, and have a current output no more than 600mA. For safety, they MUST have a built in zener diode or burden resistor. 
 * AC Transformer: [Jameco Reliapro 9v](https://amzn.to/2XcWJjI)
 * An [ESP32](https://amzn.to/2pCtTtz), ESP8266, LoRa, or anything else that has an SPI interface.
@@ -169,8 +171,7 @@ To do this:
    - Sever jumper JP3 on the back of the energy meter **before hooking up the second AC transformer.** 
    - Solder 2 pin headers to the right of the main AC power plug labeled GND and VC+. 
    - Hook up the second AC transformer to the GND and AC+ pins
-   - Modify software to accomodate for this second voltage reading
-
+![JP3](/images/energy_meter_JP3.jpg)
 
 
 ### Connect Current Transformers to the energy meter

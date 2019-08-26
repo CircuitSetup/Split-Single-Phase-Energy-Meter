@@ -25,7 +25,11 @@ The CircuitSetup ATM90E32 Split Single Phase Energy Meter can monitor the ener
 *   **Spend less on energy monitoring hardware!**
     *   Affordable but very accurate
     *   Save hundreds over popular monitoring systems
-    
+
+The Energy Meter kit available on CrowdSupply:
+![Energy Meter Kit](/images/spiltsinglephase-angle-open_png_project-body.jpg?raw=true)
+
+
 ## Contents
 
 1.  [Software Setup](#software-setup)

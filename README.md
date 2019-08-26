@@ -35,6 +35,7 @@ The Energy Meter kit available on CrowdSupply:
 1.  [Software Setup](#software-setup)
 2.  [Hardware Setup](#hardware-setup)
 3.  [Calibration](#calibration)
+4.  [Troubleshooting](#troubleshooting)
 
 ## Features:
 
@@ -101,6 +102,8 @@ If you purchased an energy meter kit EmonESP is pre-loaded onto the included ESP
 
 ### Setting up EmonCMS 
 
+![EmonCMS](https://github.com/emoncms/emoncms/blob/master/docs/files/emoncms_graphic.png?raw=true)
+
 There are a few options for doing this:
 - You can use the [EmonCMS.org service](https://emoncms.org/site/home), which costs roughly $15 a year with the data that we send from the energy meter (you don't _have_ to send all of the data)
 - [Install on a computer within your network](https://github.com/emoncms/emoncms). To do this, you will need to have [apache/php/mysql installed](https://www.znetlive.com/blog/how-to-install-apache-php-and-mysql-on-windows-10-machine/)) [This can also be done with a Raspberry Pi.](https://github.com/emoncms/emoncms/blob/master/docs/RaspberryPi/readme.md)
@@ -125,6 +128,8 @@ For all but the EmonCMS.org service, (currently for EmonCMS.org these feeds and 
 
 ### Other software options
 If you would like to use something other than EmonCMS, you can do that too! Make sure the ATM90E32 library is included in the sketch. See the [examples folder](/Software/examples) for examples of how things could be done using JSON or MQTT. Users have already setup feeds to Home Assistant, Influxdb, and Graphina. 
+
+![ESPHome](https://esphome.io/_images/logo-text.svg)
 
 Support for this energy meter, and the ATM90E32 is not included in (the dev branch of) [ESPHome.](https://github.com/esphome/esphome/tree/dev)
 
@@ -260,7 +265,20 @@ Test again after adjusting the value and re-uploading the sketch to your ESP. If
 
 For more details, see the Calibration Procedure in the [Microchip Application notes.](http://ww1.microchip.com/downloads/en/AppNotes/Atmel-46103-SE-M90E32AS-ApplicationNote.pdf)
 
+## Troubleshooting
+### I'm not getting any data from the energy meter
+If you have an energy meter kit, something may not be configured correctly. Please contact us.
 
-### Licenses
+If you are getting numbers that are all 65535, then the connection from the ESP32 to the meter is not correct. Please check your wires.
+
+### I'm getting a very low power factor reading
+One of your CT clamps is backwords - flip it around. If they are both oriented in the same direction, this will not happen. 
+
+### The ESP32 doesn't stay connected to WiFi and has to be reset
+Make sure that the ESP32 has a good wifi signal. The RSSI (viewable in the web interface) should be, at the most, -70.
+
+EmonESP will try to reconnect to WiFi if it loses the connection to the configured access point. It will try 3 times over a 30 second period. If it can not reconnect, it will go into AP mode and broadcast a signal so it can be reconfigured via the web interface if necessary. If nothing happens after 5 minutes, it will try to reconnect to the configured access point again. This process takes a lot of power to do, and sometimes uses too much power, causing the ESP32s brownout detector to trigger, and freeze. 
+
+## Licenses
 Hardware license: CERN v 1.2
 Documentation license: CC BY 4.0

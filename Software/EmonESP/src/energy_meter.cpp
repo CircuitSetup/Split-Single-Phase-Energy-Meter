@@ -190,22 +190,31 @@ void energy_meter_loop()
   if (sys0 == 65535 || sys0 == 0) DBUGS.println("Error: Not receiving data from energy meter - check your connections");
 
   ////// VOLTAGE
-  voltageA = eic.GetLineVoltageA();
-  voltageC = eic.GetLineVoltageC();
+  if (LineFreq == 389) {
+    //if 50hz then voltage is 240v and needs to be scaled
+    voltageA = eic.GetLineVoltageA()*2;
+    voltageC = eic.GetLineVoltageC()*2;
+  }
+  else {  
+    voltageA = eic.GetLineVoltageA();
+    voltageC = eic.GetLineVoltageC();
 
-  if (LineFreq == 4485) {
-    totalVoltage = voltageA + voltageC;     //is split single phase, so only 120v per leg
-  }
-  else {
-    totalVoltage = voltageA;     //voltage should be 220-240 at the AC transformer
-  }
+    totalVoltage = voltageA + voltageC;  
+  }   
 
   /////// CURRENT & POWER
   currentCT1 = eic.GetLineCurrentA();
   currentCT2 = eic.GetLineCurrentC();
 
-  wattsA = eic.GetActivePowerA();
-  wattsC = eic.GetActivePowerC();
+  if (LineFreq == 389) {
+    //voltage is not changed in the register so this has to be accounted for here as well
+    wattsA = eic.GetActivePowerA()*2; 
+    wattsC = eic.GetActivePowerC()*2;
+  }
+  else {
+    wattsA = eic.GetActivePowerA(); 
+    wattsC = eic.GetActivePowerC();
+  }
 
   if (canBeNegative) {
     /* Is net energy positive or negative?
@@ -213,7 +222,12 @@ void energy_meter_loop()
        the upper 16 bit register. We are getting all 32 bits of active power though */
     if (wattsA < 0) currentCT1 *= -1;
     if (wattsC < 0) currentCT2 *= -1;
-    totalWatts = eic.GetTotalActivePower(); //all math is already done in the total register
+    if (LineFreq == 389) {
+      totalWatts = eic.GetTotalActivePower()*2; //to accoutn for 240v
+    }
+    else {
+      totalWatts = eic.GetTotalActivePower(); //all math is already done in the total register
+    }
   }
   else {
     /* If single split phase & 1 voltage reading, phase will be offset between the 2 phases
@@ -250,29 +264,44 @@ void energy_meter_loop()
   /*if true the MCU is not getting data from the energy meter */
   if (sys0s == 65535 || sys0s == 0) DBUGS.println("Error: Not receiving data from the solar energy meter - check your connections");
 
-  solarVoltageA = eic_solar.GetLineVoltageA();
-  solarVoltageC = eic_solar.GetLineVoltageC();
-
-  if (LineFreq == 4485) {
-    totalSolarVoltage = solarVoltageA + solarVoltageC;     //is split single phase, so only 120v per leg
+  if (LineFreq == 389) {
+    //if 50hz then voltage is 240v and needs to be scaled
+    solarVoltageA = eic_solar.GetLineVoltageA()*2;
+    solarVoltageC = eic_solar.GetLineVoltageC()*2;
   }
   else {
-    totalSolarVoltage = solarVoltageA;     //voltage should be 220-240 at the AC transformer
-  }
+    solarVoltageA = eic_solar.GetLineVoltageA();
+    solarVoltageC = eic_solar.GetLineVoltageC();
 
+    totalSolarVoltage = solarVoltageA + solarVoltageC;   
+  }
+  
   /////// SOLAR CURRENT & POWER
   solarCurrentCT1 = eic_solar.GetLineCurrentA();
   solarCurrentCT2 = eic_solar.GetLineCurrentC();
 
-  solarWattsA = eic_solar.GetActivePowerA();
-  solarWattsC = eic_solar.GetActivePowerC();
-
+  if (LineFreq == 389) {
+    solarWattsA = eic_solar.GetActivePowerA()*2;
+    solarWattsC = eic_solar.GetActivePowerC()*2;
+  }
+  else {
+    solarWattsA = eic_solar.GetActivePowerA();
+    solarWattsC = eic_solar.GetActivePowerC();
+  }
+  
   /* Is net energy positive or negative?
      We're not reading if current is pos or neg because we're only getting
      the upper 16 bit register. We are getting all 32 bits of active power though */
   if (solarWattsA < 0) solarCurrentCT1 *= -1;
   if (solarWattsC < 0) solarCurrentCT2 *= -1;
-  totalSolarWatts = eic_solar.GetTotalActivePower(); //all math is already done in the total register
+
+  if (LineFreq == 389) {
+    totalSolarWatts = eic_solar.GetTotalActivePower()*2;
+  }
+  else (
+    totalSolarWatts = eic_solar.GetTotalActivePower(); //all math is already done in the total register
+  }
+  
 #endif
   /*
     DBUGS.println(" ");
@@ -356,18 +385,21 @@ void energy_meter_loop()
      in the ATM90E32 library
   */
   strcpy(result, "");
+  
+  if (LineFreq == 389) {
+    strcat(result, "totV:");
+    dtostrf(voltageA, 2, 2, measurement);
+    strcat(result, measurement);
+  }
+  else {
+    strcat(result, "V1:");
+    dtostrf(voltageA, 2, 2, measurement);
+    strcat(result, measurement);
 
-  strcat(result, "V1:");
-  dtostrf(voltageA, 2, 2, measurement);
-  strcat(result, measurement);
-
-  strcat(result, ",V2:");
-  dtostrf(voltageC, 2, 2, measurement);
-  strcat(result, measurement);
-
-  strcat(result, ",totV:");
-  dtostrf(totalVoltage, 2, 2, measurement);
-  strcat(result, measurement);
+    strcat(result, ",V2:");
+    dtostrf(voltageC, 2, 2, measurement);
+    strcat(result, measurement);
+  }
 
   strcat(result, ",CT1:");
   dtostrf(currentCT1, 2, 4, measurement);

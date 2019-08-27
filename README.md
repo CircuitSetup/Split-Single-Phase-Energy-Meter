@@ -272,13 +272,14 @@ If you have an energy meter kit, something may not be configured correctly. Plea
 If you are getting numbers that are all 65535, then the connection from the ESP32 to the meter is not correct. Please check your wires.
 
 ### I'm getting a very low power factor reading
-One of your CT clamps is backwords - flip it around. If they are both oriented in the same direction, this will not happen. 
+One of your CT clamps is probably backwords - flip it around. If they are both oriented in the same direction, this will not happen. 
 
 ### The ESP32 doesn't stay connected to WiFi and has to be reset
-Make sure that the ESP32 has a good wifi signal. The RSSI (viewable in the web interface) should be, at the most, -70.
+Make sure that the ESP32 has a good wifi signal. The RSSI (viewable in the EmonESP web interface) should be, at the least, -70.
 
 EmonESP will try to reconnect to WiFi if it loses the connection to the configured access point. It will try 3 times over a 30 second period. If it can not reconnect, it will go into AP mode and broadcast a signal so it can be reconfigured via the web interface if necessary. If nothing happens after 5 minutes, it will try to reconnect to the configured access point again. This process takes a lot of power to do, and sometimes uses too much power, causing the ESP32s brownout detector to trigger, and freeze. 
 
 ## Licenses
 Hardware license: CERN v 1.2
+
 Documentation license: CC BY 4.0

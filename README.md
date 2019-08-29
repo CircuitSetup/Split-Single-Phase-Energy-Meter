@@ -132,6 +132,7 @@ If you would like to use something other than EmonCMS, you can do that too! Make
 ![ESPHome](https://esphome.io/_images/logo-text.svg)
 
 Support for this energy meter, and the ATM90E32 is not included in (the dev branch of) [ESPHome.](https://github.com/esphome/esphome/tree/dev)
+[See here for more details](https://github.com/digiblur/digiNRG_ESPHome) on setting up the meter with ESPHome.
 
 ## Hardware Setup
 If you purchased an energy meter kit you can skip this section and go to [Installing the Energy Meter](#installing-the-energy-meter)

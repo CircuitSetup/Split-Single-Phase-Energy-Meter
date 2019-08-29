@@ -32,10 +32,13 @@ The Energy Meter kit available on CrowdSupply:
 
 ## Contents
 
-1.  [Software Setup](#software-setup)
-2.  [Hardware Setup](#hardware-setup)
-3.  [Calibration](#calibration)
-4.  [Troubleshooting](#troubleshooting)
+<!-- toc -->
+- [Features](#features)
+- [Software Setup](#software-setup)
+- [Hardware Setup](#hardware-setup)
+- [Calibration](#calibration)
+- [Troubleshooting](#troubleshooting)
+<!-- tocstop -->
 
 ## Features:
 

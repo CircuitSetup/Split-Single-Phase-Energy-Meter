@@ -1,6 +1,6 @@
 substitutions:
 # Change the disp_name to something you want  
-  disp_name: 2C
+  disp_name: House
 # Interval of how often the power is updated
   update_time: 10s
 

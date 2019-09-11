@@ -19,7 +19,7 @@
   <div id="page">
     <div class="box">
       <h1>emon<span>ESP</span></h1>
-      <h3>WiFi Emoncms Link</h3>
+      <h3>WiFi Emoncms Link for CircuitSetup Energy Meters</h3>
     </div>
 
     <div class="loading" data-bind="visible: !initialised()">
@@ -70,7 +70,7 @@
             <p>
               <b>Passkey:</b><br>
               <input type="text" data-bind="textInput: config.pass">
-              <button data-bind="click: saveNetwork, text: (saveNetworkFetching() ? 'Saving' : (saveNetworkSuccess() ? 'Saved' : 'Connect')), disable: saveAdminFetching">Connect</button>
+              <button data-bind="click: saveNetwork, text: (saveNetworkFetching() ? 'Saving' : (saveNetworkSuccess() ? 'Saved' : 'Connect')), disable: saveNetworkFetching">Connect</button>
             </p>
           </div>
 
@@ -105,15 +105,14 @@
           <p>
             <b>Write apikey*:</b><br>
             <input type="text" data-bind="textInput: config.emoncms_apikey"><br>
+			<div class="small-text">(Will not display after being saved)</div>
           </p>
           <p>
             <b>SSL SHA-1 Fingerprint:</b><br>
             <input type="text" data-bind="textInput: config.emoncms_fingerprint"><br>
-            <br></p>HTTPS will be enabled if present e.g:<br>
-            <br>
-            <div class="small-text">
+            <div class="small-text">HTTPS will be enabled if present e.g:<br>
               7D:82:15:BE:D7:BC:72:58:87:7D:8E:40:D4:80:BA:1A:9F:8B:8D:DA
-            </div><br>
+			</div><br>
             <button data-bind="click: saveEmonCms, text: (saveEmonCmsFetching() ? 'Saving' : (saveEmonCmsSuccess() ? 'Saved' : 'Save')), disable: saveEmonCmsFetching">Save</button>
             <b>&nbsp; Connected:&nbsp;<span data-bind="text: '1' === status.emoncms_connected() ? 'Yes' : 'No'"></span></b>
             <span data-bind="visible: '1' === status.emoncms_connected()"></br></br><b>&nbsp; Successful messages:&nbsp;<span data-bind="text: status.packets_success()+'/'+status.packets_sent()+' '+((status.packets_success()/status.packets_sent())*100)+'%'"></span></b></span>
@@ -199,35 +198,73 @@
       <div id="six">
         <h2>6. Firmware</h2>
         <div class="itembody-wrapper">
-          <div id="firmware" style="display:none">
-            <table>
-              <tr>
-                <th>Running</th>
-                <th>Latest</th>
-              </tr>
-              <tbody id="firmware-version">
-                <tr>
-                  <td data-bind="text: status.version"></td>
-                  <td></td>
-                </tr>
-              </tbody>
-            </table><br>
-            <a href="https://github.com/openenergymonitor/EmonESP/releases">
-              View changelog</a><br>
-          </div><br>
-          <!-- <button id="updatecheck">Check for Updates</button> -->
-          <!-- <button id="update" style="display:none">Apply
-          Update</button><p><span id="update-info"></span>-->
-          </p><button id="upload">Upload</button>
+			<span>Check the <a href="https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter">Energy Meter Github page.</a> for the latest updates to our version of EmonESP. The Upload feature can be used to upload the latest firmware .bin files. If for some reason the update fails, you may need to connect the ESP to your computer and upload via the Arduino or Platform.io IDE.</span><br>
+
+          <button id="upload">Upload</button>
         </div>
       </div>
-      <!--//////////////////////////////////////////////////////////////////////////////////-->
+	        <!--//////////////////////////////////////////////////////////////////////////////////-->
       <div id="seven">
-        <h2>7. System</h2>
+        <h2>7. Calibration Settings</h2>
+        <div class="itembody-wrapper">
+		<span>Values for voltage and current calibration. <br>For more information on setting custom values for calibration see the <a href="https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter">Energy Meter Github page.</a> The default values are used unless other values are entered here.</span><br><br>
+          <p>
+            <b>Voltage:</b><br>
+			<span class="small-text">37106 - 9v AC Transformer - Jameco 157041 (default)
+			<br>38302 - 9v AC Transformer - Jameco 112336
+			<br>29462 - 12v AC Transformer - Jameco 167151</span><br>
+            <input type="text" value="voltage_cal" data-bind="textInput: config.voltage_cal"><br>
+          </p>
+		  <p>
+            <b>Solar Voltage:</b><br>
+            <input type="text" value="svoltage_cal" data-bind="textInput: config.svoltage_cal"><br>
+          </p>
+          <p>
+            <b>CT1:</b><br>
+			<span class="small-text">25498 - SCT-013-000 100A/50mA
+			<br>39473 - SCT-016 120A/40mA (default)
+			<br>46539 - Magnalab 100A</span><br>
+            <input type="text" data-bind="textInput: config.ct1_cal"><br>
+          </p>
+		  <p>
+            <b>CT2:</b><br>
+            <input type="text" data-bind="textInput: config.ct2_cal"><br>
+          </p>
+		  <p>
+            <b>Solar CT1:</b><br>
+            <input type="text" data-bind="textInput: config.sct1_cal"><br>
+          </p>
+		  <p>
+            <b>Solar CT2:</b><br>
+            <input type="text" data-bind="textInput: config.sct2_cal"><br>
+          </p><br><br>
+		  <p>
+		    <b>Frequency:</b><br>
+            <input type="text" data-bind="textInput: config.freq_cal"><br>
+			<span class="small-text">4485 for 60 Hz (North America Default)
+			<br>389 for 50 hz (rest of the world)</span>
+          </p>
+		  <p>
+		    <b>CT Gain (PGA):</b><br>
+            <input type="text" data-bind="textInput: config.gain_cal"><br>
+			<span class="small-text"> 0 for 0-10A (1x)
+			<br>21 for 100A (2x) (default)
+			<br>42 for 100-200A (4x)</span>
+			<br><br>
+            
+            <button data-bind="click: saveCal, text: (saveCalFetching() ? 'Saving' : (saveCalSuccess() ? 'Saved' : 'Save')), disable: saveCalFetching">Save</button><br>
+			<span>After saving, the ESP will be restarted and values sent to the energy meter</span>
+          </p>
+        </div>
+      </div>
+
+      <!--//////////////////////////////////////////////////////////////////////////////////-->
+      <div id="eight">
+        <h2>8. System</h2>
         <div class="itembody-wrapper">
           <p><b>Free RAM:</b> <span data-bind="text: scaleString(status.free_heap(), 1024, 0) + 'K'"></span></p>
           <p><b>Flash Size:</b> <span data-bind="text: scaleString(config.espflash(), 1024, 0) + 'K'"></span></p>
-          <p><b>Version:</b> <a href="https://github.com/openenergymonitor/EmonESP/releases">v<span data-bind="text: config.version"></span></a></p>
+          <p><b>Version:</b> v<span data-bind="text: config.version"></span></p>
           <button id="restart">Restart</button>
           <button id="reset">Factory Reset</button>
         </div>

@@ -32,10 +32,13 @@ The Energy Meter kit available on CrowdSupply:
 
 ## Contents
 
-1.  [Software Setup](#software-setup)
-2.  [Hardware Setup](#hardware-setup)
-3.  [Calibration](#calibration)
-4.  [Troubleshooting](#troubleshooting)
+<!-- toc -->
+- [Features](#features)
+- [Software Setup](#software-setup)
+- [Hardware Setup](#hardware-setup)
+- [Calibration](#calibration)
+- [Troubleshooting](#troubleshooting)
+<!-- tocstop -->
 
 ## Features:
 
@@ -132,6 +135,7 @@ If you would like to use something other than EmonCMS, you can do that too! Make
 ![ESPHome](https://esphome.io/_images/logo-text.svg)
 
 Support for this energy meter, and the ATM90E32 is not included in (the dev branch of) [ESPHome.](https://github.com/esphome/esphome/tree/dev)
+[See here for more details](https://github.com/digiblur/digiNRG_ESPHome) on setting up the meter with ESPHome.
 
 ## Hardware Setup
 If you purchased an energy meter kit you can skip this section and go to [Installing the Energy Meter](#installing-the-energy-meter)
@@ -168,10 +172,11 @@ To do this:
 
 ## Installing the Energy Meter
 ### Warning
-**High voltage AC power is VERY dangerious! If you are not comfortable working around AC voltage, we strongly encourage you to hire a qualified electrician.**
+To install the current transformers to measure current, your breaker panel must be opened to clamp them around your mains wires.
+**High voltage AC power is VERY dangerous! If you are not comfortable working around AC voltage, we strongly encourage you to hire a qualified electrician.**
 
 ### **Disclaimer**
-**The Split-Single Phase Energy Meter should be installed by a qualified professional, and in compliance with all local electrical codes that apply. CircuitSetup, and its parent company Sugarman Studios, LLC, can not be held liable for damages or injury incured by incorrectly installing the Split-Single Phase Energy Meter.**
+**The Split-Single Phase Energy Meter should be installed by a qualified professional, and in compliance with all local electrical codes that apply. CircuitSetup, and its parent company Sugarman Studios, LLC, can not be held liable for damages or injury incurred by incorrectly installing the Split-Single Phase Energy Meter.**
 
 1. Decide where to mount the energy meter. We recommend installing the box outside of your panel for a better wifi signal.  **The current transformer wires will need to be passed through a grommet in the side of the panel** It is against NEC code (US) to not route wires going in or out of an electrical panel through a grommet. 
 2. The AC Transformer should be plugged into an outlet close to the panel. If you do not have one close, it is recommened that you have one installed by a licensed electrician. This isn't absolutely needed, but it will give you more accurate readings. 

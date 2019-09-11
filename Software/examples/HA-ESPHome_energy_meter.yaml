@@ -1,0 +1,110 @@
+substitutions:
+# Change the disp_name to something you want  
+  disp_name: House
+# Interval of how often the power is updated
+  update_time: 10s
+
+esphome:
+  name: energy_meter
+  platform: ESP32
+  board: nodemcu-32s
+   
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_pass
+  manual_ip:
+    static_ip: !secret ip_eh_nrgnode_2chan32
+    gateway: !secret ip_gateway
+    subnet: !secret ip_subnet
+    dns1: !secret ip_dns1
+
+mqtt:
+  broker: !secret mqtt_broker
+  username: !secret mqtt_user
+  password: !secret mqtt_pass
+
+# Enable logging
+logger:
+
+#api:
+  
+ota:
+
+web_server:
+  port: 80
+
+spi:
+  clk_pin: 18
+  miso_pin: 19
+  mosi_pin: 23
+
+sensor:
+  - platform: wifi_signal
+    name: ${disp_name} WiFi Signal
+    update_interval: 60s
+  - platform: atm90e32
+    cs_pin: 5
+    phase_a:
+      voltage:
+        name: ${disp_name} Volts
+        accuracy_decimals: 1
+      current:
+        name: ${disp_name} CT1 Amps
+        id: "ct1Amps"
+      power:
+        name: ${disp_name} CT1 Watts
+        accuracy_decimals: 1
+        id: "ct1Watts"
+# Voltage using a 9VAC Jameco 157041
+      gain_voltage: 37106
+# Current calibration using a 120A/40ma SCT-016
+      gain_ct: 39473
+    phase_c:
+      current:
+        name: ${disp_name} CT2 Amps
+        id: "ct2Amps"
+      power:
+        name: ${disp_name} CT2 Watts
+        accuracy_decimals: 1
+        id: "ct2Watts"
+# If the wattage is backwards due to the phase 180 degrees from the clamp direction
+        filters:
+          - multiply: -1.0
+      gain_voltage: 37106
+      gain_ct: 39473
+    frequency:
+      name: ${disp_name} Freq
+    line_frequency: 60Hz
+    gain_pga: 2X
+    update_interval: ${update_time}
+  - platform: template
+    name: ${disp_name} Total Amps
+    id: "totalAmps"
+    lambda: return id(ct1Amps).state + id(ct2Amps).state;
+    accuracy_decimals: 2
+    unit_of_measurement: A
+    update_interval: ${update_time}  
+    icon: "mdi:flash-circle"
+  - platform: template
+    name: ${disp_name} Total Watts
+    id: "totalWatts"
+    lambda: return id(ct1Watts).state + id(ct2Watts).state;
+    accuracy_decimals: 0
+    unit_of_measurement: W
+    icon: "mdi:flash-circle"
+    update_interval: ${update_time}
+
+  - platform: total_daily_energy
+    name: ${disp_name} Total kWh
+    power_id: totalWatts
+    filters:
+      - multiply: 0.001
+    unit_of_measurement: kWh
+    
+time:
+  - platform: sntp
+    id: sntp_time    
+    
+switch:
+  - platform: restart
+    name: ${disp_name} Restart     

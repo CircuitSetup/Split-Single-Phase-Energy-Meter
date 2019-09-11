@@ -4,10 +4,6 @@
 
 ESP8266/ESP32 WIFI serial to emoncms link
 
-For applications that only require basic posting of data from one emonTx to a remote server such as Emoncms.org an emonTx with this WiFi module provides a lower cost route than an emonBase or emonPi base-station installation.
-
-#*The core of EmonESP is also used for [emonPixel](https://github.com/openenergymonitor/emonpixel) and [OpenEVSE ESP WiFi 2.0](https://github.com/OpenEVSE/ESP8266_WiFi_v2.x).*
-
 ![EmonEsp WiFi AP Setup Portal](docs/emonesp.png)
 
 ## Contents
@@ -223,12 +219,12 @@ Standalone built on GitHub Atom IDE, or use PlatformIO Atom IDE plug-in if you a
 
 #### 2. Clone this repo
 
-`$ git clone https://github.com/jdeglavina/EmonESP`
+`$ git clone https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter`
 
 #### 3. Compile
 
 ```
-$ cd EmonESP
+$ cd Software/EmonESP
 $ pio run
 ```
 
@@ -362,17 +358,17 @@ Then follow instructions from here: https://github.com/me-no-dev/arduino-esp32fs
 
 #### 3. Clone this repo
 
-`$ git clone https://github.com/jdeglavina/EmonESP`
+`$ git clone https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter`
 
 #### 4. Compile and Upload
 
-- Open src/src.ino in the Arduino IDE.
-- Put ESP into bootloader mode
-   - On Heatpump monitor use jumper to pull `GPIO0` low then reset then connect power (simulates reset)
-   - On other ESP boards (Adafruit HUZZAH) press and hold `GPIO0` button then press Reset, LED should light dimly to indicate bootloader mode
-- **Upload main sketch:** Compile and Upload as normal using Arduino IDE [CTRL + u]
-- **Upload 'data' folder**: Upload data folder (home.html web page etc) using `tools > ESP8266/ESP32 Sketch Data Upload tool`
+- Open Software/EmonESP/src/src.ino in the Arduino IDE.
+- Connect the ESP32 to an option USB port on your computer
+- Select the appropriate port and options under tools
+- **Upload main sketch:** Compile and Upload as normal using Arduino IDE [CTRL + u] - you may need to hold down the IO0 button when esptool.py initiates
+- **Upload 'data' folder**: Upload data folder (home.html web page etc) using `tools > ESP32 Sketch Data Upload tool`
 
+![arduino options](/images/arduino_options.PNG)
 
 ### Troubleshooting Upload
 

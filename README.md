@@ -1,6 +1,6 @@
 # CircuitSetup Split Single Phase Energy Meter
 
-The CircuitSetup ATM90E32 Split Single Phase Energy Meter can monitor the energy usage in your entire home in real time. It can easily be hooked up to an ESP8266 or ESP32 to wirelessly transmit energy usage data into a program like EmonCMS. It can also be used to monitor solar power generation to keep track of how much power you are making.
+The CircuitSetup ATM90E32 Split Single Phase Energy Meter can monitor the energy usage in your entire home in real time. It can easily be hooked up to an ESP8266 or ESP32 to wirelessly transmit energy usage data into a program like EmonCMS. It can also be used to monitor solar power generation to keep track of how much power you are making.
 
 ![CitcuitSetup Split Single Phase Energy Meter](images/energy_meter_small.jpg)
 
@@ -77,11 +77,11 @@ The Energy Meter kit available on CrowdSupply:
    
    ![SCT016](/images/current_transformer_SCT016.jpg)
    
-   * **Greater than 16mm**, the [Magnelab SCT-0750-100](https://amzn.to/2IF8xnY) (must sever burden resistor connection on the back of the board since they have a built in burden resistor). These have wire leads and will need an adapter or screw connectors soldered to the energy meter board.
+   * **Greater than 16mm**, the [Magnelab SCT-0750-100](https://amzn.to/2IF8xnY) (must sever burden resistor connection on the back of the board since they have a built in burden resistor). These have wire leads and will need an adapter or screw connectors soldered to the energy meter board.
    
    ![JP1-JP2](/images/energy_meter_JP1-JP2.jpg)
    
-   * Other CTs can also be used as long as they're rated for the amount of power that you are wanting to measure, and have a current output no more than 600mA. For safety, they MUST have a built in zener diode or burden resistor. 
+   * Other CTs can also be used as long as they're rated for the amount of power that you are wanting to measure and have a current output no more than 720mA. For safety, they MUST have a built in Zener diode or burden resistor. 
 * AC Transformer: [Jameco Reliapro 9v](https://amzn.to/2XcWJjI)
 * An [ESP32](https://amzn.to/2pCtTtz), ESP8266, LoRa, or anything else that has an SPI interface.
 * Jumper wires with Dupont connectors, or perf board to connect the two boards. The energy meter kit comes with a PCB adapter for an ESP32.
@@ -93,10 +93,10 @@ The Energy Meter kit available on CrowdSupply:
 
 If you purchased an energy meter kit EmonESP is pre-loaded onto the included ESP32. You can skip this section and go to [Setting up EmonCMS](#setting-up-emoncms)
 
-1.  Clone this repository in Github desktop or [download all the files and extract them to a folder](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/archive/master.zip)
+1.  Clone this repository in GitHub desktop or [download all the files and extract them to a folder](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/archive/master.zip)
 2.  Place the ATM90E32 folder in your Arduino libraries folder. This is usually under Documents > Arduino > libraries
 3.  We highly recommend using [EmonCMS.](https://emoncms.org/site/home) - EmonESP helps to connect and send data directly to EmonCMS
-4.  Open **EmonESP > src > src.ino** - you will see a number of files open, but you'll only need to worry about src.ino
+4.  Open **EmonESP > src > src.ino** - you will see several files open, but you'll only need to worry about src.ino
 5.  Make sure the **CS_pin** is set to the pin that you are using on your controller board - the defaults are listed in src.ino and in the [hardware section here.](#hardware-setup)
 6.  Upload the src.ino to your ESP (If you get any errors at this point, like a missing library, check the [Troubleshooting section on the EmonESP readme.](Software/EmonESP#troubleshooting-upload))
    If you are using an ESP32, [make sure you are using the latest software from the Espressif repository.](https://github.com/espressif/arduino-esp32)
@@ -110,7 +110,7 @@ If you purchased an energy meter kit EmonESP is pre-loaded onto the included ESP
 There are a few options for doing this:
 - You can use the [EmonCMS.org service](https://emoncms.org/site/home), which costs roughly $15 a year with the data that we send from the energy meter (you don't _have_ to send all of the data)
 - [Install on a computer within your network](https://github.com/emoncms/emoncms). To do this, you will need to have [apache/php/mysql installed](https://www.znetlive.com/blog/how-to-install-apache-php-and-mysql-on-windows-10-machine/)) [This can also be done with a Raspberry Pi.](https://github.com/emoncms/emoncms/blob/master/docs/RaspberryPi/readme.md)
-- [Install on a remote web server](https://github.com/emoncms/emoncms). There are some very cheap ways this can be done if you're familar with setting up web applications.
+- [Install on a remote web server](https://github.com/emoncms/emoncms). There are some very cheap ways this can be done if you're familiar with setting up web applications.
 
 If you install EmonCMS on a remote web server, or if your home network has a public facing port, this will make it possible to see data on the EmonCMS app ([Android](https://play.google.com/store/apps/details?id=org.emoncms.myapps) or [iOS](https://itunes.apple.com/us/app/emoncms/id1169483587?ls=1&mt=8)) when your phone is outside of your network.
 
@@ -157,7 +157,7 @@ For the ESP8266:
 
 Don't forget to hook up the 3V3 and GND pins! 
 
-**The energy meter is capable of supplying up to 500mA of 3.3v power to your controller**, so no other external power source should be needed. Some ESP32 dev boards may use more than 500mA when trying to initially connect to Wifi. If this is the case you may not be able to connect to wifi. If this happens, we recommend using another power source for the ESP32 - either a 5v DC adapter or a USB phone charger that outputs at least 500mA. It is **not** recommended to leave USB power plugged into an ESP at the same time as the energy meter's power 3V3 output. This can damage components. 
+**The energy meter can supply up to 500mA of 3.3v power to your controller**, so no other external power source should be needed. Some ESP32 dev boards may use more than 500mA when trying to initially connect to WiFi. If this is the case, you may not be able to connect to WiFi. If this happens, we recommend using another power source for the ESP32 - either a 5v DC adapter or a USB phone charger that outputs at least 500mA. It is **not** recommended to leave USB power plugged into an ESP at the same time as the energy meter's power 3V3 output. This can damage components. 
 
 Other pins on your controller can be connected to the WARN and IRQ outputs, but they are not yet implemented in the default software. 
 
@@ -167,7 +167,7 @@ More than one meter can be hooked up to a single MCU to monitor a solar grid, fo
 To do this:
 - Connect all CLK, MISO, and MOSI pins together
 - Connect the GND and 3V3 from one meter to the MCU
-- Connect the CS pin of one energy meter to an open GPIO on your MCU, and the CS pin on the second energy meter to another open GPIO on your MCU. These pins have to be set in the software. See the [examples folder](/Software/examples) for the example with more than one energy meter.
+- Connect the CS pin of one energy meter to an open GPIO on your MCU, and the CS pin on the second energy meter to another open GPIO on your MCU. These pins must be set in the software. See the [examples folder](/Software/examples) for the example with more than one energy meter.
 - If you would like to monitor voltage from two sources, you will need two AC transformers. If only one voltage, you can split the output of 1 AC transformer using a 2.5mm DC jack Y-cable.
 
 ## Installing the Energy Meter
@@ -176,31 +176,31 @@ To install the current transformers to measure current, your breaker panel must 
 **High voltage AC power is VERY dangerous! If you are not comfortable working around AC voltage, we strongly encourage you to hire a qualified electrician.**
 
 ### **Disclaimer**
-**The Split-Single Phase Energy Meter should be installed by a qualified professional, and in compliance with all local electrical codes that apply. CircuitSetup, and its parent company Sugarman Studios, LLC, can not be held liable for damages or injury incurred by incorrectly installing the Split-Single Phase Energy Meter.**
+**The Split-Single Phase Energy Meter should be installed by a qualified professional, and in compliance with all local electrical codes that apply. CircuitSetup, and its parent company Sugarman Studios, LLC, cannot be held liable for damages or injury incurred by incorrectly installing the Split-Single Phase Energy Meter.**
 
-1. Decide where to mount the energy meter. We recommend installing the box outside of your panel for a better wifi signal.  **The current transformer wires will need to be passed through a grommet in the side of the panel** It is against NEC code (US) to not route wires going in or out of an electrical panel through a grommet. 
-2. The AC Transformer should be plugged into an outlet close to the panel. If you do not have one close, it is recommened that you have one installed by a licensed electrician. This isn't absolutely needed, but it will give you more accurate readings. 
-3. If you wish to read the **voltage from both sides of your panel**:
-   - Hook up a second AC transformer to a single pole breaker, or a second outlet, that is wired to the opposite phase of the first AC transformer. So if the breaker for the first outlet is on the left of your panel, you will need to wire the second AC transformer or outlet to a breaker on the right of the panel (Split phase US breaker panels)
+1. Decide where to mount the energy meter. We recommend installing the box outside of your panel for a better WiFi signal.  **The current transformer wires will need to be passed through a grommet in the side of the panel** It is against NEC code (US) to not route wires going in or out of an electrical panel through a grommet. 
+2. The AC Transformer should be plugged into an outlet close to the panel. If you do not have one close, it is recommended that you have one installed by a licensed electrician. This isn't absolutely needed, but it will give you more accurate readings. 
+3. If you wish to read the **voltage from both sides of your panel** :
+   - Hook up a second AC transformer to a single pole breaker, or a second outlet, that is wired to the opposite phase of the first AC transformer. If the breaker for the first outlet is on the left of your panel, you will need to wire the second AC transformer or outlet to a breaker on the right of the panel (single split phase breaker panels)
    - Sever jumper JP3 on the back of the energy meter **before hooking up the second AC transformer.** 
    - Solder 2 pin headers to the right of the main AC power plug labeled GND and VC+. 
-   - Hook up the second AC transformer to the GND and AC+ pins
+   - Hook up the second AC transformer to the “GND” (neutral) and “AC+” pins **be careful to not reverse the polarity**
 ![JP3](/images/energy_meter_JP3.jpg)
 
 
 ### Connect Current Transformers to the energy meter
 Before connecting the current transformers to your mains wires, plug them into the energy meter.
 
-If your current transformers (CTs) have 3.5mm phono connectors, you hopefully have the version of the Energy Meter with these connections (v1.3 has footprints for both). If you have the screw connectors, the phono connectors will have to be cut off. There should only be two wires regardless. For the screw connector version, be careful to connect the positive to the correct terminal. If these are reversed, things will not be damaged, but the reading will read negative.
+If your current transformers (CTs) have 3.5mm phono connectors, you hopefully have the version of the Energy Meter with these connections (v1.3+ has footprints for both). If you have the screw connectors, the phono connectors will have to be cut off. There should only be two wires regardless. For the screw connector version, be careful to connect the positive to the correct terminal. If these are reversed, things will not be damaged, but the reading will read negative.
 
-If your current transformers have a built in burden resistor, be sure to sever the jumpers on the back of the board to disable the 12ohm burden resistor. Alternatively, if you are reading smaller loads and would like more accurate readings, you can insert your own higher value burden resister across the positive and negative screw terminals.
+If your current transformers have a built-in burden resistor, sever the jumpers on the back of the board to disable the 12ohm burden resistors. Alternatively, if you are reading smaller loads and would like more accurate readings, you can insert your own higher value burden resister across the positive and negative screw terminals.
 
-If you purchased a kit with the black SCT016 current transformers, or have the blue SCT-013-000, these do not have a built in burden resistor, but have a TVS diode instead. 
+If you purchased a kit with the black SCT016 current transformers, or have the blue SCT-013-000, these do not have a built-in burden resistor, but have a TVS diode instead. 
 
 ### Connect Current Transformers to your mains
 1. Note the direction of the arrows on the top of the current transformers. They should point in the direction of the current flowing into your house.
 2. Clip the current transformers around the two large main wires, usually at the top of the breaker box. **DO NOT TOUCH BARE METAL ON THESE WIRES**. There is one current transformer for each phase. 
-3. Make sure the current transformers are not in the way of anything else and are snapped closed around the wires. 
+3. Make sure the current transformers are not in the way of anything else and are snapped closed around the wires. **Do not force them shut – if they will not close you will need a larger current transformer**
 
 ![SCT016 Install](/images/current_transformer_SCT016-install2.jpg)
 
@@ -213,12 +213,12 @@ Energy generated by solar, but not used by your house will register on the mains
 
 If you purchased a kit that came with current transformers **and** an AC Transformer, you should not have to calibrate anything unless you want to. If you are providing your own AC Transformer, you will need to calibrate the voltage.
 
-The default configuration of the Energy Meter software is set to use the SCT-016 120A/40mA current transformers, and the [Jameco Reliapro 9v AC transformer](https://amzn.to/2XcWJjI). There are also values for 100A Magnalab, SCT-013 100A 50mV current tranaformers, and the 12v version of the AC transformer located in the **energy_meter.h** file, and in the EmonESP web interface. Simply change the values under CALIBRATION SETTINGS if you are using a 12v AC Transformer or the Magnalab current transformers.  **If you are using any of these you likely will not need to calibrate, but if you want to be sure your readings are the most accurate then calibration is recommended.** 
+The default configuration of the Energy Meter software is set to use the SCT-016 120A/40mA current transformers, and the [Jameco Reliapro 9v AC transformer](https://amzn.to/2XcWJjI). There are also values for 100A Magnalab, SCT-013 100A 50mV current transformers, and the 12v version of the AC transformer located in the **energy_meter.h** file, and in the EmonESP web interface. Simply change the values under CALIBRATION SETTINGS if you are using a 12v AC Transformer or the Magnalab current transformers.  **If you are using any of these you likely will not need to calibrate, but if you want to be sure your readings are the most accurate then calibration is recommended.** 
 
 Alternatively, if you have equipment that can read active and reactive energy pulse outputs, CT1-CT4 pins can be used for this. It is recommended that these connections are opto-isolated to prevent interference. 
 
 ### For calibration you will need:
-1.  A multi-meter, or to make it easier and safer, a [kill-a-watt](https://amzn.to/2TXT7jx) or similar. A clamp meter will also work if you would like to measure mains power directly.
+1.  A multi-meter, or to make it easier and safer, a [kill-a-watt](https://amzn.to/2TXT7jx) or similar. A clamp meter will also work if you would like to measure mains power directly.
 2.  A hair dryer, soldering iron, electric heater, or anything else that uses a large amount of resistive current.
 3.  A modified power cable that allows you to put a current transformer around only the hot (usually black) wire.
 
@@ -234,7 +234,7 @@ Alternatively, if you have equipment that can read active and reactive energy pu
 5.  Values should be scrolling by. If you do not see anything in the serial window, make sure the correct COM port is selected for your ESP in the Arduino IDE.
 
 #### With EmonESP
-1.  The first time the ESP32 or ESP8266 is started with EmonESP it will not be connected to local router, and will go into AP mode. You can connect to the interface via a cell phone or other wireless device to access the interface via a web browser at 192.168.4.1 or emonesp.local. For more details on this see [EmonESP WiFi Connection](/Software/EmonESP#1-wifi-connection)
+1.  The first time the ESP32 or ESP8266 is started with EmonESP, it will not be connected to a local router, and will go into SoftAP mode. You can connect to the interface via a cell phone or other wireless device to access the interface via a web browser at 192.168.4.1 or emonesp.local. For more details on this see [EmonESP WiFi Connection](/Software/EmonESP#1-wifi-connection)
 2.  If the ESP is already connected to a network, you can access the interface with the IP address that your router assigned to it.
 3.  Go to the Calibration section:
 
@@ -242,9 +242,9 @@ Alternatively, if you have equipment that can read active and reactive energy pu
 
 ### Voltage Procedure 
 
-1.  In the Serial Monitor window or in EmonESP under 4. Latest Data, view the value for Voltage - take note of this (if you are getting a value above 65k, something is not hooked up or working correctly)
-2.  Take a reading of the actual voltage from an outlet in your house.  For the Kill-a-watt, just plug it in, and select voltage. Compare the values.
-3.  Adjust the value for VoltageGain in energy_meter.h or EmonESP by calculating:
+1.  In the Serial Monitor window or in EmonESP under 4. Latest Data, view the value for Voltage - take note of this (if you are getting a value above 65k, something is not hooked up or working correctly)
+2.  Take a reading of the actual voltage from an outlet in your house.  For the Kill-a-watt, just plug it in, and select voltage. Compare the values.
+3.  Adjust the value for VoltageGain in energy_meter.h or EmonESP by calculating:
 
 <pre>New VoltageGain = (your voltage reading / energy monitor voltage reading) * VOLTAGE_GAIN</pre>
 
@@ -258,7 +258,7 @@ If you are not located in the US and have 50hz power, change the Frequency value
 For calibrating **CurrentGainCT1 & CurrentGainCT2**:
 
 1.  In the Serial Monitor window or in EmonESP under 4. Latest Data, view the value for Current 
-2.  If the value is negative, you are either exporting power (solar), or the current transformer is backwords.
+2.  If the value is negative, you are either exporting power (solar), or the current transformer is backwards.
 3.  Compare what you are seeing for current from the Energy Monitor to the reading on the Kill-a-watt
 4.  Adjust the value for CurrentGainCT1 or CurrentGainCT2 in energy_meter.h or EmonESP by calculating:
 
@@ -266,24 +266,49 @@ For calibrating **CurrentGainCT1 & CurrentGainCT2**:
 
 CURRENT_GAIN_CT# is the value currently set for the current gain parameter in energy_meter.h.
 
-Test again after adjusting the value and re-uploading the sketch to your ESP. If it is still off, do this again, but replace the CURRENT_GAIN_CT# with the last value used. It is possible that the two identical current sensors will have different CurrentGain numbers due to variances in manufacturing, but it shouldn't be drastic. Note that the positioning of the CT sensor on the hot wire can have an effect on the current reading. 
+Test again after adjusting the value and re-uploading the sketch to your ESP. If it is still off, do this again, but replace the CURRENT_GAIN_CT# with the last value used. It is possible that the two identical current sensors will have different CurrentGain numbers due to variances in manufacturing, but it shouldn't be drastic. Note that the positioning of the CT sensor on the hot wire can influence the current reading. 
 
 For more details, see the Calibration Procedure in the [Microchip Application notes.](http://ww1.microchip.com/downloads/en/AppNotes/Atmel-46103-SE-M90E32AS-ApplicationNote.pdf)
 
 ## Troubleshooting
 ### I'm not getting any data from the energy meter
-If you have an energy meter kit, something may not be configured correctly. Please contact us.
+If you have an energy meter kit:
+- Check that the ESP32 is seated properly. Take it all the way out, then back in again to make sure. If you find you're only getting a signal when holding down the ESP32, please contact us.
+- If you're getting all 0 readings from the meter, try the steps above. If that does not work, please contact us.
 
-If you are getting numbers that are all 65535, then the connection from the ESP32 to the meter is not correct. Please check your wires.
+If you do not have a kit:
+- If you are getting all 65535 readings from the meter, then the connection from the ESP32 to the meter is not correct. Please check your wires.
 
 ### I'm getting a very low power factor reading
-One of your CT clamps is probably backwords - flip it around. If they are both oriented in the same direction, this will not happen. 
+One of your CT clamps is probably backwards - flip it around. If they are both oriented in the same direction, this will not happen. 
 
-### The ESP32 doesn't stay connected to WiFi and has to be reset
-Make sure that the ESP32 has a good wifi signal. The RSSI (viewable in the EmonESP web interface) should be, at the least, -70.
+### The ESP32 doesn't stay connected to WiFi and must be reset
+Make sure that the ESP32 has a good WiFi signal. The RSSI (viewable in the EmonESP web interface) should be, at the least, -70db.
 
-EmonESP will try to reconnect to WiFi if it loses the connection to the configured access point. It will try 3 times over a 30 second period. If it can not reconnect, it will go into AP mode and broadcast a signal so it can be reconfigured via the web interface if necessary. If nothing happens after 5 minutes, it will try to reconnect to the configured access point again. This process takes a lot of power to do, and sometimes uses too much power, causing the ESP32s brownout detector to trigger, and freeze. 
+For the CircuitSetup version of EmonESP:
+- If the ESP32 loses the connection to the configured access point it will try 3 times over a 30 second period to reconnect. 
+- If it cannot reconnect, it will go into SoftAP mode and broadcast a signal so it can be reconfigured via the web interface, if necessary. 
+- If nothing happens after 5 minutes, it will try to reconnect to the configured access point again. 
 
+This process uses a lot of power, and sometimes using more power than available, causing the ESP32 brownout detector to trigger, and freeze. 
+
+### The ESP32 with CitcuitSetup EmonESP freezes 
+See the steps above for staying connected to WiFi. If that does not work, try one of the following:
+1. Load [this firmware via the EmonESP web interface](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/raw/master/Software/EmonESP/src/emonesp_v2.5.2_noAP_lost_conn.bin). When losing the connection to the configured AP, the ESP32 will not go into AP mode. 
+2. Find a AC Transformer with a higher current output, like the [Jameco 112336](https://www.jameco.com/z/ADU090150A2231-AC-to-AC-Wall-Adapter-Transformer-9-Volt-1500mA-Black-Straight-2-5mm-Female-Plug_112336.html). The voltage calibration procedure will need to be done.
+3. Bypass the on-board power supply:
+   - If you have a hot air soldering gun:
+      1. Remove the rectifier diode next to the power jack
+      2. Use a USB style AC/DC adapter or phone charger to power the ESP32 via the micro-USB jack
+      3. Use the AC transformer as you did previously
+   - If you only have a regular soldering iron:
+      1. Only the voltage 2 channel will be used in this method, so a modification to account for this in software will have to be done
+      2. Solder a header on to "VC+" and "GND" next to the power jack
+      3. Sever the JP3 connection on the back of the board
+      4. Crimp or solder on a header that matches the one soldered onto the board in step 1 - **be careful to not reverse the polarity!**
+      5. Use a USB style AC/DC adapter or phone charger to power the ESP32 via the micro-USB jack
+      
+      
 ## Licenses
 Hardware license: CERN v 1.2
 

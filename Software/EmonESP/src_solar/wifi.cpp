@@ -149,7 +149,7 @@ void startClient() {
   WiFi.waitForConnectResult(); //yields until wifi connects or not
 #ifdef ESP32
   WiFi.setHostname(esp_hostname);
-#elif
+#else
   WiFi.hostname(esp_hostname);
 #endif
 

@@ -28,15 +28,22 @@
 #ifndef _EMONESP_WEB_SERVER_H
 #define _EMONESP_WEB_SERVER_H
 
+#include <FS.h>                       // SPIFFS file-system: store web server html, CSS etc.
+#include <SPIFFS.h>
+#include <Arduino.h>
 #include <Hash.h>
 #ifdef ESP32
+#include <WiFi.h>
 #include <AsyncTCP.h>  //https://github.com/me-no-dev/AsyncTCP
 #elif defined(ESP8266)
+#include <ESP8266WiFi.h>
 #include <ESPAsyncTCP.h>
 #endif
 #include <ESPAsyncWebServer.h> //https://github.com/me-no-dev/ESPAsyncWebServer
 
+
 extern AsyncWebServer server;
+extern AsyncWebSocket ws;
 extern String currentfirmware;
 
 extern void web_server_setup();

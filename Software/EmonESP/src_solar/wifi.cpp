@@ -29,19 +29,10 @@
 #include "wifi.h"
 #include "config.h"
 
-#ifdef ESP32
-#include <esp_wifi.h>              // Connect to Wifi
-#include <WiFi.h>
-#include <ESPmDNS.h>              // Resolve URL for update server etc.
-#elif defined(ESP8266)
-#include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>              // Resolve URL for update server etc.
-#endif
-
-#include <DNSServer.h>                // Required for captive portal
-
+/*
 DNSServer dnsServer;                  // Create class DNS server, captive portal re-direct
 const byte DNS_PORT = 53;
+*/
 
 // Access Point SSID, password & IP address. SSID will be softAP_ssid + chipID to make SSID unique
 const char *softAP_ssid = "emonESP";
@@ -116,8 +107,9 @@ void startAP() {
   delay(500); // Without delay the IP address is sometimes blank
 
   // Setup the DNS server redirecting all the domains to the apIP
-  dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
+  /*dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
   dnsServer.start(DNS_PORT, "*", apIP);
+  */
 
   IPAddress myIP = WiFi.softAPIP();
   char tmpStr[40];
@@ -485,7 +477,8 @@ void wifi_loop()
     wifi_restart();
   }
 
-  if (isApOnly) dnsServer.processNextRequest(); // Captive portal DNS re-dierct
+  //was causing ESP to crash in SoftAP mode
+  //if (isApOnly) dnsServer.processNextRequest(); // Captive portal DNS re-dierct
 }
 
 void wifi_scan() {
@@ -524,7 +517,7 @@ void wifi_turn_off_ap() {
   if (wifi_mode_is_ap())  {
     DBUGS.println("WiFi turn off AP called");
     WiFi.softAPdisconnect();
-    dnsServer.stop();
+    //dnsServer.stop();
   }
 }
 

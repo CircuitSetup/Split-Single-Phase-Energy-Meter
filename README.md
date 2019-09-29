@@ -273,7 +273,7 @@ For more details, see the Calibration Procedure in the [Microchip Application no
 ## Troubleshooting
 ### I'm not getting any data from the energy meter
 If you have an energy meter kit:
-- Check that the ESP32 is seated properly. Take it all the way out, then back in again to make sure. If you find you're only getting a signal when holding down the ESP32, please contact us.
+- Check that the ESP32 is seated properly. Take it all the way out, then back in again to make sure. It should click into place. If you find you're only getting a signal when holding down the ESP32, you can try removing the black plastic around the base of the pins of the esp32, to push it down further. This is best accomplished with flush cutters. If you rather not do that, please contact us.
 - If you're getting all 0 readings from the meter, try the steps above. If that does not work, please contact us.
 
 If you do not have a kit:
@@ -292,11 +292,12 @@ For the CircuitSetup version of EmonESP:
 
 This process uses a lot of power, and sometimes using more power than available, causing the ESP32 brownout detector to trigger, and freeze. 
 
-### The ESP32 with CitcuitSetup EmonESP freezes 
+### The ESP32 with CitcuitSetup EmonESP freezes and the blue LED does not blink
 See the steps above for staying connected to WiFi. If that does not work, try one of the following:
-1. Load [this firmware via the EmonESP web interface](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/raw/master/Software/EmonESP/src/emonesp_v2.5.2_noAP_lost_conn.bin). When losing the connection to the configured AP, the ESP32 will not go into AP mode. 
-2. Find a AC Transformer with a higher current output, like the [Jameco 112336](https://www.jameco.com/z/ADU090150A2231-AC-to-AC-Wall-Adapter-Transformer-9-Volt-1500mA-Black-Straight-2-5mm-Female-Plug_112336.html). The voltage calibration procedure will need to be done.
-3. Bypass the on-board power supply:
+1. Load [the latest firmware via the EmonESP web interface](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/releases). 
+2. Close the browser window open to the EmonESP interface. There was a bug, that has since been corrected, that would cause the ESP32 to freeze if a browser window was left open. It may also not close a browser session, which caused a memory leak, and eventual freeze. A
+3. Find a AC Transformer with a higher current output, like the [Jameco 112336](https://www.jameco.com/z/ADU090150A2231-AC-to-AC-Wall-Adapter-Transformer-9-Volt-1500mA-Black-Straight-2-5mm-Female-Plug_112336.html). The voltage calibration procedure will need to be done.
+4. If the power being read is especially noisy, the energy meter IC and on-board low pass filters are pretty good at filtering, but sometimes this can cause the ESP32 to freeze. To remedy, bypass the on-board power supply:
    - If you have a hot air soldering gun:
       1. Remove the rectifier diode next to the power jack
       2. Use a USB style AC/DC adapter or phone charger to power the ESP32 via the micro-USB jack

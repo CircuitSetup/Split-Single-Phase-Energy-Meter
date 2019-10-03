@@ -144,11 +144,11 @@
 				},
 				{
 					"process": "log_to_feed",
-					"arguments": {"type": "ProcessArg::FEEDID", "value": "Grid_Import" }
+					"arguments": {"type": "ProcessArg::FEEDID", "value": "import" }
 				},
 				{
 					"process": "power_to_kwh",
-					"arguments": {"type": "ProcessArg::FEEDID", "value": "Grid_Import_kWh" }
+					"arguments": {"type": "ProcessArg::FEEDID", "value": "import_kwh" }
 				}
 			]
 		}
@@ -158,11 +158,11 @@
 			"processList": [
 				{
 					"process": "log_to_feed",
-					"arguments": {"type": "ProcessArg::FEEDID", "value": "Solar" }
+					"arguments": {"type": "ProcessArg::FEEDID", "value": "solar" }
 				},
 				{
 					"process": "power_to_kwh",
-					"arguments": {"type": "ProcessArg::FEEDID", "value": "Solar_kWh" }
+					"arguments": {"type": "ProcessArg::FEEDID", "value": "solar_kwh" }
 				}
 				{
 					"process": "add_input",
@@ -170,11 +170,11 @@
 				},
 				{
 					"process": "log_to_feed",
-					"arguments": {"type": "ProcessArg::FEEDID", "value": "Solar_Use" }
+					"arguments": {"type": "ProcessArg::FEEDID", "value": "use" }
 				},
 				{
 					"process": "power_to_kwh",
-					"arguments": {"type": "ProcessArg::FEEDID", "value": "Solar_Use_kWh" }
+					"arguments": {"type": "ProcessArg::FEEDID", "value": "use_kwh" }
 				}
 			]
 		}
@@ -252,28 +252,42 @@
 			"unit": "A"
 		},
 		{
-			"name": "Grid_Import",
+			"name": "use",
 			"type": "DataType::REALTIME",
 			"engine": "Engine::PHPFINA",
 			"interval": "10",
 			"unit": "W"
 		},
 		{
-			"name": "Grid_Import_kWh",
+			"name": "use_kwh",
 			"type": "DataType::REALTIME",
 			"engine": "Engine::PHPFINA",
 			"interval": "10",
 			"unit": "kWh"
 		},
 		{
-			"name": "Solar_Use",
+			"name": "solar",
 			"type": "DataType::REALTIME",
 			"engine": "Engine::PHPFINA",
 			"interval": "10",
 			"unit": "W"
 		},
 		{
-			"name": "Solar_Use_kWh",
+			"name": "solar_kwh",
+			"type": "DataType::REALTIME",
+			"engine": "Engine::PHPFINA",
+			"interval": "10",
+			"unit": "kWh"
+		},
+		{
+			"name": "import",
+			"type": "DataType::REALTIME",
+			"engine": "Engine::PHPFINA",
+			"interval": "10",
+			"unit": "W"
+		},
+		{
+			"name": "import_kwh",
 			"type": "DataType::REALTIME",
 			"engine": "Engine::PHPFINA",
 			"interval": "10",

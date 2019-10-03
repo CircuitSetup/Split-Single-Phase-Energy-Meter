@@ -282,7 +282,7 @@ If you do not have a kit:
 ### I'm getting a very low power factor reading
 One of your CT clamps is probably backwards - flip it around. If they are both oriented in the same direction, this will not happen. 
 
-### The ESP32 doesn't stay connected to WiFi and must be reset
+### The ESP32 doesn't stay connected to WiFi
 Make sure that the ESP32 has a good WiFi signal. The RSSI (viewable in the EmonESP web interface) should be, at the least, -70db.
 
 For the CircuitSetup version of EmonESP:
@@ -290,13 +290,17 @@ For the CircuitSetup version of EmonESP:
 - If it cannot reconnect, it will go into SoftAP mode and broadcast a signal so it can be reconfigured via the web interface, if necessary. 
 - If nothing happens after 5 minutes, it will try to reconnect to the configured access point again. 
 
-This process uses a lot of power, and sometimes using more power than available, causing the ESP32 brownout detector to trigger, and freeze. 
-
 ### The ESP32 with CitcuitSetup EmonESP freezes and the blue LED does not blink
 See the steps above for staying connected to WiFi. If that does not work, try one of the following:
 1. Load [the latest firmware via the EmonESP web interface](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/releases). 
-2. Close the browser window open to the EmonESP interface. There was a bug, that has since been corrected, that would cause the ESP32 to freeze if a browser window was left open. It may also not close a browser session, which caused a memory leak, and eventual freeze. A
-3. Find a AC Transformer with a higher current output, like the [Jameco 112336](https://www.jameco.com/z/ADU090150A2231-AC-to-AC-Wall-Adapter-Transformer-9-Volt-1500mA-Black-Straight-2-5mm-Female-Plug_112336.html). The voltage calibration procedure will need to be done.
+   - Download the latest .bin file from the link above
+   - Open http://EmonESP_IP/upload (6. Firmware)
+   - Click "Choose File", select the .bin file, then "Update Firmware"
+   - The file will upload to the ESP32, and it will reset
+   - After about 20 seconds the upload page will reload - you can return to the main page to verify everything is working properly
+   
+2. Close the browser window open to the EmonESP interface. There was a bug, that has since been corrected in v2.5.3, that would cause the ESP32 to freeze if a browser window was left open. It may also not close a browser session, which caused a memory leak, and eventual freeze.
+3. Use an AC Transformer with a higher current output, like the [Jameco 112336](https://www.jameco.com/z/ADU090150A2231-AC-to-AC-Wall-Adapter-Transformer-9-Volt-1500mA-Black-Straight-2-5mm-Female-Plug_112336.html). The voltage calibration procedure will need to be done.
 4. If the power being read is especially noisy, the energy meter IC and on-board low pass filters are pretty good at filtering, but sometimes this can cause the ESP32 to freeze. To remedy, bypass the on-board power supply:
    - If you have a hot air soldering gun:
       1. Remove the rectifier diode next to the power jack

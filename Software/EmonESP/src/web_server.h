@@ -30,12 +30,13 @@
 
 #include <FS.h>                       // SPIFFS file-system: store web server html, CSS etc.
 #include <Arduino.h>
-#include <Hash.h>
+
 #ifdef ESP32
 #include <SPIFFS.h>
 #include <WiFi.h>
 #include <AsyncTCP.h>  //https://github.com/me-no-dev/AsyncTCP
 #elif defined(ESP8266)
+#include <Hash.h>
 #include <ESP8266WiFi.h>
 #include <ESPAsyncTCP.h>
 #endif

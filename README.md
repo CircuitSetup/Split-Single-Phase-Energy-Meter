@@ -178,8 +178,14 @@ To install the current transformers to measure current, your breaker panel must 
 ### **Disclaimer**
 **The Split-Single Phase Energy Meter should be installed by a qualified professional, and in compliance with all local electrical codes that apply. CircuitSetup, and its parent company Sugarman Studios, LLC, cannot be held liable for damages or injury incurred by incorrectly installing the Split-Single Phase Energy Meter.**
 
+The Split Single Phase Kit:
+![Energy Meter Kit](/images/energy_meter_kit.jpg)
+
 1. Decide where to mount the energy meter. We recommend installing the box outside of your panel for a better WiFi signal.  **The current transformer wires will need to be passed through a grommet in the side of the panel** It is against NEC code (US) to not route wires going in or out of an electrical panel through a grommet. 
-2. The AC Transformer should be plugged into an outlet close to the panel. If you do not have one close, it is recommended that you have one installed by a licensed electrician. This isn't absolutely needed, but it will give you more accurate readings. 
+2. The AC Transformer should be plugged into an outlet close to the panel. If you do not have one close, it is recommended that you have one installed by a licensed electrician. It isn't absolutely necessarty that the outlet is close to the panel, but it will give you more accurate readings. 
+
+### Plug in the AC Transformer
+Take note of the side of the split phase that the breaker for the AC transformer is on. This is important for connecting the CTs in the correct direction (see below section)
 3. If you wish to read the **voltage from both sides of your panel** :
    - Hook up a second AC transformer to a single pole breaker, or a second outlet, that is wired to the opposite phase of the first AC transformer. If the breaker for the first outlet is on the left of your panel, you will need to wire the second AC transformer or outlet to a breaker on the right of the panel (single split phase breaker panels)
    - Sever jumper JP3 on the back of the energy meter **before hooking up the second AC transformer.** 
@@ -200,21 +206,31 @@ If you purchased an energy meter kit with the black SCT016 current transformers,
 ### Connect Current Transformers to your mains
 1. Note the direction of the arrows on the top of the current transformers. 
    - If you are measuring 1 voltage (the default configuration): 
-      1. CT1 should be on the same side of the panel as the voltage breaker for the plug that the AC transformer is plugged into, and should point in the direction of the current flowing into your house.
+      1. CT1 should be on the same side of the split phase as the breaker for the plug that the AC transformer is plugged into, and should point in the direction of the current flowing into your house.
       2. CT2 should point in the opposite direction as CT1
 2. Clip the current transformers around the two large main wires, usually at the top of the breaker box. **DO NOT TOUCH BARE METAL ON THESE WIRES**. There is one current transformer for each phase. 
 3. Make sure the current transformers are not in the way of anything else and are snapped closed around the wires. **Do not force them shut – if they will not close you will need a larger current transformer**
 
 ![SCT016 Install](/images/current_transformer_SCT016-install2.jpg)
 
-#### Solar Kit Current & AC Transformers ####
-1. **The 2nd AC transformer** for the solar kit should be plugged into an outlet that is on the opposite phase than the first AC transformer. If you do not have an outlet, we recommend having a licensed electrician install one.
+### Solar Kit Setup ###
+The solar kit comes with 2 meters, 4 current transformers, and optionally, 2 AC transformers.
+
+![Solar Kit](/images/energy_meter_solar_kit.jpg)
+
+#### AC Transformers
+**The 1st AC transformer**, L1, should be plugged into an outlet the same way as noted above in the "Plug in the AC Transformer" section
+
+**The 2nd AC transformer**, L2, for the solar kit should be plugged into an outlet that is on the opposite phase than the first AC transformer. If you do not have an outlet, we recommend having a licensed electrician install one.
 
 It is possible to power both energy meters with one AC transformer, you will just need a Y splitter. Close attention needs to be paid to the direction of the current transformers to properly measure the direction current is flowing.
 
-2. **Current transformers** to measure solar energy generation should be connected to the wires coming into your panel from the solar inverter. This is usually a dual pole breaker with 2 hot wires (US). The arrows on the CTs should be opposite eachother, like with the mains CTs. The wire that is connected to the side of the panel that is the same as the solar AC transformer will point towards the panel. It may take some trial an error to get this correct. 
+#### Current Transformers
+The mains current transformers (CT1, CT2) should be connected the same way as noted above starting with section "Connect Current Transformers to the energy meter"
 
-Energy generated by solar, but not used by your house will register on the mains CTs as negative, since energy is flowing back to the grid. In EmonCMS this calculation is done automatically assuming you have set up the "Split Single Phase Energy Meter + Solar" device.
+Current transformers to measure solar energy generation (SCT1, SCT2) should be connected to the wires coming into your panel from your solar inverter. This is usually a dual pole breaker with 2 hot wires (in the US). The arrows on the CTs should be opposite eachother, like with the mains CTs. The wire that is connected to the side of the panel that is the same as the solar AC transformer will point towards the panel. It may take some trial an error to get this correct. 
+
+Energy generated by solar, but not used by your house will register on the mains CTs as negative, since energy is flowing back to the grid. In EmonCMS this calculation is done automatically assuming you have set up the "Solar Kit" device.
 
 ## Calibration
 
@@ -280,13 +296,13 @@ For more details, see the Calibration Procedure in the [Microchip Application no
 ## Troubleshooting
 ### I'm not getting any data from the energy meter
 If you have an energy meter kit:
-- Check that the ESP32 is seated properly. Take it all the way out, then back in again to make sure. It should click into place. If you find you're only getting a signal when holding down the ESP32, you can try removing the black plastic around the base of the pins of the esp32, to push it down further. This is best accomplished with flush cutters. If you rather not do that, please contact us.
+- **Check that the ESP32 is seated properly.** Take it all the way out, then back in again to make sure. It should click into place. If you find you're only getting a signal when holding down the ESP32, you can try removing the black plastic around the base of the pins of the esp32, to push it down further. This is best accomplished with flush cutters. If you rather not do that, please contact us.
 - If you're getting all 0 readings from the meter, try the steps above. If that does not work, please contact us.
 
 If you do not have a kit:
 - If you are getting all 65535 readings from the meter, then the connection from the ESP32 to the meter is not correct. Please check your wires.
 
-### I'm getting a very low power factor reading
+### I'm getting a very low power factor reading, and wattage seems off
 One of your CT clamps is probably backwards - flip it around. If they are both oriented in the same direction, this will not happen. 
 
 ### The ESP32 doesn't stay connected to WiFi

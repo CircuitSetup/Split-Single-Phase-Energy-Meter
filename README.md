@@ -336,7 +336,12 @@ See the steps above for staying connected to WiFi. If that does not work, try on
       4. Crimp or solder on a header that matches the one soldered onto the board in step 1 - **be careful to not reverse the polarity!**
       5. Use a USB style AC/DC adapter or phone charger to power the ESP32 via the micro-USB jack
       
-      
+### How do I change the network AP the ESP32 is connected to with EmonESP? 
+1. Turn off the router that the ESP32 is configured on, and the meter/ESP32
+2. Turn on the meter/ESP32
+3. The ESP32 will go into soft AP mode after 30 seconds of not being able to connect to the configured AP. You can confirm this by checking the blue led. It will blink once every 2 seconds.
+4. Connect to the ESP32 like you did when you first configured EmonESP. From there you can set it to connect to the new network AP.
+
 ## Licenses
 Hardware license: CERN v 1.2
 

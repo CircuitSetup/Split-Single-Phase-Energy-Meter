@@ -9,6 +9,8 @@ This Node-Red flow takes MQTT data published from EmonESP (the default ESP32 pro
 - Username: the username for your MQTT broker
 - Password: the password for your MQTT broker
 
+[!EmonESP MQTT](/images/MQTT.png)
+
 ### InfluxDB Setup
 - Go to InfluxDB Admin > Databases
 - Create a new database called emoncms - set the retention policy to autogen and the duration to whatever you would like. 
@@ -24,5 +26,9 @@ This Node-Red flow takes MQTT data published from EmonESP (the default ESP32 pro
 - Double click on 'V1 to Influxdb'
 - Click on the pencil next to 'emoncms' and set the credentials for the InfluxDB database. You shouldn't have to do this on all of the function nodes unless the name of the database is not 'emoncms'. 
 
+[!Node-Red Energy Meter Flow](/images/emonesp-node-red.png)
 
 From here make sure that data is being sent to InfluxDB by going to Explore, and emoncms.autogen. You should see a graph when clicking on this, the field name, then checking value.
+
+
+[!InfluxDB EmonESP Data](/images/Influxdb_data.png)

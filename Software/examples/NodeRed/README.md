@@ -1,3 +1,5 @@
+# EmonESP > MQTT > Node-Red > InfluxDB
+
 This Node-Red flow takes MQTT data published from EmonESP (the default ESP32 program for the Split Single Phase Energy Meter), formats it, throttles it to get a sample every 10 seconds, then sends it to an InfluxDB database. 
 
 ### EmonESP Setup

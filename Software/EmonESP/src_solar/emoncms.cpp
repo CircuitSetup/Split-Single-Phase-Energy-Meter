@@ -31,8 +31,6 @@
 #include "http.h"
 #include "wifi.h"
 
-#include <Arduino.h>
-
 //EMONCMS SERVER strings
 const char* e_url = "/input/post.json?json=";
 boolean emoncms_connected = false;

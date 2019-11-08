@@ -30,7 +30,6 @@
 
 #include <FS.h>                       // SPIFFS file-system: store web server html, CSS etc.
 #include <Arduino.h>
-
 #ifdef ESP32
 #include <SPIFFS.h>
 #include <WiFi.h>

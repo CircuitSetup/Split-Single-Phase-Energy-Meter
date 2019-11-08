@@ -197,7 +197,7 @@
       <div id="six">
         <h2>6. Firmware</h2>
         <div class="itembody-wrapper">
-			<span>Check the <a href="https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter">Energy Meter Github page.</a> for the latest updates to our version of EmonESP. The Upload feature can be used to upload the latest firmware .bin files. If for some reason the update failes, you may need to connect the ESP to your computer and upload via the Arduino or Platform.io IDE.</span><br>
+			<span>Check the <a href="https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter">Energy Meter Github page.</a> for the latest updates to our version of EmonESP. The Upload feature can be used to upload the latest firmware .bin files. If for some reason the update fails, you may need to connect the ESP to your computer and upload via the Arduino or Platform.io IDE.</span><br>
 
           <button id="upload">Upload</button>
         </div>
@@ -237,9 +237,9 @@
 		  <p>
 		    <b>CT Gain (PGA):</b><br>
             <input type="text" data-bind="textInput: config.gain_cal"><br>
-			<span class="small-text"> 0 for 10A (1x)
+			<span class="small-text"> 0 for 0-99A (1x)
 			<br>21 for 100A (2x) (default)
-			<br>42 for 100A - 200A (4x)</span>
+			<br>42 for 100-200A (4x)</span>
 			<br><br>
             
             <button id="save_cal" data-bind="click: saveCal, text: (saveCalFetching() ? 'Saving' : (saveCalSuccess() ? 'Saved' : 'Save')), disable: saveCalFetching">Save</button><br>
@@ -254,7 +254,7 @@
         <div class="itembody-wrapper">
           <p><b>Free RAM:</b> <span data-bind="text: scaleString(status.free_heap(), 1024, 0) + 'K'"></span></p>
           <p><b>Flash Size:</b> <span data-bind="text: scaleString(config.espflash(), 1024, 0) + 'K'"></span></p>
-          <p><b>Version:</b> v<span data-bind="text: config.version"></span></a></p>
+          <p><b>Version:</b> v<span data-bind="text: config.version"></span></p>
           <button id="restart">Restart</button>
           <button id="reset">Factory Reset</button>
         </div>

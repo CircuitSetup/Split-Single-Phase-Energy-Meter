@@ -280,6 +280,8 @@ void energy_meter_loop()
   solarCurrentCT1 = eic_solar.GetLineCurrentA();
   solarCurrentCT2 = eic_solar.GetLineCurrentC();
 
+  totalSolarCurrent = solarCurrentCT1 + solarCurrentCT2;
+
   if (LineFreq == 389) {
     solarWattsA = eic_solar.GetActivePowerA()*2;
     solarWattsC = eic_solar.GetActivePowerC()*2;

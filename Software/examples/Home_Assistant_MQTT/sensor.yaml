@@ -27,11 +27,6 @@ sensor:
 - platform: mqtt
   name: "Total Watts"
   state_topic: "home/energy/sensor"
-  value_template: '{{ value_json["W"] }}'
-  unit_of_measurement: "Watts"
-- platform: mqtt
-  name: "Apparent Power"
-  state_topic: "home/energy/sensor"
   value_template: '{{ value_json["AP"] }}'
   unit_of_measurement: "Watts"
 - platform: mqtt

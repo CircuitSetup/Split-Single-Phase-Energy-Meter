@@ -32,7 +32,7 @@
 #include "wifi.h"
 
 //EMONCMS SERVER strings
-const char* e_url = "/input/post.json?json=";
+const char *e_url = "/input/post.json?json=";
 boolean emoncms_connected = false;
 
 unsigned long packets_sent = 0;

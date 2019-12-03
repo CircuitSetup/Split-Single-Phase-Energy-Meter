@@ -173,7 +173,7 @@ void loop() {
   powerFactor = eic.GetTotalPowerFactor();
   temp = eic.GetTemperature();
   freq = eic.GetFrequency();
-  totalWatts = (voltageA * currentCT1) + (voltageC * currentCT2);
+  //totalWatts = (voltageA * currentCT1) + (voltageC * currentCT2);
 
   Serial.println("Voltage 1: " + String(voltageA) + "V");
   Serial.println("Voltage 2: " + String(voltageC) + "V");
@@ -195,7 +195,6 @@ void loop() {
   meterData["I1"] = currentCT1;
   meterData["I2"] = currentCT2;
   meterData["totI"] = totalCurrent;
-  meterData["W"] = totalWatts;
   meterData["AP"] = realPower;
   meterData["PF"] = powerFactor;
   meterData["t"] = temp;

@@ -342,6 +342,13 @@ See the steps above for staying connected to WiFi. If that does not work, try on
 3. The ESP32 will go into soft AP mode after 30 seconds of not being able to connect to the configured AP. You can confirm this by checking the blue led. It will blink once every 2 seconds.
 4. Connect to the ESP32 like you did when you first configured EmonESP. From there you can set it to connect to the new network AP.
 
+### How do I reset the login/password to the EmonESP admin page?
+To do this you'll have to reset EmonESP to default. This will erase any saved settings, like wifi configuration and connections.
+
+1. Remove the ESP32 off of the pcb
+2. Power the ESP32 via USB (If you want, open a serial window to see what it's outputting)
+3. Connect Gnd (upper left) with GPIO3 (5th pin from upper left) with a jumper wire
+4. Wait 15 seconds (10 minimum, but 15 to be sure). If you have a serial window open, it'll say "factory reset"
 ## Licenses
 Hardware license: CERN v 1.2
 

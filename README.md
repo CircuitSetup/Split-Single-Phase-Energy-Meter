@@ -86,7 +86,7 @@ The Energy Meter kit available on CrowdSupply:
 * An [ESP32](https://amzn.to/2pCtTtz), ESP8266, LoRa, or anything else that has an SPI interface.
 * Jumper wires with Dupont connectors, or perf board to connect the two boards. The energy meter kit comes with a PCB adapter for an ESP32.
 * The software located here to load onto your controller
-* [EmonCMS](https://emoncms.org/site/home), ThingSpeak, InfluxDB/Graphina, or similar
+* [EmonCMS](https://emoncms.org/site/home), ThingSpeak, InfluxDB/Grafana, or similar
 
 
 ## Software Setup

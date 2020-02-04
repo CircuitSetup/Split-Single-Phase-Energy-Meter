@@ -20,7 +20,7 @@
  * 4485 for 60 Hz (North America)
  * 389 for 50 hz (rest of the world)
  */
-unsigned short lineFreq = 4485;         
+unsigned short LineFreq = 4485;         
 
 /* 
  * 0 for 10A (1x)
@@ -119,7 +119,7 @@ void loop() {
     voltageA = eic.GetLineVoltageA();
     voltageC = eic.GetLineVoltageC();
 
-    if (lineFreq = 4485) {
+    if (LineFreq = 4485) {
       totalVoltage = voltageA + voltageC;     //is split single phase, so only 120v per leg
     }
     else {

@@ -44,6 +44,8 @@ unsigned short PGAGain = 21;
  *    37106 - 9v AC Transformer - Jameco 157041
  *    38302 - 9v AC Transformer - Jameco 112336
  *    29462 - 12v AC Transformer - Jameco 167151
+ * For Meters > v1.4 purchased after 11/1/2019 and rev.3
+ *    7611 - 9v AC Transformer - Jameco 157041
  */
 unsigned short VoltageGain = 37106;     
                                        
@@ -171,7 +173,7 @@ void loop() {
   powerFactor = eic.GetTotalPowerFactor();
   temp = eic.GetTemperature();
   freq = eic.GetFrequency();
-  totalWatts = (voltageA * currentCT1) + (voltageC * currentCT2);
+  //totalWatts = (voltageA * currentCT1) + (voltageC * currentCT2);
 
   Serial.println("Voltage 1: " + String(voltageA) + "V");
   Serial.println("Voltage 2: " + String(voltageC) + "V");
@@ -193,7 +195,6 @@ void loop() {
   meterData["I1"] = currentCT1;
   meterData["I2"] = currentCT2;
   meterData["totI"] = totalCurrent;
-  meterData["W"] = totalWatts;
   meterData["AP"] = realPower;
   meterData["PF"] = powerFactor;
   meterData["t"] = temp;

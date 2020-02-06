@@ -95,11 +95,10 @@ unsigned long startMillis;
 unsigned long currentMillis;
 
 const int period = 1000; //time interval in ms to send data
-#ifdef SOLAR_METER
-bool canBeNegative = true;
-#else
-bool canBeNegative = false; //set to true if current and power readings can be negative (like when exporting solar power)
-#endif
+/*Power values are usually only negative when exporting solar power
+  Otherwise a CT may be backwards */
+bool canBeNegative = true; 
+
 
 char result[200];
 char measurement[16];
@@ -279,6 +278,8 @@ void energy_meter_loop()
   /////// SOLAR CURRENT & POWER
   solarCurrentCT1 = eic_solar.GetLineCurrentA();
   solarCurrentCT2 = eic_solar.GetLineCurrentC();
+
+  totalSolarCurrent = solarCurrentCT1 + solarCurrentCT2;
 
   if (LineFreq == 389) {
     solarWattsA = eic_solar.GetActivePowerA()*2;

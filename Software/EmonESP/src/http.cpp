@@ -39,7 +39,6 @@
 #error Platform not supported
 #endif
 
-
 WiFiClientSecure client;        // Create class for HTTPS TCP connections get_https()
 HTTPClient http;                // Create class for HTTP TCP connections get_http()
 

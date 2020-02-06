@@ -201,10 +201,10 @@ The MIT License (MIT)
 #define UrmsA 0xD9 			// A RMS Voltage
 #define UrmsB 0xDA 			// B RMS Voltage
 #define UrmsC 0xDB 			// C RMS Voltage
+#define IrmsN 0xDC 			// Calculated N RMS Current
 #define IrmsA 0xDD 			// A RMS Current
 #define IrmsB 0xDE 			// B RMS Current
 #define IrmsC 0xDF 			// C RMS Current
-#define IrmsN 0xD8 			// Calculated N RMS Current
 
 #define PmeanTFLSB 0xE0		// Lower Word (Tot. Act. Fund. Power)
 #define PmeanAFLSB 0xE1		// Lower Word (A Act. Fund. Power) 
@@ -223,14 +223,14 @@ The MIT License (MIT)
 #define IrmsBLSB 0xEE		// Lower Word (B RMS Current)
 #define IrmsCLSB 0xEF		// Lower Word (C RMS Current)
 
-/* THD, FREQUENCY, ANGLE & TEMPTEMP REGISTERS*/
-#define THDNUA 0xF1 		// A Voltage THD+N
-#define THDNUB 0xF2 		// B Voltage THD+N
-#define THDNUC 0xF3 		// C Voltage THD+N
+/* PEAK, FREQUENCY, ANGLE & TEMP REGISTERS*/
+#define UPeakA 0xF1 		// A Voltage Peak - THD+N on ATM90E36
+#define UPeakB 0xF2 		// B Voltage Peak
+#define UPeakC 0xF3 		// C Voltage Peak
 ///////////////// 0xF4	    // Reserved Register	
-#define THDNIA 0xF5 		// A Current THD+N
-#define THDNIB 0xF6 		// B Current THD+N
-#define THDNIC 0xF7 		// C Current THD+N
+#define IPeakA 0xF5 		// A Current Peak
+#define IPeakB 0xF6 		// B Current Peak
+#define IPeakC 0xF7 		// C Current Peak
 #define Freq 0xF8 			// Frequency
 #define PAngleA 0xF9 		// A Mean Phase Angle
 #define PAngleB 0xFA 		// B Mean Phase Angle
@@ -254,7 +254,6 @@ class ATM90E32
 		
 		int Read32Register(signed short regh_addr, signed short regl_addr);
 		
-
 	public:
 		/* Construct */
 		ATM90E32(void);
@@ -318,15 +317,11 @@ class ATM90E32
 		double GetImportApparentEnergy();
 		double GetExportEnergy();
 		double GetExportReactiveEnergy();
-		
 
 		/* System Status */
 		unsigned short GetSysStatus0();
 		unsigned short GetSysStatus1();
 		unsigned short GetMeterStatus0();
 		unsigned short GetMeterStatus1();
-
-		/* Checksum Function */
-		bool calibrationError();
 	};
 #endif

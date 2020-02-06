@@ -1,1 +1,1 @@
-After downloading and installing the <a href="https://github.com/emoncms/device">device module for EmonCMS</a>, copy this file to the Modules > device > data > CircuitSetup folder
+In EmonCMS, copy the device file to the Modules > device > data > CircuitSetup folder.

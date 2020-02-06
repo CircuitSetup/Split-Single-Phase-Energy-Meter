@@ -1,8 +1,8 @@
 {
-	"name": "Split Single Phase Meter",
+	"name": "Split Single Phase Meter + Solar",
 	"category": "CircuitSetup",
 	"group": "Energy Meters",
-	"description": "CircuitSetup Split Single Phase Energy Meter",
+	"description": "CircuitSetup Split Single Phase Energy Meter with Solar",
 	"inputs": [
 		{
 			"name": "V1",
@@ -35,6 +35,16 @@
 			]
 		},
 		{
+			"name": "SolarV",
+			"description": "Solar Voltage",
+			"processList": [
+				{
+					"process": "log_to_feed",
+					"arguments": {"type": "ProcessArg::FEEDID", "value": "Solar Voltage" }
+				}
+			]
+		},
+		{
 			"name": "CT1",
 			"description": "Current 1",
 			"processList": [
@@ -61,6 +71,36 @@
 				{
 					"process": "log_to_feed",
 					"arguments": {"type": "ProcessArg::FEEDID", "value": "Total Current" }
+				}
+			]
+		},
+		{
+			"name": "SCT1",
+			"description": "Solar Current 1",
+			"processList": [
+				{
+					"process": "log_to_feed",
+					"arguments": {"type": "ProcessArg::FEEDID", "value": "Solar Current 1" }
+				}
+			]
+		},
+		{
+			"name": "SCT2",
+			"description": "Solar Current 2",
+			"processList": [
+				{
+					"process": "log_to_feed",
+					"arguments": {"type": "ProcessArg::FEEDID", "value": "Solar Current 2" }
+				}
+			]
+		},
+		{
+			"name": "totSolarI",
+			"description": "Total Solar Current",
+			"processList": [
+				{
+					"process": "log_to_feed",
+					"arguments": {"type": "ProcessArg::FEEDID", "value": "Total Solar Current" }
 				}
 			]
 		},
@@ -96,19 +136,49 @@
 		},
 		{
 			"name": "W",
-			"description": "Total Watts",
+			"description": "Power Usage",
 			"processList": [
 				{
+					"process": "allowpositive",
+					"arguments": {"type": "ProcessArg::NONE"}
+				},
+				{
 					"process": "log_to_feed",
-					"arguments": {"type": "ProcessArg::FEEDID", "value": "Total Watts" }
+					"arguments": {"type": "ProcessArg::FEEDID", "value": "import" }
 				},
 				{
 					"process": "power_to_kwh",
-					"arguments": {"type": "ProcessArg::FEEDID", "value": "kWh" }
+					"arguments": {"type": "ProcessArg::FEEDID", "value": "import_kwh" }
 				}
 			]
 		}
-    ],
+		{
+			"name": "SolarW",
+			"description": "Solar Power",
+			"processList": [
+				{
+					"process": "log_to_feed",
+					"arguments": {"type": "ProcessArg::FEEDID", "value": "solar" }
+				},
+				{
+					"process": "power_to_kwh",
+					"arguments": {"type": "ProcessArg::FEEDID", "value": "solar_kwh" }
+				}
+				{
+					"process": "add_input",
+					"arguments": {"type": "ProcessArg::INPUTID", "value": "W" }
+				},
+				{
+					"process": "log_to_feed",
+					"arguments": {"type": "ProcessArg::FEEDID", "value": "use" }
+				},
+				{
+					"process": "power_to_kwh",
+					"arguments": {"type": "ProcessArg::FEEDID", "value": "use_kwh" }
+				}
+			]
+		}
+	],
 
 	"feeds": [
 		{
@@ -127,6 +197,13 @@
 		},
 		{
 			"name": "Total Voltage",
+			"type": "DataType::REALTIME",
+			"engine": "Engine::PHPFINA",
+			"interval": "10",
+			"unit": "V"
+		},
+		{
+			"name": "Solar Voltage",
 			"type": "DataType::REALTIME",
 			"engine": "Engine::PHPFINA",
 			"interval": "10",
@@ -154,14 +231,63 @@
 			"unit": "A"
 		},
 		{
-			"name": "Total Watts",
+			"name": "Solar Current 1",
+			"type": "DataType::REALTIME",
+			"engine": "Engine::PHPFINA",
+			"interval": "10",
+			"unit": "A"
+		},
+		{
+			"name": "Solar Current 2",
+			"type": "DataType::REALTIME",
+			"engine": "Engine::PHPFINA",
+			"interval": "10",
+			"unit": "A"
+		},
+		{
+			"name": "Total Solar Current",
+			"type": "DataType::REALTIME",
+			"engine": "Engine::PHPFINA",
+			"interval": "10",
+			"unit": "A"
+		},
+		{
+			"name": "use",
 			"type": "DataType::REALTIME",
 			"engine": "Engine::PHPFINA",
 			"interval": "10",
 			"unit": "W"
 		},
 		{
-			"name": "kWh",
+			"name": "use_kwh",
+			"type": "DataType::REALTIME",
+			"engine": "Engine::PHPFINA",
+			"interval": "10",
+			"unit": "kWh"
+		},
+		{
+			"name": "solar",
+			"type": "DataType::REALTIME",
+			"engine": "Engine::PHPFINA",
+			"interval": "10",
+			"unit": "W"
+		},
+		{
+			"name": "solar_kwh",
+			"type": "DataType::REALTIME",
+			"engine": "Engine::PHPFINA",
+			"interval": "10",
+			"unit": "kWh"
+		},
+		{
+			"name": "import",
+			"type": "DataType::REALTIME",
+			"engine": "Engine::PHPFINA",
+			"interval": "10",
+			"unit": "W"
+		},
+		{
+			"name": "import_kwh",
 			"type": "DataType::REALTIME",
 			"engine": "Engine::PHPFINA",
 			"interval": "10",

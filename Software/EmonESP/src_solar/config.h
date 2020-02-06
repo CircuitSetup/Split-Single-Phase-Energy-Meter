@@ -30,6 +30,7 @@
 #define _EMONESP_CONFIG_H
 
 #include <Arduino.h>
+#include <EEPROM.h>                   // Save config settings
 
 // -------------------------------------------------------------------
 // Load and save the EmonESP config.

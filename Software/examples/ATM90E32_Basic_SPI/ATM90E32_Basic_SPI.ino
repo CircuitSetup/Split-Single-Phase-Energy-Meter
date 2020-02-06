@@ -37,6 +37,8 @@ unsigned short PGAGain = 21;
  *    37106 - 9v AC Transformer - Jameco 157041
  *    38302 - 9v AC Transformer - Jameco 112336
  *    29462 - 12v AC Transformer - Jameco 167151
+ * For Meters > v1.4 purchased after 11/1/2019 and rev.3
+ *    7611 - 9v AC Transformer - Jameco 157041
  */
 unsigned short VoltageGain = 37106;     
                                        

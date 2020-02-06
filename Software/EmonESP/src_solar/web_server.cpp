@@ -26,19 +26,6 @@
    Boston, MA 02111-1307, USA.
 */
 
-#include <FS.h>                       // SPIFFS file-system: store web server html, CSS etc.
-#include <SPIFFS.h>
-
-#include <Arduino.h>
-
-#ifdef ESP32
-#include <WiFi.h>
-#include <esp_wifi.h>
-
-#elif defined(ESP8266)
-#include <ESP8266WiFi.h>
-#endif
-
 #include "emonesp.h"
 #include "energy_meter.h"
 #include "web_server.h"
@@ -51,6 +38,7 @@
 #include "debug.h"
 
 AsyncWebServer server(80);          //Create class for Web server
+AsyncWebSocket ws("/ws");
 
 bool enableCors = true;
 
@@ -65,7 +53,7 @@ static const char _DUMMY_PASSWORD[] PROGMEM = "_DUMMY_PASSWORD";
 
 #define TEXTIFY(A) #A
 #define ESCAPEQUOTE(A) TEXTIFY(A)
-String currentfirmware = "2.5.2"; //ESCAPEQUOTE(BUILD_TAG);
+String currentfirmware = "2.5.5"; //ESCAPEQUOTE(BUILD_TAG);
 
 void dumpRequest(AsyncWebServerRequest *request) {
   if (request->method() == HTTP_GET) {
@@ -841,4 +829,7 @@ void web_server_loop() {
     ESP.reset();
 #endif
   }
+  
+  //clean up any stray web-sockets
+  ws.cleanupClients();
 }

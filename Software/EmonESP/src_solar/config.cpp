@@ -30,9 +30,6 @@
 #include "energy_meter.h"
 #include "config.h"
 
-#include <Arduino.h>
-#include <EEPROM.h>                   // Save config settings
-
 // Wifi Network Strings
 String esid = "";
 String epass = "";

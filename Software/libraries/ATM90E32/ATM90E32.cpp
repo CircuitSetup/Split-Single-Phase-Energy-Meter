@@ -35,7 +35,7 @@ unsigned short ATM90E32::CommEnergyIC(unsigned char RW, unsigned short address, 
   unsigned short output;
   unsigned short address1;
 
-  //SPI interface rate is 200 to 160k bps. It Will need to be slowed down for EnergyIC
+  //SPI interface rate is 200 to 160k bps. It will need to be slowed down for EnergyIC
 #if !defined(ENERGIA) && !defined(ESP8266) && !defined(ESP32) && !defined(ARDUINO_ARCH_SAMD)
   SPISettings settings(200000, MSBFIRST, SPI_MODE0);
 #endif
@@ -70,17 +70,15 @@ unsigned short ATM90E32::CommEnergyIC(unsigned char RW, unsigned short address, 
 
   // Chip enable and wait for SPI activation
   digitalWrite(_cs, LOW);
-
   delayMicroseconds(10);
 
   // Write address byte by byte
   for (byte i = 0; i < 2; i++)
   {
-    SPI.transfer (*adata);
+    SPI.transfer(*adata);
     adata++;
   }
 
-  // SPI.transfer16(address);
   /* Must wait 4 us for data to become valid */
   delayMicroseconds(4);
 
@@ -90,10 +88,9 @@ unsigned short ATM90E32::CommEnergyIC(unsigned char RW, unsigned short address, 
   {
     for (byte i = 0; i < 2; i++)
     {
-      *data = SPI.transfer (0x00);
+      *data = SPI.transfer(0x00);
       data++;
     }
-    //val = SPI.transfer16(0x00);
   }
   else
   {
@@ -102,7 +99,6 @@ unsigned short ATM90E32::CommEnergyIC(unsigned char RW, unsigned short address, 
       SPI.transfer(*data);
       data++;
     }
-    // SPI.transfer16(val);
   }
 
   // Chip enable and wait for transaction to end
@@ -114,9 +110,6 @@ unsigned short ATM90E32::CommEnergyIC(unsigned char RW, unsigned short address, 
 
   output = (val >> 8) | (val << 8); // reverse MSB and LSB
   return output;
-
-  // Use with transfer16
-  // return val;
 }
 
 int ATM90E32::Read32Register(signed short regh_addr, signed short regl_addr) {
@@ -127,20 +120,14 @@ int ATM90E32::Read32Register(signed short regh_addr, signed short regl_addr) {
 
   val = val_h << 16;
   val |= val_l; //concatenate the 2 registers to make 1 32 bit number
-  
-  /*
-  // returns positive value if negative
-  if ((val & 0x80000000) != 0) { 
-		val = (~val) + 1; //2s compliment
-  }
-  */
+
   return (val);
-  
 }
 
 double ATM90E32::CalculateVIOffset(unsigned short regh_addr, unsigned short regl_addr /*, unsigned short offset_reg*/) {
-//for getting the lower registers of energy and calculating the offset
-//this should only be run when all inputs are disconnected
+//for getting the lower registers of Voltage and Current and calculating the offset
+//should only be run when CT sensors are connected to the meter,
+//but not connected around wires
   uint32_t val, val_h, val_l;
   uint16_t offset;
   val_h = CommEnergyIC(READ, regh_addr, 0xFFFF);
@@ -149,7 +136,7 @@ double ATM90E32::CalculateVIOffset(unsigned short regh_addr, unsigned short regl
 
   val = val_h << 16; //move high register up 16 bits
   val |= val_l; //concatenate the 2 registers to make 1 32 bit number
-  val = val >> 7; //right shift 7 bits - lowest 7 get ignored
+  val = val >> 7; //right shift 7 bits - lowest 7 get ignored - V & I registers need this
   val = (~val) + 1; //2s compliment
   
   offset = val; //keep lower 16 bits
@@ -331,34 +318,18 @@ double ATM90E32::GetFrequency() {
 // POWER FACTOR
 double ATM90E32::GetPowerFactorA() {
   signed short pf = (signed short) CommEnergyIC(READ, PFmeanA, 0xFFFF);
-  //if negative
-  if (pf & 0x8000 != 0) {
-	pf = (~pf) + 1;
-  }
   return (double)pf / 1000;
 }
 double ATM90E32::GetPowerFactorB() {
   signed short pf = (signed short) CommEnergyIC(READ, PFmeanB, 0xFFFF);
-  //if negative
-  if (pf & 0x8000 != 0) {
-	pf = (~pf) + 1;
-  }
   return (double)pf / 1000;
 }
 double ATM90E32::GetPowerFactorC() {
   signed short pf = (signed short) CommEnergyIC(READ, PFmeanC, 0xFFFF);
-  //if negative
-  if (pf & 0x8000 != 0) {
-	pf = (~pf) + 1;
-  }
   return (double)pf / 1000;
 }
 double ATM90E32::GetTotalPowerFactor() {
   signed short pf = (signed short) CommEnergyIC(READ, PFmeanT, 0xFFFF);
-  //if negative
-  if (pf & 0x8000 != 0) {
-	pf = (~pf) + 1;
-  }
   return (double)pf / 1000;
 }
 
@@ -391,6 +362,7 @@ double ATM90E32::GetValueRegister(unsigned short registerRead) {
 // REGULAR ENERGY MEASUREMENT
 
 // FORWARD ACTIVE ENERGY
+// these registers accumulate energy and are cleared after being read
 double ATM90E32::GetImportEnergy() {
   unsigned short ienergyT = CommEnergyIC(READ, APenergyT, 0xFFFF);
   return (double)ienergyT / 100 / 3200; //returns kWh
@@ -451,52 +423,6 @@ unsigned short ATM90E32::GetMeterStatus1() {
   return CommEnergyIC(READ, EMMState1, 0xFFFF);
 }
 
-
-/* Checksum Error Function */
-bool ATM90E32::calibrationError()
-{
-  bool CS0, CS1, CS2, CS3;
-  unsigned short systemstatus0 = GetSysStatus0();
-
-  if (systemstatus0 & 0x4000)
-  {
-    CS0 = true;
-  }
-  else
-  {
-    CS0 = false;
-  }
-
-  if (systemstatus0 & 0x0100)
-  {
-    CS1 = true;
-  }
-  else
-  {
-    CS1 = false;
-  }
-  if (systemstatus0 & 0x0400)
-  {
-    CS2 = true;
-  }
-  else
-  {
-    CS2 = false;
-  }
-  if (systemstatus0 & 0x0100)
-  {
-    CS3 = true;
-  }
-  else
-  {
-    CS3 = false;
-  }
-
-  if (CS0 || CS1 || CS2 || CS3) return (true);
-  else return (false);
-
-}
-
 /* BEGIN FUNCTION */
 /*
   - Define the pin to be used as Chip Select
@@ -525,98 +451,89 @@ void ATM90E32::begin(int pin, unsigned short lineFreq, unsigned short pgagain, u
   SPI.setClockDivider(SPI_CLOCK_DIV16);
 #endif
 
+  //calculation for voltage sag threshold - assumes we do not want to go under 90v for split phase and 190v otherwise
   //determine proper low and high frequency threshold
+  unsigned short vSagTh;
+  unsigned short sagV;
   unsigned short FreqHiThresh;
   unsigned short FreqLoThresh;
-
   if (_lineFreq == 4485 || _lineFreq == 5231)
   {
-    //North America power frequency
+    sagV = 90;
     FreqHiThresh = 61 * 100;
     FreqLoThresh = 59 * 100;
   }
   else
   {
-    FreqHiThresh = 51 * 100;
-    FreqLoThresh = 49 * 100;
-  }
-
-  //calculation for voltage sag threshold - assumes we do not want to go under 90v for split phase and 190v otherwise
-  unsigned short vSagTh;
-  unsigned short sagV;
-  if (_lineFreq == 4485 || _lineFreq == 5231)
-  {
-    sagV = 90;
-  }
-  else
-  {
     sagV = 190;
+	FreqHiThresh = 51 * 100;
+    FreqLoThresh = 49 * 100;
   }
 
   vSagTh = (sagV * 100 * sqrt(2)) / (2 * _ugain / 32768);
 
   //Initialize registers
-  CommEnergyIC(WRITE, SoftReset, 0x789A);   // Perform soft reset
-  CommEnergyIC(WRITE, CfgRegAccEn, 0x55AA); // enable register config access
-  CommEnergyIC(WRITE, MeterEn, 0x0001);   // Enable Metering
+  CommEnergyIC(WRITE, SoftReset, 0x789A);     // 70 Perform soft reset
+  CommEnergyIC(WRITE, CfgRegAccEn, 0x55AA);   // 7F enable register config access
+  CommEnergyIC(WRITE, MeterEn, 0x0001);       // 00 Enable Metering
 
-
-  CommEnergyIC(WRITE, SagTh, vSagTh);         // Voltage sag threshold
-  CommEnergyIC(WRITE, FreqHiTh, FreqHiThresh);  // High frequency threshold - 61.00Hz
-  CommEnergyIC(WRITE, FreqLoTh, FreqLoThresh);  // Lo frequency threshold - 59.00Hz
-  CommEnergyIC(WRITE, EMMIntEn0, 0xB76F);   // Enable interrupts
-  CommEnergyIC(WRITE, EMMIntEn1, 0xDDFD);   // Enable interrupts
-  CommEnergyIC(WRITE, EMMIntState0, 0x0001);  // Clear interrupt flags
-  CommEnergyIC(WRITE, EMMIntState1, 0x0001);  // Clear interrupt flags
-  CommEnergyIC(WRITE, ZXConfig, 0x0A55);      // ZX2, ZX1, ZX0 pin config
+  CommEnergyIC(WRITE, SagPeakDetCfg, 0x143F); // 05 Sag and Voltage peak detect period set to 20ms
+  CommEnergyIC(WRITE, SagTh, vSagTh);         // 08 Voltage sag threshold
+  CommEnergyIC(WRITE, FreqHiTh, FreqHiThresh);  // 0D High frequency threshold
+  CommEnergyIC(WRITE, FreqLoTh, FreqLoThresh);  // 0C Lo frequency threshold
+  CommEnergyIC(WRITE, EMMIntEn0, 0xB76F);     // 75 Enable interrupts
+  CommEnergyIC(WRITE, EMMIntEn1, 0xDDFD);     // 76 Enable interrupts
+  CommEnergyIC(WRITE, EMMIntState0, 0x0001);  // 73 Clear interrupt flags
+  CommEnergyIC(WRITE, EMMIntState1, 0x0001);  // 74 Clear interrupt flags
+  CommEnergyIC(WRITE, ZXConfig, 0xD654);      // 07 ZX2, ZX1, ZX0 pin config - set to current channels, all polarity
 
   //Set metering config values (CONFIG)
-  CommEnergyIC(WRITE, PLconstH, 0x0861);    // PL Constant MSB (default) - Meter Constant = 3200 - PL Constant = 140625000
-  CommEnergyIC(WRITE, PLconstL, 0xC468);    // PL Constant LSB (default) - this is 4C68 in the application note, which is incorrect
-  CommEnergyIC(WRITE, MMode0, _lineFreq);   // Mode Config (frequency set in main program)
-  CommEnergyIC(WRITE, MMode1, _pgagain);    // PGA Gain Configuration for Current Channels - 0x002A (x4) // 0x0015 (x2) // 0x0000 (1x)
-  CommEnergyIC(WRITE, PStartTh, 0x0AFC);    // All phase Active Startup Power Threshold - 50% of startup current = 0.09W/0.00032 = 2812.5
-  CommEnergyIC(WRITE, QStartTh, 0x0000);    // All phase Reactive Startup Power Threshold
-  CommEnergyIC(WRITE, SStartTh, 0x0AEC);    // All phase Apparent Startup Power Threshold
-  CommEnergyIC(WRITE, PPhaseTh, 0x00BC);    // Each phase Active Phase Threshold = 10% of startup current = 0.06W/0.00032 = 187.5
-  CommEnergyIC(WRITE, QPhaseTh, 0x0000);    // Each phase Reactive Phase Threshold
-  CommEnergyIC(WRITE, SPhaseTh, 0x00BC);    // Each phase Apparent  Phase Threshold
+  CommEnergyIC(WRITE, PLconstH, 0x0861);    // 31 PL Constant MSB (default) - Meter Constant = 3200 - PL Constant = 140625000
+  CommEnergyIC(WRITE, PLconstL, 0xC468);    // 32 PL Constant LSB (default) - this is 4C68 in the application note, which is incorrect
+  CommEnergyIC(WRITE, MMode0, _lineFreq);   // 33 Mode Config (frequency set in main program)
+  CommEnergyIC(WRITE, MMode1, _pgagain);    // 34 PGA Gain Configuration for Current Channels - 0x002A (x4) // 0x0015 (x2) // 0x0000 (1x)
+  CommEnergyIC(WRITE, PStartTh, 0x1D4C);    // 35 All phase Active Startup Power Threshold - 50% of startup current = 0.02A/0.00032 = 7500
+  CommEnergyIC(WRITE, QStartTh, 0x1D4C);    // 36 All phase Reactive Startup Power Threshold
+  CommEnergyIC(WRITE, SStartTh, 0x1D4C);    // 37 All phase Apparent Startup Power Threshold
+  CommEnergyIC(WRITE, PPhaseTh, 0x02EE);    // 38 Each phase Active Phase Threshold = 10% of startup current = 0.002A/0.00032 = 750
+  CommEnergyIC(WRITE, QPhaseTh, 0x02EE);    // 39 Each phase Reactive Phase Threshold
+  CommEnergyIC(WRITE, SPhaseTh, 0x02EE);    // 3A Each phase Apparent Phase Threshold
 
   //Set metering calibration values (CALIBRATION)
-  CommEnergyIC(WRITE, PQGainA, 0x0000);     // Line calibration gain
-  CommEnergyIC(WRITE, PhiA, 0x0032);        // Line calibration angle - accounts for a ~2.5 degree error from 9V AC transformer
-  CommEnergyIC(WRITE, PQGainB, 0x0000);     // Line calibration gain
-  CommEnergyIC(WRITE, PhiB, 0x0032);        // Line calibration angle
-  CommEnergyIC(WRITE, PQGainC, 0x0000);     // Line calibration gain
-  CommEnergyIC(WRITE, PhiC, 0x0032);        // Line calibration angle
-  CommEnergyIC(WRITE, PoffsetA, 0xFFDC);    // A line active power offset
-  CommEnergyIC(WRITE, QoffsetA, 0xFFDC);    // A line reactive power offset
-  CommEnergyIC(WRITE, PoffsetB, 0xFFDC);    // B line active power offset
-  CommEnergyIC(WRITE, QoffsetB, 0xFFDC);    // B line reactive power offset
-  CommEnergyIC(WRITE, PoffsetC, 0xFFDC);    // C line active power offset
-  CommEnergyIC(WRITE, QoffsetC, 0xFFDC);    // C line reactive power offset
+  CommEnergyIC(WRITE, PQGainA, 0x0000);     // 47 Line calibration gain
+  CommEnergyIC(WRITE, PhiA, 0x0000);        // 48 Line calibration angle
+  CommEnergyIC(WRITE, PQGainB, 0x0000);     // 49 Line calibration gain
+  CommEnergyIC(WRITE, PhiB, 0x0000);        // 4A Line calibration angle
+  CommEnergyIC(WRITE, PQGainC, 0x0000);     // 4B Line calibration gain
+  CommEnergyIC(WRITE, PhiC, 0x0000);        // 4C Line calibration angle
+  CommEnergyIC(WRITE, PoffsetA, 0x0000);    // 41 A line active power offset FFDC
+  CommEnergyIC(WRITE, QoffsetA, 0x0000);    // 42 A line reactive power offset
+  CommEnergyIC(WRITE, PoffsetB, 0x0000);    // 43 B line active power offset
+  CommEnergyIC(WRITE, QoffsetB, 0x0000);    // 44 B line reactive power offset
+  CommEnergyIC(WRITE, PoffsetC, 0x0000);    // 45 C line active power offset
+  CommEnergyIC(WRITE, QoffsetC, 0x0000);    // 46 C line reactive power offset
 
   //Set metering calibration values (HARMONIC)
-  CommEnergyIC(WRITE, POffsetAF, 0xFFDC);   // A Fund. active power offset
-  CommEnergyIC(WRITE, POffsetBF, 0xFFDC);   // B Fund. active power offset
-  CommEnergyIC(WRITE, POffsetCF, 0xFFDC);   // C Fund. active power offset
-  CommEnergyIC(WRITE, PGainAF, 0x0000);     // A Fund. active power gain
-  CommEnergyIC(WRITE, PGainBF, 0x0000);     // B Fund. active power gain
-  CommEnergyIC(WRITE, PGainCF, 0x0000);     // C Fund. active power gain
+  CommEnergyIC(WRITE, POffsetAF, 0x0000);   // 51 A Fund. active power offset
+  CommEnergyIC(WRITE, POffsetBF, 0x0000);   // 52 B Fund. active power offset
+  CommEnergyIC(WRITE, POffsetCF, 0x0000);   // 53 C Fund. active power offset
+  CommEnergyIC(WRITE, PGainAF, 0x0000);     // 54 A Fund. active power gain
+  CommEnergyIC(WRITE, PGainBF, 0x0000);     // 55 B Fund. active power gain
+  CommEnergyIC(WRITE, PGainCF, 0x0000);     // 56 C Fund. active power gain
 
   //Set measurement calibration values (ADJUST)
-  CommEnergyIC(WRITE, UgainA, _ugain);      // A Voltage rms gain
-  CommEnergyIC(WRITE, IgainA, _igainA);      // A line current gain
-  CommEnergyIC(WRITE, UoffsetA, 0x61A8);    // A Voltage offset
-  CommEnergyIC(WRITE, IoffsetA, 0xFC60);    // A line current offset
-  CommEnergyIC(WRITE, UgainB, _ugain);      // B Voltage rms gain
-  CommEnergyIC(WRITE, IgainB, _igainB);      // B line current gain
-  CommEnergyIC(WRITE, UoffsetB, 0x1D4C);    // B Voltage offset
-  CommEnergyIC(WRITE, IoffsetB, 0xFC60);    // B line current offset
-  CommEnergyIC(WRITE, UgainC, _ugain);      // C Voltage rms gain
-  CommEnergyIC(WRITE, IgainC, _igainC);      // C line current gain
-  CommEnergyIC(WRITE, UoffsetC, 0x1D4C);    // C Voltage offset
-  CommEnergyIC(WRITE, IoffsetC, 0xFC60);    // C line current offset
+  CommEnergyIC(WRITE, UgainA, _ugain);      // 61 A Voltage rms gain
+  CommEnergyIC(WRITE, IgainA, _igainA);     // 62 A line current gain
+  CommEnergyIC(WRITE, UoffsetA, 0x0000);    // 63 A Voltage offset - 61A8
+  CommEnergyIC(WRITE, IoffsetA, 0x0000);    // 64 A line current offset - FE60
+  CommEnergyIC(WRITE, UgainB, _ugain);      // 65 B Voltage rms gain
+  CommEnergyIC(WRITE, IgainB, _igainB);     // 66 B line current gain
+  CommEnergyIC(WRITE, UoffsetB, 0x0000);    // 67 B Voltage offset - 1D4C
+  CommEnergyIC(WRITE, IoffsetB, 0x0000);    // 68 B line current offset - FE60
+  CommEnergyIC(WRITE, UgainC, _ugain);      // 69 C Voltage rms gain
+  CommEnergyIC(WRITE, IgainC, _igainC);     // 6A C line current gain
+  CommEnergyIC(WRITE, UoffsetC, 0x0000);    // 6B C Voltage offset - 1D4C
+  CommEnergyIC(WRITE, IoffsetC, 0x0000);    // 6C C line current offset
 
-  CommEnergyIC(WRITE, CfgRegAccEn, 0x0000); // end configuration
+  CommEnergyIC(WRITE, CfgRegAccEn, 0x0000); // 7F end configuration
 }

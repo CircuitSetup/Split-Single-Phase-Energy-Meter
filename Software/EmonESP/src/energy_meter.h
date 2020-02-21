@@ -56,14 +56,14 @@
    For meter <= v1.3:
       42080 - 9v AC Transformer - Jameco 112336
       32428 - 12v AC Transformer - Jameco 167151
-   For meter > v1.4:
+   For meter = v1.4:
       37106 - 9v AC Transformer - Jameco 157041
       38302 - 9v AC Transformer - Jameco 112336
       29462 - 12v AC Transformer - Jameco 167151
-   For Meters > v1.4 purchased after 11/1/2019 and rev.3
-      7611 - 9v AC Transformer - Jameco 157041
+   For Meters >= v1.4 rev.3
+      3920 - 9v AC Transformer - Jameco 157041
 */
-#define VOLTAGE_GAIN 37106
+#define VOLTAGE_GAIN 3920
 
 /*
    10170 - SCT-006 20A/25mA
@@ -75,7 +75,7 @@
 #define CURRENT_GAIN_CT2 39473
 
 #ifdef SOLAR_METER
-#define VOLTAGE_GAIN_SOLAR 37106
+#define VOLTAGE_GAIN_SOLAR 3920
 #define SOLAR_GAIN_CT1 39473
 #define SOLAR_GAIN_CT2 39473
 #endif

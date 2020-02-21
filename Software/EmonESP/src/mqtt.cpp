@@ -29,10 +29,7 @@
 #include "emonesp.h"
 #include "mqtt.h"
 #include "config.h"
-
-#include <Arduino.h>
-#include <PubSubClient.h>             // MQTT https://github.com/knolleary/pubsubclient PlatformIO lib: 89
-#include <WiFiClient.h>
+#include "wifi.h"
 
 WiFiClient espClient;                 // Create client for MQTT
 PubSubClient mqttclient(espClient);   // Create client for MQTT
@@ -44,6 +41,7 @@ int i = 0;
 
 // -------------------------------------------------------------------
 // MQTT Connect
+// Called only when MQTT server field is populated
 // -------------------------------------------------------------------
 boolean mqtt_connect()
 {
@@ -57,8 +55,8 @@ boolean mqtt_connect()
   String strID = String(ESP.getChipId());
 #endif
 
-
   if (mqtt_user.length() == 0) {
+    //allows for anonymous connection 
     if (mqttclient.connect(strID.c_str())) {  // Attempt to connect
       DBUGS.println("MQTT connected");
       mqttclient.publish(mqtt_topic.c_str(), "connected"); // Once connected, publish an announcement..
@@ -122,9 +120,16 @@ void mqtt_publish(String data)
     if (int(data[i]) == 0) break;
   }
 
+  // send esp free ram
   String ram_topic = mqtt_topic + "/" + mqtt_feed_prefix + "freeram";
   String free_ram = String(ESP.getFreeHeap());
   mqttclient.publish(ram_topic.c_str(), free_ram.c_str());
+
+  // send wifi signal strength
+  long rssi = WiFi.RSSI();
+  String rssi_S = String(rssi);
+  String rssi_topic = mqtt_topic + "/" + mqtt_feed_prefix + "rssi";
+  mqttclient.publish(rssi_topic.c_str(), rssi_S.c_str());
 }
 
 // -------------------------------------------------------------------
@@ -137,7 +142,7 @@ void mqtt_loop()
   if (!mqttclient.connected()) {
     long now = millis();
     // try and reconnect continuously for first 5s then try again once every 10s
-    if ( (now < 50000) || ((now - lastMqttReconnectAttempt)  > 100000) ) {
+    if ( (now < 5000) || ((now - lastMqttReconnectAttempt)  > 10000) ) {
       lastMqttReconnectAttempt = now;
       if (mqtt_connect()) { // Attempt to reconnect
         lastMqttReconnectAttempt = 0;

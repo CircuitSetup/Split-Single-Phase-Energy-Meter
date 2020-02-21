@@ -143,7 +143,7 @@
           </p>
           <p><b>Username:</b><br>
             <input data-bind="textInput: config.mqtt_user" type="text"><br/>
-            <span class="small-text">Leave blank for authentication</span>
+            <span class="small-text">Leave blank for no authentication</span>
           </p>
           <p><b>Password:</b><br>
             <input data-bind="textInput: config.mqtt_pass" type="password"><br/>
@@ -210,9 +210,11 @@
 		<span>Values for voltage and current calibration. <br>For more information on setting custom values for calibration see the <a href="https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter">Energy Meter Github page.</a> The default values are used unless other values are entered here.</span><br><br>
           <p>
             <b>Voltage:</b><br>
-			<span class="small-text">37106 - 9v AC Transformer - Jameco 157041 (default)
+			<span class="small-text">37106 - 9v AC Transformer - Jameco 157041
 			<br>38302 - 9v AC Transformer - Jameco 112336
-			<br>29462 - 12v AC Transformer - Jameco 167151</span><br>
+			<br>29462 - 12v AC Transformer - Jameco 167151
+			<br>For meter versions >= 1.4 rev3:
+			<br>3920 - 9v AC Transformer - Jameco 157041 (default)
             <input type="text" value="voltage_cal" data-bind="textInput: config.voltage_cal"><br>
           </p>
 		  <p>
@@ -241,15 +243,15 @@
 		  <p>
 		    <b>Frequency:</b><br>
             <input type="text" data-bind="textInput: config.freq_cal"><br>
-			<span class="small-text">4485 for 60 Hz (North America Default)
-			<br>389 for 50 hz (rest of the world)</span>
+			<span class="small-text">60 Hz - North America: 4231 (Default)
+			<br>50 Hz - Europe: 135</span>
           </p>
 		  <p>
 		    <b>CT Gain (PGA):</b><br>
             <input type="text" data-bind="textInput: config.gain_cal"><br>
-			<span class="small-text"> 0 for 0-10A (1x)
-			<br>21 for 100A (2x) (default)
-			<br>42 for 100-200A (4x)</span>
+			<span class="small-text"> 1x: 0
+			<br>2x: 21 (default)
+			<br>4x: 42</span>
 			<br><br>
             
             <button data-bind="click: saveCal, text: (saveCalFetching() ? 'Saving' : (saveCalSuccess() ? 'Saved' : 'Save')), disable: saveCalFetching">Save</button><br>

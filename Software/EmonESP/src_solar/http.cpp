@@ -28,18 +28,6 @@
 #include "emonesp.h"
 #include "http.h"
 
-#include <Print.h>
-#include <WiFiClientSecure.h>   // Secure https GET request
-
-#ifdef ESP32
-#include <HTTPClient.h>
-#elif defined(ESP8266)
-#include <ESP8266HTTPClient.h>
-#else
-#error Platform not supported
-#endif
-
-
 WiFiClientSecure client;        // Create class for HTTPS TCP connections get_https()
 HTTPClient http;                // Create class for HTTP TCP connections get_http()
 

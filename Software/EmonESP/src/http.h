@@ -34,6 +34,16 @@
 // -------------------------------------------------------------------
 
 #include <Arduino.h>
+#include <Print.h>
+#include <WiFiClientSecure.h>   // Secure https GET request
+
+#ifdef ESP32
+#include <HTTPClient.h>
+#elif defined(ESP8266)
+#include <ESP8266HTTPClient.h>
+#else
+#error Platform not supported
+#endif
 
 // -------------------------------------------------------------------
 // HTTPS SECURE GET Request

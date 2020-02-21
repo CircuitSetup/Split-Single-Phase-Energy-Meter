@@ -42,7 +42,7 @@
 // Declaration for SSD1306 display connected using software SPI (default case):
 #define OLED_DC     0
 #define OLED_CS     16
-#define OLED_RESET  2 //17
+#define OLED_RESET  17
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &SPI, OLED_DC, OLED_RESET, OLED_CS);
 #endif
 
@@ -105,7 +105,7 @@ char measurement[16];
 
 ATM90E32 eic{}; //initialize the IC class
 #ifdef SOLAR_METER
-ATM90E32 eic_solar {};
+ATM90E32 eic_solar{};
 #endif
 
 // -------------------------------------------------------------------

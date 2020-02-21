@@ -57,13 +57,26 @@ boolean mqtt_connect()
   String strID = String(ESP.getChipId());
 #endif
 
-  if (mqttclient.connect(strID.c_str(), mqtt_user.c_str(), mqtt_pass.c_str())) {  // Attempt to connect
-    DBUGS.println("MQTT connected");
-    mqttclient.publish(mqtt_topic.c_str(), "connected"); // Once connected, publish an announcement..
+
+  if (mqtt_user.length() == 0) {
+    if (mqttclient.connect(strID.c_str())) {  // Attempt to connect
+      DBUGS.println("MQTT connected");
+      mqttclient.publish(mqtt_topic.c_str(), "connected"); // Once connected, publish an announcement..
+    } else {
+      DBUGS.print("MQTT failed: ");
+      DBUGS.println(mqttclient.state());
+      return (0);
+    }
+    
   } else {
-    DBUGS.print("MQTT failed: ");
-    DBUGS.println(mqttclient.state());
-    return (0);
+    if (mqttclient.connect(strID.c_str(), mqtt_user.c_str(), mqtt_pass.c_str())) {  // Attempt to connect
+      DBUGS.println("MQTT connected");
+      mqttclient.publish(mqtt_topic.c_str(), "connected"); // Once connected, publish an announcement..
+    } else {
+      DBUGS.print("MQTT failed: ");
+      DBUGS.println(mqttclient.state());
+      return (0);
+    }
   }
   return (1);
 }

@@ -18,6 +18,7 @@ wifi:
     subnet: !secret ip_subnet
     dns1: !secret ip_dns1
 
+# Enable if you want to send this data to an MQTT broker
 mqtt:
   broker: !secret mqtt_broker
   username: !secret mqtt_user

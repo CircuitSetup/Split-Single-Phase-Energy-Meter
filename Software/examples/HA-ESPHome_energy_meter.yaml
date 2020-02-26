@@ -26,7 +26,8 @@ mqtt:
 # Enable logging
 logger:
 
-#api:
+# Enable Home Assistant API
+api:
   
 ota:
 
@@ -51,11 +52,19 @@ sensor:
       current:
         name: ${disp_name} CT1 Amps
         id: "ct1Amps"
+# The max value for current that the meter can output is 65.535. If you expect to measure current over 65A, 
+# divide the gain_ct by 2 (120A CT) or 4 (200A CT) and multiply the current and power values by 2 or 4 by uncommenting the filter below
+#        filters:
+#          - multiply: 2
       power:
         name: ${disp_name} CT1 Watts
         accuracy_decimals: 1
         id: "ct1Watts"
+#        filters:
+#          - multiply: 2
+#
 # Voltage using a 9VAC Jameco 157041
+# gain_voltage for Meter >= v1.4 rev3: 3920
       gain_voltage: 37106
 # Current calibration using a 120A/40ma SCT-016
       gain_ct: 39473
@@ -63,13 +72,16 @@ sensor:
       current:
         name: ${disp_name} CT2 Amps
         id: "ct2Amps"
+# The max value for current that the meter can output is 65.535. If you expect to measure current over 65A, 
+# divide the gain_ct by 2 (120A CT) or 4 (200A CT) and multiply the current and power values by 2 or 4 by uncommenting the filter below
+#        filters:
+#          - multiply: 2
       power:
         name: ${disp_name} CT2 Watts
         accuracy_decimals: 1
         id: "ct2Watts"
-# If the wattage is backwards due to the phase 180 degrees from the clamp direction
-        filters:
-          - multiply: -1.0
+#        filters:
+#          - multiply: 2
       gain_voltage: 37106
       gain_ct: 39473
     frequency:

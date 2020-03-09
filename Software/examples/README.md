@@ -6,6 +6,7 @@ This example software was created by us and the community to use the CircuitSetu
 - **ATM90E32_MQTT** - an Arduino sketch using MQTT to send energy meter data via a Wemos D1. [Created by digiblur](https://github.com/digiblur/digiNRG_SplitPhase)
 - **Home_Assistant_MQTT** - an Arduino sketch to send data to Home Assistant using MQTT. Includes the Home Assistant sensor file. Thanks to Richard Talley for supplying this.
 - [**Raspberry Pi + MongoDB**](https://github.com/BitKnitting/FitHome/wiki/ElectricityMonitor) - Using a Raspberry Pi to communicate with the energy meter and send energy data to MongoDB
+- [**MySQL to Home Assistant**](https://community.home-assistant.io/t/how-to-save-sensor-data-to-mysql-database/163094/6?u=circuitsetup) - Send data to a MySQL database via Arduino Ethernet, then read the database in Home Assistant 
 
 ### ATM90E32 Libraries ###
 - **[CircuitPython](https://github.com/BitKnitting/CircuitSetup_CircuitPython)** - The ATM90E32 library converted to work with Adafruit's CircuitPython. Created by BitKnitting

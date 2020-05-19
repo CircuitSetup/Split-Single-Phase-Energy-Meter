@@ -111,6 +111,10 @@ void startAP() {
   dnsServer.start(DNS_PORT, "*", apIP);
   */
 
+#ifdef ENABLE_WDT
+  feedLoopWDT();
+#endif
+
   IPAddress myIP = WiFi.softAPIP();
   char tmpStr[40];
   sprintf(tmpStr, "%d.%d.%d.%d", myIP[0], myIP[1], myIP[2], myIP[3]);
@@ -138,6 +142,9 @@ void startClient() {
   WiFi.enableSTA(true);
   delay(100);
   WiFi.begin(esid.c_str(), epass.c_str());
+#ifdef ENABLE_WDT
+  feedLoopWDT();
+#endif
   WiFi.waitForConnectResult(); //yields until wifi connects or not
 #ifdef ESP32
   WiFi.setHostname(esp_hostname);
@@ -349,6 +356,8 @@ void wifi_setup() {
   if (MDNS.begin(esp_hostname)) {
     MDNS.addService("http", "tcp", 80);
   }
+
+  client_retry_time = millis();
 }
 
 void wifi_loop()
@@ -395,7 +404,7 @@ void wifi_loop()
   pinMode(WIFI_BUTTON, INPUT_PULLUP);
 #endif
 
-  // Pressing the boot button for 5 seconds will turn on AP mode, 10 seconds will factory reset
+  // Pressing the WIFI_BUTTON for 5 seconds will turn on AP mode, 10 seconds will factory reset
   int button = digitalRead(WIFI_BUTTON);
 
 #if defined(WIFI_LED) && WIFI_BUTTON == WIFI_LED
@@ -444,7 +453,6 @@ void wifi_loop()
   }
 
   // Manage state while connecting
-
   if (startAPonWifiDisconnect) {
     while (wifi_mode_is_sta_only() && !wifi_mode_is_ap_only() && !WiFi.isConnected())
     {
@@ -455,26 +463,51 @@ void wifi_loop()
         DBUGS.println("Start AP if WiFi can not reconnect to AP");
         startAP();
         client_retry = true;
-        client_retry_time = millis() + WIFI_CLIENT_RETRY_TIMEOUT;
+        //client_retry_time = millis() + WIFI_CLIENT_RETRY_TIMEOUT;
         client_disconnects = 0;
       }
       else {
         // wait 10 seconds and retry
-        delay(WIFI_CLIENT_DISCONNECT_RETRY);
+#ifdef ENABLE_WDT
+        // so watchdog (hard coded to 5 seconds) is not triggered by delay
+        if (WIFI_CLIENT_DISCONNECT_RETRY >= 5000) {
+          int disconnect_retry;
+          int dr_div;
+          int i = 0;
+          dr_div = WIFI_CLIENT_DISCONNECT_RETRY/1000;
+          disconnect_retry = WIFI_CLIENT_DISCONNECT_RETRY/dr_div;
+          DBUGS.print("disconnect retry time: ");
+          DBUGS.println(disconnect_retry);
+          while (i < dr_div) {
+            delay(disconnect_retry);
+            feedLoopWDT();
+            i++;
+          }
+        }
+        else {
+#endif
+          delay(WIFI_CLIENT_DISCONNECT_RETRY);
+#ifdef ENABLE_WDT
+        }
+#endif
         wifi_restart();
       }
+#ifdef ENABLE_WDT
+      feedLoopWDT();
+#endif
     }
   }
 
-
-
   // Remain in AP mode if no one is connected for 5 Minutes before resetting
-  if (isApOnly && 0 == apClients && client_retry && millis() > client_retry_time) {
+  if (isApOnly && 0 == apClients && client_retry && ((millis() - client_retry_time) >= WIFI_CLIENT_RETRY_TIMEOUT)) {
     DBUGS.println("Try to connect to client again - resetting");
-    delay(50);
     wifi_turn_off_ap();
     delay(50);
-    wifi_restart();
+#ifdef ESP32
+    esp_restart();
+#else
+    ESP.reset();
+#endif
   }
 
   //was causing ESP to crash in SoftAP mode

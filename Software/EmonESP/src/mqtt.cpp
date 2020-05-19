@@ -31,12 +31,52 @@
 #include "config.h"
 #include "wifi.h"
 
-WiFiClient espClient;                 // Create client for MQTT
-PubSubClient mqttclient(espClient);   // Create client for MQTT
+#define MQTT_HOST mqtt_server.c_str()
+#define MQTT_PORT 1883
+#define MQTT_QOS 1
+#define MQTT_CLEAN_SES true 
+
+AsyncMqttClient mqttclient;   // Create client for MQTT
 
 long lastMqttReconnectAttempt = 0;
 int clientTimeout = 0;
 int i = 0;
+
+void onMqttConnect(bool sessionPresent) {
+  DBUGS.println("<< MQTT connected >>");
+  DBUGS.print("Session present: ");
+  DBUGS.println(sessionPresent);
+  uint16_t packetIdSub = mqttclient.subscribe(mqtt_topic.c_str(), MQTT_QOS);
+  DBUGS.print("MQTT subscribed to ");
+  DBUGS.print(mqtt_topic.c_str());
+  DBUGS.print(", packetId: ");
+  DBUGS.println(packetIdSub);
+  mqttclient.publish(mqtt_topic.c_str(),  MQTT_QOS, MQTT_CLEAN_SES, "Energy monitor connected"); // Once connected, publish an announcement..
+}
+
+void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
+  DBUGS.println("Disconnected from MQTT");
+}
+
+void onMqttPublish(uint16_t packetId) {
+  DBUGS.print("MQTT published - packetID: ");
+  DBUGS.println(packetId);
+}
+
+// -------------------------------------------------------------------
+// MQTT Setup
+// -------------------------------------------------------------------
+void mqtt_setup()
+{
+  mqttclient.onConnect(onMqttConnect);
+  mqttclient.onDisconnect(onMqttDisconnect);
+  //mqttclient.onPublish(onMqttPublish);
+  mqttclient.setKeepAlive(60);
+  mqttclient.setServer(MQTT_HOST, MQTT_PORT);
+  if (mqtt_user.length() != 0) { //if no username then connect anonymously, otherwise send credentials
+     mqttclient.setCredentials(mqtt_user.c_str(), mqtt_pass.c_str());
+  }
+}
 
 
 // -------------------------------------------------------------------
@@ -45,36 +85,16 @@ int i = 0;
 // -------------------------------------------------------------------
 boolean mqtt_connect()
 {
-  mqttclient.setServer(mqtt_server.c_str(), 1883);
-  DBUGS.println("MQTT Connecting...");
-  DBUGS.println(mqttclient.state());
-
-#ifdef ESP32
-  String strID = String((uint32_t)ESP.getEfuseMac());
-#else
-  String strID = String(ESP.getChipId());
-#endif
-
-  if (mqtt_user.length() == 0) {
-    //allows for anonymous connection 
-    if (mqttclient.connect(strID.c_str())) {  // Attempt to connect
-      DBUGS.println("MQTT connected");
-      mqttclient.publish(mqtt_topic.c_str(), "connected"); // Once connected, publish an announcement..
-    } else {
-      DBUGS.print("MQTT failed: ");
-      DBUGS.println(mqttclient.state());
-      return (0);
-    }
-    
-  } else {
-    if (mqttclient.connect(strID.c_str(), mqtt_user.c_str(), mqtt_pass.c_str())) {  // Attempt to connect
-      DBUGS.println("MQTT connected");
-      mqttclient.publish(mqtt_topic.c_str(), "connected"); // Once connected, publish an announcement..
-    } else {
-      DBUGS.print("MQTT failed: ");
-      DBUGS.println(mqttclient.state());
-      return (0);
-    }
+  DBUGS.println("MQTT connecting...");
+  mqttclient.connect();
+  delay(100);
+  
+  if (mqtt_connected()) {
+    // see onMqttConnect
+  }
+  else {
+    DBUGS.println("MQTT connection failed");
+    return (0);
   }
   return (1);
 }
@@ -111,25 +131,30 @@ void mqtt_publish(String data)
       }
     }
     // send data via mqtt
-    //delay(100);
     //DBUGS.printf("%s = %s\r\n", topic.c_str(), mqtt_data.c_str());
-    mqttclient.publish(topic.c_str(), mqtt_data.c_str());
+    if (!mqttclient.publish(topic.c_str(), MQTT_QOS, MQTT_CLEAN_SES, mqtt_data.c_str())) {
+      return;
+    }
     topic = mqtt_topic + "/" + mqtt_feed_prefix;
     mqtt_data = "";
     i++;
     if (int(data[i]) == 0) break;
-  }
+  } 
 
   // send esp free ram
   String ram_topic = mqtt_topic + "/" + mqtt_feed_prefix + "freeram";
   String free_ram = String(ESP.getFreeHeap());
-  mqttclient.publish(ram_topic.c_str(), free_ram.c_str());
+  if (!mqttclient.publish(ram_topic.c_str(), MQTT_QOS, MQTT_CLEAN_SES, free_ram.c_str())) {
+    return;
+  }
 
   // send wifi signal strength
   long rssi = WiFi.RSSI();
   String rssi_S = String(rssi);
   String rssi_topic = mqtt_topic + "/" + mqtt_feed_prefix + "rssi";
-  mqttclient.publish(rssi_topic.c_str(), rssi_S.c_str());
+  if (!mqttclient.publish(rssi_topic.c_str(), MQTT_QOS, MQTT_CLEAN_SES, rssi_S.c_str())) {
+    return;
+  }
 }
 
 // -------------------------------------------------------------------
@@ -141,22 +166,19 @@ void mqtt_loop()
 {
   if (!mqttclient.connected()) {
     long now = millis();
-    // try and reconnect continuously for first 5s then try again once every 10s
+    // initially try and reconnect continuously for 5s then try again once every 10s
     if ( (now < 5000) || ((now - lastMqttReconnectAttempt)  > 10000) ) {
       lastMqttReconnectAttempt = now;
       if (mqtt_connect()) { // Attempt to reconnect
         lastMqttReconnectAttempt = 0;
       }
     }
-  } else {
-    // if MQTT connected
-    mqttclient.loop();
-  }
+  } 
 }
 
 void mqtt_restart()
 {
-  if (mqttclient.connected()) {
+  if (mqtt_connected()) {
     mqttclient.disconnect();
   }
 }

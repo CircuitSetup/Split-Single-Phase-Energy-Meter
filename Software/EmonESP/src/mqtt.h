@@ -33,8 +33,12 @@
 // -------------------------------------------------------------------
 
 #include <Arduino.h>
-#include <PubSubClient.h>             // MQTT https://github.com/knolleary/pubsubclient PlatformIO lib: 89
-#include <WiFiClient.h>
+#include <AsyncMqttClient.h>             // MQTT https://github.com/marvinroger/async-mqtt-client
+
+// -------------------------------------------------------------------
+// MQTT Setup
+// -------------------------------------------------------------------
+extern void mqtt_setup();
 
 // -------------------------------------------------------------------
 // Perform the background MQTT operations. Must be called in the main

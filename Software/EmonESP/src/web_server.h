@@ -43,7 +43,7 @@
 
 
 extern AsyncWebServer server;
-extern AsyncWebSocket ws;
+
 extern String currentfirmware;
 
 extern void web_server_setup();

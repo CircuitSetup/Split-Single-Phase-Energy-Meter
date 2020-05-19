@@ -38,7 +38,6 @@
 #include "debug.h"
 
 AsyncWebServer server(80);          //Create class for Web server
-AsyncWebSocket ws("/ws");
 
 bool enableCors = true;
 
@@ -53,7 +52,7 @@ static const char _DUMMY_PASSWORD[] PROGMEM = "_DUMMY_PASSWORD";
 
 #define TEXTIFY(A) #A
 #define ESCAPEQUOTE(A) TEXTIFY(A)
-String currentfirmware = "2.5.7"; //ESCAPEQUOTE(BUILD_TAG);
+String currentfirmware = "2.6"; //ESCAPEQUOTE(BUILD_TAG);
 
 void dumpRequest(AsyncWebServerRequest *request) {
   if (request->method() == HTTP_GET) {
@@ -571,7 +570,7 @@ void handleInput(AsyncWebServerRequest *request) {
     return;
   }
 
-  input_string = request->arg("string");
+  strcpy(input_string, request->arg("string").c_str());
 
   response->setCode(200);
   response->print(input_string);
@@ -829,7 +828,5 @@ void web_server_loop() {
     ESP.reset();
 #endif
   }
-  
-  //clean up any stray web-sockets
-  ws.cleanupClients();
+
 }

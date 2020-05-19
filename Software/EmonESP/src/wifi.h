@@ -81,7 +81,7 @@
 #endif
 
 #ifndef WIFI_BUTTON_AP_TIMEOUT
-#define WIFI_BUTTON_AP_TIMEOUT              (5 * 1000)
+#define WIFI_BUTTON_AP_TIMEOUT              (5 * 1000) 
 #endif
 
 #ifndef WIFI_BUTTON_FACTORY_RESET_TIMEOUT

@@ -99,8 +99,6 @@ const int period = 1000; //time interval in ms to send data
   Otherwise a CT may be backwards */
 bool canBeNegative = true; 
 
-
-char result[200];
 char measurement[16];
 
 ATM90E32 eic{}; //initialize the IC class
@@ -157,6 +155,9 @@ void energy_meter_setup() {
 // -------------------------------------------------------------------
 void energy_meter_loop()
 {
+
+  char * result = input_string;
+  
   /*get the current "time" (actually the number of milliseconds since the program started)*/
   currentMillis = millis();
 
@@ -456,11 +457,11 @@ void energy_meter_loop()
   dtostrf(eic.GetTotalApparentPower(), 2, 4, measurement);
   strcat(result, measurement);
 
-  strcat(result, ",PhaseA:");
+  strcat(result, ",CT1Angle:");
   dtostrf(eic.GetPhaseA(), 2, 2, measurement);
   strcat(result, measurement);
 
-  strcat(result, ",PhaseC:");
+  strcat(result, ",CT2Angle:");
   dtostrf(eic.GetPhaseC(), 2, 2, measurement);
   strcat(result, measurement);
 #endif
@@ -477,7 +478,5 @@ void energy_meter_loop()
   strcat(result, measurement);
 
   //DBUGS.println(result);
-
-  input_string = result;
 
 }

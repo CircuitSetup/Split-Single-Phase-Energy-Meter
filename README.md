@@ -170,6 +170,8 @@ To do this:
 - Connect the CS pin of one energy meter to an open GPIO on your MCU, and the CS pin on the second energy meter to another open GPIO on your MCU. These pins must be set in the software. See the [examples folder](/Software/examples) for the example with more than one energy meter.
 - If you would like to monitor voltage from two sources, you will need two AC transformers. If only one voltage, you can split the output of 1 AC transformer using a 2.5mm DC jack Y-cable.
 
+You can also [purchase a solar adapter here](https://circuitsetup.us/index.php/product/energy-meter-solar-esp32-adapter-2x-split-phase-meter-headers-space-for-spi-oled-screen/).
+
 ## Installing the Energy Meter
 ### Warning
 To install the current transformers to measure current, your breaker panel must be opened to clamp them around your mains wires.
@@ -186,16 +188,16 @@ The Split Single Phase Kit:
 
 ### Plug in the AC Transformer
 Take note of the side of the split phase that the breaker for the AC transformer is on. This is important for connecting the CTs in the correct direction (see below section)
-3. If you wish to read the **voltage from both sides of your panel** :
+3. **If you wish to read the voltage from both sides of your panel** :
    - Hook up a second AC transformer to a single pole breaker, or a second outlet, that is wired to the opposite phase of the first AC transformer. If the breaker for the first outlet is on the left of your panel, you will need to wire the second AC transformer or outlet to a breaker on the right of the panel (single split phase breaker panels)
    - Sever jumper JP3 on the back of the energy meter **before hooking up the second AC transformer.** 
-   - Solder 2 pin headers to the right of the main AC power plug labeled GND and VC+. 
-   - Hook up the second AC transformer to the “GND” (neutral) and “AC+” pins **be careful to not reverse the polarity**
+   - Solder 2 pin headers, or a female pigtail that matches your second AC transformer plug, to the left of the main AC power plug labeled GND and VC+. 
+   - Hook up the second AC transformer to the “GND” (neutral) and “VC+” pins. **You want the wire that is intended to be neutral for the AC transformer to go on the GND terminal of the meter**. This wire usually has a white stripe on it. If the wires are swapped the 2 AC transformers will be in phase, and your current readings will output as negative.
 ![JP3](/images/energy_meter_JP3.jpg)
 
 
 ### Connect Current Transformers to the energy meter
-Before connecting the current transformers to your mains wires, plug them into the energy meter.
+Before connecting the current transformers around your mains wires, plug them into the energy meter.
 
 If your current transformers (CTs) have 3.5mm phono connectors, you hopefully have the version of the Energy Meter with these connections (v1.3+ has footprints for both). If you have the screw connectors, the phono connectors will have to be cut off. There should only be two wires regardless. For the screw connector version, be careful to connect the positive to the correct terminal. If these are reversed, things will not be damaged, but the reading will read negative.
 
@@ -207,9 +209,9 @@ If you purchased an energy meter kit with the black SCT016 current transformers,
 1. Note the direction of the arrows on the top of the current transformers. 
    - If you are measuring 1 voltage (the default configuration): 
       1. CT1 should be on the same side of the split phase as the breaker for the plug that the AC transformer is plugged into, and should point in the direction of the current flowing into your house.
-      2. CT2 should point in the opposite direction as CT1
+      2. CT2 should point in the opposite direction as CT1. Note: If you are measuring a second voltage with the VC+ input this CT will go in the same direction as the first.
 2. Clip the current transformers around the two large main wires, usually at the top of the breaker box. **DO NOT TOUCH BARE METAL ON THESE WIRES**. There is one current transformer for each phase. 
-3. Make sure the current transformers are not in the way of anything else and are snapped closed around the wires. **Do not force them shut – if they will not close you will need a larger current transformer**
+3. Make sure the current transformers are not in the way of anything else, and are snapped closed around the wires. **Do not force them shut – if they will not close you will need a larger current transformer**
 
 ![SCT016 Install](/images/current_transformer_SCT016-install2.jpg)
 

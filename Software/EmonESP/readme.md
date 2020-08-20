@@ -12,7 +12,6 @@ ESP8266/ESP32 WIFI serial to emoncms link
 - [EmonESP](#emonesp)
   * [Requirements](#requirements)
 - [EmonESP User Guide](#emonesp-user-guide)
-  * [Hardware Setup](#hardware-setup)
   * [First Setup](#first-setup)
     + [1. WiFi Connection](#1-wifi-connection)
   * [2. Emoncms](#2-emoncms)
@@ -66,14 +65,9 @@ OR
 
 # User Guide
 
-## Hardware Setup
-
-- [Purchase a pre-loaded ESP8266](https://shop.openenergymonitor.com/esp8266-wifi-adapter-for-emontx/)
-- To connect an ESP to emonTx see [This User Guide Section](https://guide.openenergymonitor.org/setup/esp8266-adapter-emontx/)
-
 ## First Setup
 
-On first boot, ESP should broadcast a WiFI AP `emonESP_XXX`. Connect to this AP and the [captive portal](https://en.wikipedia.org/wiki/Captive_portal) should forward you to the log-in page. If this does not happen navigate to `http://192.168.4.1`
+On first boot, the ESP should broadcast a WiFI AP `emonESP_XXX`. Open a browser and navigate to `http://192.168.4.1`
 
 *Note: You may need to disable mobile data if connecting via a Android 6 device*
 
@@ -98,11 +92,13 @@ On future boots EmonESP will automatically connect to this network.
 
 ![Wifi setup](docs/wifi.png)
 
-## 2. Emoncms
+## 2. EmonCMS
 
 ![emoncms setup](docs/emoncms.png)
 
-EmonESP can post data to [emoncms.org](https://emoncms.org) or any other  Emoncms server (e.g. emonPi) using [Emoncms API](https://emoncms.org/site/api#input).
+EmonESP can post data to [emoncms.org](https://emoncms.org) or any other Emoncms server (e.g. emonPi) using [Emoncms API](https://emoncms.org/site/api#input).
+
+Instructions on setting up [EmonCMS on a Raspberry Pi are located here.](https://github.com/openenergymonitor/EmonScripts/blob/master/install/rpi-install.md)
 
 In the *Emoncms Server* field, enter just the hostname or address without any path (e.g. emoncms.org), in the *Emoncms Path* field enter the path including the leading slash (e.g. /emoncms) or leave it empty if not required.
 
@@ -363,9 +359,9 @@ Then follow instructions from here: https://github.com/me-no-dev/arduino-esp32fs
 #### 4. Compile and Upload
 
 - Open Software/EmonESP/src/src.ino in the Arduino IDE.
-- Connect the ESP32 to an option USB port on your computer
+- Connect the ESP to an open USB port on your computer
 - Select the appropriate port and options under tools
-- **Upload main sketch:** Compile and Upload as normal using Arduino IDE [CTRL + u] - you may need to hold down the IO0 button when esptool.py initiates
+- **Upload main sketch:** Compile and Upload as normal using Arduino IDE [CTRL + u] - for an ESP32, you may need to hold down the IO0 button when esptool.py initiates
 - **Upload 'data' folder**: Upload data folder (home.html web page etc) using `tools > ESP32 Sketch Data Upload tool`
 
 ![arduino options](/images/arduino_options.PNG)
@@ -374,7 +370,7 @@ Then follow instructions from here: https://github.com/me-no-dev/arduino-esp32fs
 
 #### Library errors 
 
-- If compiling fails because PubSubClient.h library cannot be found. Open the Library Manager again (Sketch > Include Library > Library Manager) and search for 'PubSubClient', install.
+- If compiling fails because AsyncMqttClient.h library cannot be found. go to https://github.com/marvinroger/async-mqtt-client and copy the library to your Arduino/libraries folder
 - For the ESP32, you will probably need these libraries (installed to Arduino/libraries):
     - https://github.com/me-no-dev/AsyncTCP
     - https://github.com/me-no-dev/ESPAsyncWebServer

@@ -251,7 +251,7 @@ This wil upload both the fimware and fs in a single command
 
 Put ESP into bootloader mode
 
-`esptool.py write_flash 0x000000 .pioenvs/emonesp/firmware.bin 0x300000 .pioenvs/emonesp/spiffs.bin`
+`esptool.py write_flash 0x10000 .pioenvs/emonesp/firmware.bin 0x290000 .pioenvs/emonesp/spiffs.bin`
 
 
 

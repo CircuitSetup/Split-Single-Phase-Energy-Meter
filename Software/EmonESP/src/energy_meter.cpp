@@ -116,7 +116,7 @@ void energy_meter_setup() {
   if (ct1_cal.toInt() > 0) CurrentGainCT1 = ct1_cal.toInt();
   if (ct2_cal.toInt() > 0) CurrentGainCT2 = ct2_cal.toInt();
   if (freq_cal.toInt() > 0) LineFreq = freq_cal.toInt();
-  if (gain_cal.toInt() > 0) PGAGain = gain_cal.toInt();
+  if (gain_cal.toInt() >= 0) PGAGain = gain_cal.toInt();
 
   /*Initialise the ATM90E32 & Pass CS pin and calibrations to its library -
     the 2nd (B) current channel is not used with the split phase meter */

@@ -182,7 +182,7 @@
 				},
 				{
 					"process": "add_input",
-					"arguments": {"type": "ProcessArg::INPUTID", "value": "import" }
+					"arguments": {"type": "ProcessArg::INPUTID", "value": "house_import" }
 				},
 				{
 					"process": "log_to_feed",

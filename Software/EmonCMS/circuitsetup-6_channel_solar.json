@@ -25,16 +25,6 @@
 			]
 		},
 		{
-			"name": "SolarV",
-			"description": "Solar Voltage",
-			"processList": [
-				{
-					"process": "log_to_feed",
-					"arguments": {"type": "ProcessArg::FEEDID", "value": "Solar Voltage" }
-				}
-			]
-		},
-		{
 			"name": "CT1",
 			"description": "House Current 1",
 			"processList": [
@@ -96,11 +86,21 @@
 		},
 		{
 			"name": "PF1",
-			"description": "Power Factor 1",
+			"description": "House Power Factor 1",
 			"processList": [
 				{
 					"process": "log_to_feed",
-					"arguments": {"type": "ProcessArg::FEEDID", "value": "Power Factor" }
+					"arguments": {"type": "ProcessArg::FEEDID", "value": "House PF 1" }
+				}
+			]
+		},
+		{
+			"name": "PF2",
+			"description": "House Power Factor 2",
+			"processList": [
+				{
+					"process": "log_to_feed",
+					"arguments": {"type": "ProcessArg::FEEDID", "value": "House PF 2" }
 				}
 			]
 		},
@@ -310,7 +310,14 @@
 			"unit": "kWh"
 		},
 		{
-			"name": "Power Factor",
+			"name": "House PF 1",
+			"type": "DataType::REALTIME",
+			"engine": "Engine::PHPFINA",
+			"interval": "10",
+			"unit": ""
+		},
+		{
+			"name": "House PF 2",
 			"type": "DataType::REALTIME",
 			"engine": "Engine::PHPFINA",
 			"interval": "10",

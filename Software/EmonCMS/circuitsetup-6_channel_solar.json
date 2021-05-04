@@ -85,7 +85,7 @@
 			]
 		},
 		{
-			"name": "SCT2",
+			"name": "CT6",
 			"description": "Solar Current 6",
 			"processList": [
 				{
@@ -129,10 +129,6 @@
 			"description": "Total House Power",
 			"processList": [
 				{
-					"process": "allowpositive",
-					"arguments": {"type": "ProcessArg::NONE"}
-				},
-				{
 					"process": "add_input",
 					"arguments": {"type": "ProcessArg::INPUTID", "value": "W2" }
 				},
@@ -174,7 +170,7 @@
 			"processList": [
 				{
 					"process": "add_input",
-					"arguments": {"type": "ProcessArg::INPUTID", "value": "W5" }
+					"arguments": {"type": "ProcessArg::INPUTID", "value": "W6" }
 				},
 				{
 					"process": "log_to_feed",

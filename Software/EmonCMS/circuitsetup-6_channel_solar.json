@@ -182,7 +182,11 @@
 				},
 				{
 					"process": "add_input",
-					"arguments": {"type": "ProcessArg::INPUTID", "value": "house_import" }
+					"arguments": {"type": "ProcessArg::INPUTID", "value": "W1" }
+				},
+				{
+					"process": "add_input",
+					"arguments": {"type": "ProcessArg::INPUTID", "value": "W2" }
 				},
 				{
 					"process": "log_to_feed",

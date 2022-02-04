@@ -116,15 +116,15 @@ sensor:
     lambda: return id(ct1Amps).state + id(ct2Amps).state;
     accuracy_decimals: 2
     unit_of_measurement: A
+    device_class: current
     update_interval: ${update_time}  
-    icon: "mdi:current-ac"
   - platform: template
     name: ${disp_name} Total Watts
     id: "totalWatts"
     lambda: return id(ct1Watts).state + id(ct2Watts).state;
     accuracy_decimals: 0
     unit_of_measurement: W
-    icon: "mdi:power"
+    device_class: power
     update_interval: ${update_time}
   - platform: template
     name: ${disp_name} Total Reactive Power
@@ -132,7 +132,7 @@ sensor:
     lambda: return id(ct1Reactive).state + id(ct2Reactive).state;
     accuracy_decimals: 0
     unit_of_measurement: VAR
-    icon: "mdi:flash-circle"
+    device_class: reactive_power
     update_interval: ${update_time}
 
   - platform: total_daily_energy
@@ -141,7 +141,8 @@ sensor:
     filters:
       - multiply: 0.001
     unit_of_measurement: kWh
-    
+    device_class: energy
+    state_class: total_increasing
 time:
   - platform: sntp
     id: sntp_time    

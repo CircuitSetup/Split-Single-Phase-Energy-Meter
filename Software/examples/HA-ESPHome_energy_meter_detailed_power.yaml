@@ -60,9 +60,13 @@ sensor:
       voltage:
         name: ${disp_name} Volts
         accuracy_decimals: 1
+        unit_of_measurement: V
+        device_class: voltage
       current:
         name: ${disp_name} CT1 Amps
         id: "ct1Amps"
+        unit_of_measurement: A
+        device_class: current
 # The max value for current that the meter can output is 65.535. If you expect to measure current over 65A, 
 # divide the gain_ct by 2 (120A CT) or 4 (200A CT) and multiply the current and power values by 2 or 4 by uncommenting the filter below
 #        filters:
@@ -71,20 +75,29 @@ sensor:
         name: ${disp_name} CT1 Watts
         accuracy_decimals: 1
         id: "ct1Watts"
+        unit_of_measurement: W
+        device_class: power
 #        filters:
 #          - multiply: 2
       reactive_power:
         name: ${disp_name} CT1 Reactive Power
         accuracy_decimals: 1
         id: "ct1Reactive"
+        unit_of_measurement: VAR
+        device_class: reactive_power
 #        filters:
 #          - multiply: 2
+      power_factor:
+        name: ${disp_name} CT1 Power Factor
+        device_class: power_factor
       gain_voltage: ${voltage_cal}
       gain_ct: ${current_cal}
     phase_c:
       current:
         name: ${disp_name} CT2 Amps
         id: "ct2Amps"
+        unit_of_measurement: A
+        device_class: current
 # The max value for current that the meter can output is 65.535. If you expect to measure current over 65A, 
 # divide the gain_ct by 2 (120A CT) or 4 (200A CT) and multiply the current and power values by 2 or 4 by uncommenting the filter below
 #        filters:
@@ -93,20 +106,31 @@ sensor:
         name: ${disp_name} CT2 Watts
         accuracy_decimals: 1
         id: "ct2Watts"
+        unit_of_measurement: W
+        device_class: power
 #        filters:
 #          - multiply: 2
       reactive_power:
         name: ${disp_name} CT2 Reactive Power
         accuracy_decimals: 1
         id: "ct2Reactive"
+        unit_of_measurement: VAR
+        device_class: reactive_power
 #        filters:
 #          - multiply: 2
+      power_factor:
+        name: ${disp_name} CT2 Power Factor
+        device_class: power_factor
       gain_voltage: ${voltage_cal}
       gain_ct: ${current_cal}
     frequency:
       name: ${disp_name} Freq
+      unit_of_measurement: Hz
+      device_class: frequency
     chip_temperature:
       name: ${disp_name} Chip Temp
+      unit_of_measurement: °C
+      device_class: temperature
     line_frequency: 60Hz
     gain_pga: 2X
     update_interval: ${update_time}

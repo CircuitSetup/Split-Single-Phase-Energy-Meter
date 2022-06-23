@@ -23,6 +23,16 @@
 /* Number of metrics send failures before the device reboots and tries to re-init. */
 #define MAX_ERRORS_BEFORE_REBOOT 3
 
+/* If you have 200A clamps and use 1X gain, you will only end up with a range of 0-65.535A
+ * for current. This isn't nearly enough. So, the datasheet recommends dividing the calibration
+ * constants by some constant value and then multiplying the resulting measurements by the
+ * same value to get around the issue. I recommend a value of 3.0 which gets you a range of
+ * 0-196.61A. Not quite the full 200A but if you are pulling 196A on each leg of a 200A main
+ * panel you have more important problems to worry about. Note that if you are using the preset
+ * values below you can safely leave this at 1.0.
+ */
+#define CALIBRATION_MULTIPLIER 1.0
+
 /***** WIFI SETTINGS *****/
 const char* ssid = ""; //Your Network SSID
 const char* password = ""; //Your Network Password
@@ -67,8 +77,8 @@ unsigned short VoltageGain = 37106;
  * 39473 - SCT-016 120A/40mA
  * 46539 - Magnalab 100A
  */                                  
-unsigned short CurrentGainCT1 = 39473;  
-unsigned short CurrentGainCT2 = 39473; 
+unsigned short CurrentGainCT1 = 39473;
+unsigned short CurrentGainCT2 = 39473;
 
 #if defined ESP8266
 const int CS_pin = 16;
@@ -169,7 +179,7 @@ void setup() {
   /*Initialise the ATM90E32 & Pass CS pin and calibrations to its library - 
    *the 2nd (B) current channel is not used with the split phase meter */
   Serial.println("Start ATM90E32");
-  eic.begin(CS_pin, LineFreq, PGAGain, VoltageGain, CurrentGainCT1, 0, CurrentGainCT2);
+  eic.begin(CS_pin, LineFreq, PGAGain, VoltageGain, CurrentGainCT1 / CALIBRATION_MULTIPLIER, 0, CurrentGainCT2 / CALIBRATION_MULTIPLIER);
   delay(1000);
   
 } // end setup
@@ -179,7 +189,7 @@ void loop() {
   StaticJsonDocument<256> meterData;
  
  /*Repeatedly fetch some values from the ATM90E32 */
-  float voltageA, voltageC, currentCT1, currentCT2, totalCurrent, realPower, powerFactor, temp, freq, totalWatts;
+  float voltageA, voltageC, currentCT1, currentCT2, totalCurrent, realPower, reactivePower, apparentPower, powerFactor, temp, freq, totalWatts;
 
   unsigned short sys0 = eic.GetSysStatus0(); //EMMState0
   unsigned short sys1 = eic.GetSysStatus1(); //EMMState1
@@ -198,11 +208,13 @@ void loop() {
   voltageC = eic.GetLineVoltageC();
 
   //get current
-  currentCT1 = eic.GetLineCurrentA();
-  currentCT2 = eic.GetLineCurrentC();
+  currentCT1 = eic.GetLineCurrentA() * CALIBRATION_MULTIPLIER;
+  currentCT2 = eic.GetLineCurrentC() * CALIBRATION_MULTIPLIER;
   totalCurrent = currentCT1 + currentCT2;
 
-  realPower = eic.GetTotalActivePower();
+  realPower = eic.GetTotalActivePower() * CALIBRATION_MULTIPLIER;
+  reactivePower = eic.GetTotalReactivePower() * CALIBRATION_MULTIPLIER;
+  apparentPower = eic.GetTotalApparentPower() * CALIBRATION_MULTIPLIER;
   powerFactor = eic.GetTotalPowerFactor();
   temp = eic.GetTemperature();
   freq = eic.GetFrequency();
@@ -211,12 +223,10 @@ void loop() {
   Serial.println("Voltage 2: " + String(voltageC) + "V");
   Serial.println("Current 1: " + String(currentCT1) + "A");
   Serial.println("Current 2: " + String(currentCT2) + "A");
-  Serial.println("Active Power: " + String(realPower) + "W");
-  Serial.println("Power Factor: " + String(powerFactor));
-  Serial.println("Fundimental Power: " + String(eic.GetTotalActiveFundPower()) + "W");
-  Serial.println("Harmonic Power: " + String(eic.GetTotalActiveHarPower()) + "W");
-  Serial.println("Reactive Power: " + String(eic.GetTotalReactivePower()) + "var");
-  Serial.println("Apparent Power: " + String(eic.GetTotalApparentPower()) + "VA");
+  Serial.println("Apparent Power: " + String(apparentPower) + "W");
+  Serial.println("Real Power: " + String(realPower) + "W");
+  Serial.println("Reactive Power: " + String(reactivePower) + "var");
+  Serial.println("Power Factor: " + String(powerFactor) + "%");
   Serial.println("Phase Angle A: " + String(eic.GetPhaseA()));
   Serial.println("Chip Temp: " + String(temp) + "C");
   Serial.println("Frequency: " + String(freq) + "Hz");
@@ -229,7 +239,7 @@ void loop() {
   meterData["I1"] = currentCT1;
   meterData["I2"] = currentCT2;
   meterData["totI"] = totalCurrent;
-  meterData["AP"] = realPower;
+  meterData["AP"] = apparentPower;
   meterData["PF"] = powerFactor;
   meterData["t"] = temp;
   meterData["f"] = freq;

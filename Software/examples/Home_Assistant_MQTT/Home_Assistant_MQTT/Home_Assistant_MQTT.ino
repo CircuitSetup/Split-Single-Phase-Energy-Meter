@@ -10,9 +10,22 @@
 #include <SPI.h>
 #include <ATM90E32.h> // for ATM90E32 energy meter
 
+/* Set this to 0 to only output to serial (for calibration tests) */
+#define WIFI_CONNECT 1
+
+/* Set this to 0 to connect to Wifi but not attempt an MQTT connection (for WiFi joining tests) */
+#define MQTT_CONNECT 1
+
+/* Number of initialization failures before the device rebotos and tries again. */
+#define MAX_WIFI_INIT_FAILURES_BEFORE_REBOOT 20
+#define MAX_MQTT_INIT_FAILURES_BEFORE_REBOOT 5
+
+/* Number of metrics send failures before the device reboots and tries to re-init. */
+#define MAX_ERRORS_BEFORE_REBOOT 3
+
 /***** WIFI SETTINGS *****/
 const char* ssid = ""; //Your Network SSID
-const char* password =  ""; //Your Network Password
+const char* password = ""; //Your Network Password
 
 /***** MQTT SETTINGS *****/
 const char* mqttServer = ""; //Your MQTT Server
@@ -27,14 +40,14 @@ const char* HATopic = "home/energy/sensor"; //Home Assistant Topic - must change
  * 4485 for 60 Hz (North America)
  * 389 for 50 hz (rest of the world)
  */
-unsigned short lineFreq = 4485;         
+unsigned short LineFreq = 4485;
 
 /* 
  * 0 for 10A (1x)
  * 21 for 100A (2x)
  * 42 for between 100A - 200A (4x)
  */
-unsigned short PGAGain = 21;            
+unsigned short PGAGain = 21;
 
 /* 
  * For meter <= v1.3:
@@ -47,7 +60,7 @@ unsigned short PGAGain = 21;
  * For Meters > v1.4 purchased after 11/1/2019 and rev.3
  *    7611 - 9v AC Transformer - Jameco 157041
  */
-unsigned short VoltageGain = 37106;     
+unsigned short VoltageGain = 37106;
                                        
 /*
  * 25498 - SCT-013-000 100A/50mA
@@ -91,23 +104,38 @@ ATM90E32 eic{}; //initialize the IC class
 WiFiClient espClient;
 PubSubClient client(espClient);
 
+// Count number of errors, for auto-reboot when MQTT server or WiFi go down.
+int errorCount;
+
 // -------------------------------------------------------------------
 // SETUP
 // -------------------------------------------------------------------
 void setup() {
-  delay(2000);
- 
+  /* Initialize the error counter. */
+  errorCount = 0;
+
   Serial.begin(115200);
 
+  Serial.println("Booting up...");
+
+#if WIFI_CONNECT
   WiFi.begin(ssid, password);
  
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
-    Serial.println("Connecting to WiFi..");
+    Serial.println("Connecting to WiFi...");
+    errorCount ++;
+
+    if (errorCount >= MAX_WIFI_INIT_FAILURES_BEFORE_REBOOT) {
+      /* Possibly server is dead, reboot, reconnect to WiFi and try again. */
+      ESP.restart();
+    }
   }
  
   Serial.println("Connected to the WiFi network");
- 
+  errorCount = 0;
+
+#if MQTT_CONNECT
   client.setServer(mqttServer, mqttPort);
  
   while (!client.connected()) {
@@ -115,16 +143,28 @@ void setup() {
  
     if (client.connect("EnergyMeterClient", mqttUser, mqttPassword )) {
  
-      Serial.println("connected");
+      Serial.println("Connected to MQTT");
+      errorCount = 0;
  
     } else {
  
-      Serial.print("failed with state ");
+      Serial.print("Failed with state ");
       Serial.print(client.state());
       delay(2000);
- 
+      
+      errorCount++;
+      if (errorCount >= MAX_MQTT_INIT_FAILURES_BEFORE_REBOOT) {
+        /* Possibly server is dead, reboot, reconnect to WiFi and try again. */
+        ESP.restart();
+      }
     }
   }
+#else
+  Serial.println("MQTT disabled, using serial only...");
+#endif
+#else
+  Serial.println("WiFi disabled, using serial only...");
+#endif
  
   /*Initialise the ATM90E32 & Pass CS pin and calibrations to its library - 
    *the 2nd (B) current channel is not used with the split phase meter */
@@ -139,7 +179,7 @@ void loop() {
   StaticJsonDocument<256> meterData;
  
  /*Repeatedly fetch some values from the ATM90E32 */
-  float voltageA, voltageC, totalVoltage, currentCT1, currentCT2, totalCurrent, realPower, powerFactor, temp, freq, totalWatts;
+  float voltageA, voltageC, currentCT1, currentCT2, totalCurrent, realPower, powerFactor, temp, freq, totalWatts;
 
   unsigned short sys0 = eic.GetSysStatus0(); //EMMState0
   unsigned short sys1 = eic.GetSysStatus1(); //EMMState1
@@ -157,13 +197,6 @@ void loop() {
   voltageA = eic.GetLineVoltageA();
   voltageC = eic.GetLineVoltageC();
 
-  if (lineFreq = 4485) {
-    totalVoltage = voltageA + voltageC;     //is split single phase, so only 120v per leg
-  }
-  else {
-    totalVoltage = voltageA;     //voltage should be 220-240 at the AC transformer
-  }
-
   //get current
   currentCT1 = eic.GetLineCurrentA();
   currentCT2 = eic.GetLineCurrentC();
@@ -173,7 +206,6 @@ void loop() {
   powerFactor = eic.GetTotalPowerFactor();
   temp = eic.GetTemperature();
   freq = eic.GetFrequency();
-  //totalWatts = (voltageA * currentCT1) + (voltageC * currentCT2);
 
   Serial.println("Voltage 1: " + String(voltageA) + "V");
   Serial.println("Voltage 2: " + String(voltageC) + "V");
@@ -189,6 +221,8 @@ void loop() {
   Serial.println("Chip Temp: " + String(temp) + "C");
   Serial.println("Frequency: " + String(freq) + "Hz");
 
+#if WIFI_CONNECT
+#if MQTT_CONNECT
   //slightly different way of encoding things using ArduinoJson 6
   meterData["V1"] = voltageA;
   meterData["V2"] = voltageC;
@@ -199,7 +233,7 @@ void loop() {
   meterData["PF"] = powerFactor;
   meterData["t"] = temp;
   meterData["f"] = freq;
-  
+
   char JSONmessageBuffer[200];
   serializeJson(meterData,JSONmessageBuffer);
   Serial.println("Sending message to MQTT topic..");
@@ -208,14 +242,22 @@ void loop() {
  // publish to topic
   if (client.publish(HATopic, JSONmessageBuffer) == true) {
     Serial.println("Success sending message");
+    errorCount = 0;
   } else {
     Serial.println("Error sending message");
+    errorCount++;
+
+    if (errorCount >= MAX_ERRORS_BEFORE_REBOOT) {
+      /* The WiFi connection died, or MQTT died, reboot and try again. */
+      ESP.restart();
+    }
   }
  
   client.loop();
   Serial.println("-------------");
+#endif
+#endif
   
   delay(10000); //every 10 seconds
  
 }
-

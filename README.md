@@ -130,12 +130,12 @@ For all but the EmonCMS.org service, (currently for EmonCMS.org these feeds and 
    ![EmonCMS Inputs](/images/emoncms_device_inputs2.PNG?raw=true)
 
 ### Other software options
-If you would like to use something other than EmonCMS, you can do that too! Make sure the ATM90E32 library is included in the sketch. See the [examples folder](/Software/examples) for examples of how things could be done using JSON or MQTT. Users have already setup feeds to Home Assistant, Influxdb, and Graphina. 
+If you would like to use something other than EmonCMS, you can do that too! Make sure the ATM90E32 library is included in the sketch. See the [examples folder](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/examples) for examples of how things could be done using JSON or MQTT. Users have already setup feeds to Home Assistant, Influxdb, and Graphina. 
 
 ![ESPHome](https://esphome.io/_images/logo-text.svg)
 
-Support for this energy meter, and the ATM90E32 is not included in (the dev branch of) [ESPHome.](https://github.com/esphome/esphome/tree/dev)
-[See here for more details](https://github.com/digiblur/digiNRG_ESPHome) on setting up the meter with ESPHome.
+Support for this energy meter, and the ATM90E32 is now included in [ESPHome.](https://esphome.io/components/sensor/atm90e32.html)
+[See here for more details](https://github.com/CircuitSetup/Expandable-6-Channel-ESP32-Energy-Meter#esphomehome-assistant) on setting up the meter with ESPHome. [Example configurations are located here.](https://github.com/CircuitSetup/Split-Single-Phase-Energy-Meter/tree/master/Software/examples)
 
 ## Hardware Setup
 If you purchased an energy meter kit you can skip this section and go to [Installing the Energy Meter](#installing-the-energy-meter)

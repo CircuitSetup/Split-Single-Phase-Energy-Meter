@@ -46,9 +46,9 @@
 #define LINE_FREQ 4485
 
 /*
-   0 for 10A (1x)
-   21 for 100A (2x)
-   42 for between 100A - 200A (4x)
+   0 for 1x
+   21 for 2x
+   42 for 4x
 */
 #define PGA_GAIN 21
 

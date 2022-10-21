@@ -132,7 +132,7 @@ sensor:
       unit_of_measurement: °C
       device_class: temperature
     line_frequency: 60Hz
-    gain_pga: 2X
+    gain_pga: 1X
     update_interval: ${update_time}
   - platform: template
     name: ${disp_name} Total Amps

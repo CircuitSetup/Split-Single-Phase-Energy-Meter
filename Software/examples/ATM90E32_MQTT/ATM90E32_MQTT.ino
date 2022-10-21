@@ -35,11 +35,11 @@ const int CS_pin = 04;
 unsigned short lineFreq = 4485;         
 
 /* 
- * 0 for 1x
- * 21 for 2x
- * 42 for 4x
+ * 0 for 1x (CTs up to 60mA/720mV)
+ * 21 for 2x (CTs up to 30mA/360mV)
+ * 42 for 4x (CTs up to 15mA/180mV)
  */
-unsigned short PGAGain = 21;            
+unsigned short PGAGain = 0;            
 
 /* 
  * For meter <= v1.3:

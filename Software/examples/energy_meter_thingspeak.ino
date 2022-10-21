@@ -93,7 +93,7 @@ unsigned short VoltageGain = 37106;
 unsigned short CurrentGainCT1 = 39473;
 unsigned short CurrentGainCT2 = 39473;
 unsigned short LineFreq = 4485;
-unsigned short PGAGain = 21;
+unsigned short PGAGain = 0;
 
 
 ATM90E32 eic{}; //initialize the IC class

@@ -9,6 +9,7 @@ substitutions:
 # 100A/50mA SCT-013: 26315
 # 120A/40ma SCT-016: 39473 - default kit CT
 # 200A/100mA SCT-024: 26315
+# 200A/50mA SCT-024: 52630
   current_cal: '39473'
 # AC Transformer voltage calibration 9VAC Jameco 157041: 37106
 # For Meters >= v1.4 rev3: 3920

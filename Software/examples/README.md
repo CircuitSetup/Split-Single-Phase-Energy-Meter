@@ -13,4 +13,4 @@ This example software was created by us and the community to use the CircuitSetu
 - **[MicroPython](https://github.com/BitKnitting/CircuitSetup_micropython)** - The ATM90E32 library converted to work with MicroPython. Created by BitKnitting
 - **[ESPHome](https://github.com/esphome/esphome/tree/dev)** - direct integration for ESPHome, which allows you to more easily import energy data directly into home automation systems like Home Assistant. Created by thompsa. [Some more details on setting up the meter with ESPHome](https://github.com/digiblur/digiNRG_ESPHome), by digiblur
   - **HA-ESPHome_energy_meter.yaml** - ESPHome setup config.  The default calibration values have been loaded (9V AC Transformer, 120A/40mA CTs) [Created by digiblur](https://github.com/digiblur/digiNRG_ESPHome))
-  - **[ESPHome Documentation]([https://esphome.io/components/sensor/atm90e32.html](https://esphome.io/components/sensor/atm90e32.html))** for the ATM90E32 sensor
+  - **[ESPHome Documentation](https://esphome.io/components/sensor/atm90e32.html)** for the ATM90E32 sensor

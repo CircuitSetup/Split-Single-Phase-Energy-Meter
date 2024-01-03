@@ -89,7 +89,7 @@ const int CS_pin = 10;
 const int CS_pin = SS; // Use default SS pin for unknown Arduino
 #endif
 
-unsigned short VoltageGain = 37106;
+unsigned short VoltageGain = 3920;
 unsigned short CurrentGainCT1 = 39473;
 unsigned short CurrentGainCT2 = 39473;
 unsigned short LineFreq = 4485;

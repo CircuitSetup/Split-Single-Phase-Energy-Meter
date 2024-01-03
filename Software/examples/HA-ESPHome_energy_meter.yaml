@@ -12,7 +12,7 @@ substitutions:
   current_cal: '39473'
 # AC Transformer voltage calibration 9VAC Jameco 157041: 37106
 # For Meters >= v1.4 rev3: 3920
-  voltage_cal: '37106'
+  voltage_cal: '3920'
 
 esphome:
   name: energy_meter

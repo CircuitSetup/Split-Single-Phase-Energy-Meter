@@ -50,9 +50,9 @@ unsigned short PGAGain = 0;
  *    38302 - 9v AC Transformer - Jameco 112336
  *    29462 - 12v AC Transformer - Jameco 167151
  * For Meters > v1.4 purchased after 11/1/2019 and rev.3
- *    7611 - 9v AC Transformer - Jameco 157041
+ *    3920 - 9v AC Transformer - Jameco 157041
  */
-unsigned short VoltageGain = 37106;     
+unsigned short VoltageGain = 3920;     
                                        
 /*
  * 25498 - SCT-013-000 100A/50mA
